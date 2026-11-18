@@ -11,6 +11,7 @@ from __future__ import annotations
 
 from typing import Any
 
+from csp.decorators import csp_update
 from django.conf import settings
 from django.http import HttpRequest, HttpResponse, JsonResponse
 from ninja import NinjaAPI
@@ -36,12 +37,12 @@ class NoncedSwagger(Swagger):
 
 
 api = NinjaAPI(
-    title="Brightbean Agent API",
+    title=f"{settings.SITE_NAME} Agent API",
     version="1.0.0",
     description=(
         "Programmatic access for external AI agents. Authentication is via "
         "scoped bearer tokens; create one from the Organization → API Keys "
-        "page in the Brightbean Studio settings.\n\n"
+        "page in the studio settings.\n\n"
         "**User-Agent.** Send a `User-Agent` header naming your client "
         "(e.g. `my-agent/1.0`). The hosted Studio sits behind Cloudflare, "
         "which rejects Python's standard-library default "
@@ -85,6 +86,9 @@ api = NinjaAPI(
     ),
     auth=ApiKeyAuth(),
     docs=NoncedSwagger(),
+    # Brown Creative Studio (CHANGES.md): Swagger UI is the only page that loads
+    # from a CDN, so only it is allowed to; the site-wide policy is 'self'.
+    docs_decorator=csp_update(SCRIPT_SRC="https://cdn.jsdelivr.net", STYLE_SRC="https://cdn.jsdelivr.net"),
     # Trailing slashes are tolerated by the router but we use the
     # explicit-slash form everywhere internally for OpenAPI clarity.
     urls_namespace="agent_api_v1",

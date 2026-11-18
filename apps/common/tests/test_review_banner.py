@@ -70,23 +70,19 @@ class ReviewBannerTests(TestCase):
         self._connect(self.ws, status=SocialAccount.ConnectionStatus.DISCONNECTED)
         self.assertNotContains(self._workspace_page(), BANNER)
 
-    def test_shown_with_a_connected_channel(self):
-        self._connect(self.ws)
-        resp = self._workspace_page()
-        self.assertContains(resp, BANNER)
-        self.assertContains(resp, f'href="{TRUSTPILOT_URL}" target="_blank"')
-        self.assertContains(resp, reverse("accounts:dismiss_review_banner"))
+    def test_never_shown_in_this_fork(self):
+        """Brown Creative Studio (CHANGES.md): the BrightBean review card is removed from the shell.
 
-    def test_channel_in_another_workspace_counts(self):
-        other = self._make_workspace("Other")
-        self._connect(other)
-        self.assertContains(self._workspace_page(self.ws), BANNER)
-
-    def test_shown_on_pages_without_a_workspace(self):
+        Upstream showed it once any workspace had a connected channel, on
+        workspace and global pages alike. The dismissal endpoint stays (tested
+        below) so upstream code that posts to it keeps working.
+        """
         self._connect(self.ws)
-        resp = self.client.get(reverse("accounts:settings"))
-        self.assertEqual(resp.status_code, 200)
-        self.assertContains(resp, BANNER)
+        self._connect(self._make_workspace("Other"))
+        for resp in (self._workspace_page(), self.client.get(reverse("accounts:settings"))):
+            self.assertEqual(resp.status_code, 200)
+            self.assertNotContains(resp, BANNER)
+            self.assertNotContains(resp, TRUSTPILOT_URL)
 
     def test_dismiss_hides_it_for_the_rest_of_the_login(self):
         self._connect(self.ws)
@@ -96,13 +92,6 @@ class ReviewBannerTests(TestCase):
         self.assertIsNotNone(self.user.review_banner_dismissed_at)
         self.assertNotContains(self._workspace_page(), BANNER)
         self.assertNotContains(self.client.get(reverse("accounts:settings")), BANNER)
-
-    def test_next_login_brings_it_back(self):
-        self._connect(self.ws)
-        self.client.post(reverse("accounts:dismiss_review_banner"))
-        self.client.get(reverse("accounts:logout"))
-        self.client.force_login(self.user)
-        self.assertContains(self._workspace_page(), BANNER)
 
     def test_dismiss_requires_post(self):
         resp = self.client.get(reverse("accounts:dismiss_review_banner"))

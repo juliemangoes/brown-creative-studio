@@ -1,5 +1,5 @@
 {% extends "layouts/settings.html" %}
-{% block title %}General - Settings - Brightbean{% endblock %}
+{% block title %}General - Settings · {{ SITE_NAME }}{% endblock %}
 {% block content %}
 <div class="max-w-2xl">
     <h2 class="text-20 font-semibold mb-8" style="color: var(--text-primary);">General</h2>
@@ -84,7 +84,7 @@
                 </form>
                 <button type="button" @click="showImmediateDeleteModal = true"
                         class="btn-opacity px-5 py-2 text-14 font-medium rounded-control cursor-pointer whitespace-nowrap"
-                        style="background: var(--error-500, var(--danger)); color: white;">
+                        style="background: var(--error-500, var(--danger)); color: var(--on-accent);">
                     Delete Now
                 </button>
             </div>
@@ -139,7 +139,7 @@
                             <input type="hidden" name="action" value="delete_organization_now">
                             <button type="submit"
                                     class="btn-opacity px-5 py-2 text-14 font-semibold rounded-control cursor-pointer whitespace-nowrap"
-                                    style="background: var(--error-500, var(--danger)); color: white;">
+                                    style="background: var(--error-500, var(--danger)); color: var(--on-accent);">
                                 Yes, delete permanently
                             </button>
                         </form>
@@ -215,7 +215,7 @@
                             <input type="hidden" name="action" value="delete_organization">
                             <button type="submit"
                                     class="btn-opacity px-5 py-2 text-14 font-semibold rounded-control cursor-pointer whitespace-nowrap"
-                                    style="background: var(--error-500, var(--danger)); color: white;">
+                                    style="background: var(--error-500, var(--danger)); color: var(--on-accent);">
                                 Yes, delete this organization
                             </button>
                         </form>

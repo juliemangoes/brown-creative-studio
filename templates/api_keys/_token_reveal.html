@@ -23,7 +23,7 @@ forever; we explicitly do NOT persist plaintext anywhere.
                         Save this token now.
                     </h3>
                     <p class="text-12 mt-1" style="color: var(--text-secondary);">
-                        Brightbean does not store the plaintext token. Once you close this modal it cannot be retrieved.
+                        {{ SITE_NAME }} does not store the plaintext token. Once you close this modal it cannot be retrieved.
                         Paste it into your agent or secret manager before continuing.
                     </p>
                 </div>
@@ -42,7 +42,7 @@ forever; we explicitly do NOT persist plaintext anywhere.
                         @click="navigator.clipboard.writeText(document.getElementById('reveal-token').innerText); label = 'Copied'; setTimeout(() => label = 'Copy', 1500)"
                         x-text="label"
                         class="px-2.5 py-1 text-12 font-medium rounded-control cursor-pointer whitespace-nowrap"
-                        style="background: var(--neutral-900, var(--text-primary)); color: white;">
+                        style="background: var(--neutral-900, var(--text-primary)); color: var(--on-accent);">
                     Copy
                 </button>
             </div>

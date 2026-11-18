@@ -1,0 +1,10 @@
+{# Rail sections from apps/studio/navigation.py. A module appears once its app is installed. #}
+<div role="list" aria-label="Sections">
+{% for item in shell_primary %}<div role="listitem">{% include "studio/shell/_rail_item.html" %}</div>{% endfor %}
+</div>
+{% if shell_secondary %}
+<div class="my-3 mx-2.5 border-t border-hairline" role="presentation"></div>
+<div role="list" aria-label="Content tools">
+{% for item in shell_secondary %}<div role="listitem">{% include "studio/shell/_rail_item.html" %}</div>{% endfor %}
+</div>
+{% endif %}

@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% load static i18n allauth account socialaccount %}
 
-{% block title %}Sign up · BrightBean Studio{% endblock %}
+{% block title %}Sign up · {{ SITE_NAME }}{% endblock %}
 
 {% block auth_content %}
 <style>
@@ -21,14 +21,13 @@
     <!-- Logo & Header -->
     <div class="text-center mb-8">
         <div class="inline-flex items-center justify-center w-12 h-12 mb-4">
-            <img src="{% static 'img/brightbean-studio-logo.webp' %}" alt="BrightBean Studio logo" class="w-12 h-12 object-contain">
+            <span class="wordmark text-24">{{ SITE_NAME }}</span>
         </div>
-        <span class="block text-12 font-semibold uppercase tracking-widest mb-2" style="color: var(--accent);">BrightBean · Studio</span>
         <h1 class="text-24 font-bold tracking-tight" style="color: var(--text-primary);">
             Create your account
         </h1>
         <p class="text-14 mt-1" style="color: var(--text-secondary);">
-            Sign up for BrightBean Studio | Schedule posts and run approvals across 10+ platforms.
+            Create your {{ SITE_NAME }} account.
         </p>
     </div>
 

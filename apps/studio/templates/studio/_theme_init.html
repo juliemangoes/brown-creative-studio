@@ -1,0 +1,2 @@
+{# In <head>, before the stylesheet: apply a saved light/dark choice before first paint. No choice means follow the system. #}
+<script nonce="{{ request.csp_nonce }}">(function(){try{var t=localStorage.getItem('studio-theme');if(t==='light'||t==='dark'){document.documentElement.setAttribute('data-theme',t);}}catch(e){}})();</script>

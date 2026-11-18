@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% load humanize %}
 
-{% block title %}Inbox - {{ workspace.name }} - Brightbean{% endblock %}
+{% block title %}Inbox - {{ workspace.name }} · {{ SITE_NAME }}{% endblock %}
 
 {% block extra_head %}
 <style>
@@ -94,7 +94,7 @@
 
     /* Bulk action bar */
     .bulk-bar {
-        background: var(--neutral-900); color: white; padding: 8px 16px;
+        background: var(--neutral-900); color: var(--on-accent); padding: 8px 16px;
         display: flex; align-items: center; gap: 12px;
         font-size: 13px; font-weight: 500;
         animation: slideUp 200ms var(--ease-out);
@@ -102,7 +102,7 @@
     .bulk-bar button {
         font-size: 12px; font-weight: 600; padding: 4px 12px;
         border-radius: var(--radius-full); border: 1px solid rgba(255,255,255,0.2);
-        background: transparent; color: white; cursor: pointer;
+        background: transparent; color: var(--on-accent); cursor: pointer;
         transition: all var(--dur-fast) ease;
     }
     .bulk-bar button:hover { background: rgba(255,255,255,0.1); }

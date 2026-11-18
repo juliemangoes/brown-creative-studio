@@ -576,8 +576,10 @@ _TEXT_PROPS = ("color", "fill", "stroke", "caret-color", "-webkit-text-fill-colo
 _BORDER_PROPS = ("border", "outline", "box-shadow", "column-rule")
 _STYLE_ATTR_RE = re.compile(r'style="([^"]*)"')
 _STYLE_BLOCK_RE = re.compile(r"(<style[^>]*>)(.*?)(</style>)", re.DOTALL | re.IGNORECASE)
-_DECL_RE = re.compile(r"(?P<prop>-?[a-z][a-z-]*)\s*:\s*(?P<val>[^;{}\"]*)", re.IGNORECASE)
+# Not after "|" or a word character: "|default:'#fff'" is a Django filter, not CSS.
+_DECL_RE = re.compile(r"(?<![|\w-])(?P<prop>-?[a-z][a-z-]*)\s*:\s*(?P<val>[^;{}\"]*)", re.IGNORECASE)
 _HEX_RE = re.compile(r"#(?P<hex>[0-9A-Fa-f]{6}|[0-9A-Fa-f]{3})\b")
+_KEYWORD_RE = re.compile(r"(?<![\w-])(white|black)(?![\w-])", re.IGNORECASE)
 
 
 def _hex_token(prop: str, hex_value: str) -> str | None:
@@ -641,7 +643,13 @@ def _rewrite_declarations(css: str) -> str:
             token = _hex_token(prop, h["hex"])
             return token if token else h.group(0)
 
-        return f"{prop}: {_HEX_RE.sub(hexsub, val).strip()}" if _HEX_RE.search(val) else m.group(0)
+        def keyword(k: re.Match) -> str:
+            token = _hex_token(prop, "FFFFFF" if k[1].lower() == "white" else "000000")
+            return token or k.group(0)
+
+        if not (_HEX_RE.search(val) or _KEYWORD_RE.search(val)):
+            return m.group(0)
+        return f"{prop}: {_KEYWORD_RE.sub(keyword, _HEX_RE.sub(hexsub, val)).strip()}"
 
     return _DECL_RE.sub(decl, css)
 

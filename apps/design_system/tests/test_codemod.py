@@ -214,3 +214,20 @@ def test_rgba_palette_colours_become_token_mixes():
         == "box-shadow: 0 0 0 3px color-mix(in srgb, var(--danger) 15%, transparent)"
     )
     assert r("color: rgb(23, 20, 18)") == "color: rgb(23, 20, 18)"
+
+
+def test_colour_keywords_in_css():
+    assert (
+        r('style="background: white; color: black"') == 'style="background: var(--surface); color: var(--text-primary)"'
+    )
+    assert (
+        r('style="background: var(--primary); color: white"')
+        == 'style="background: var(--primary); color: var(--on-accent)"'
+    )
+    assert r("<style>.v { background: black; }</style>") == "<style>.v { background: var(--scrim); }</style>"
+    assert r("<p>Black and white photography</p>") == "<p>Black and white photography</p>"
+
+
+def test_django_filters_inside_style_attributes_are_untouched():
+    html = """style="background: {{ ws.primary_color|default:'#F97316' }};\""""
+    assert r(html) == html

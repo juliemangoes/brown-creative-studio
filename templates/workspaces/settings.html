@@ -1,5 +1,5 @@
 {% extends "layouts/workspace_settings.html" %}
-{% block title %}Settings - {{ workspace.name }} - Brightbean{% endblock %}
+{% block title %}Settings - {{ workspace.name }} · {{ SITE_NAME }}{% endblock %}
 {% block content %}
 <div class="max-w-2xl">
     <h2 class="text-20 font-semibold mb-8" style="color: var(--text-primary);">General</h2>
@@ -146,7 +146,7 @@
                                 <input type="hidden" name="action" value="archive_workspace">
                                 <button type="submit"
                                         class="btn-opacity px-5 py-2 text-14 font-semibold rounded-control cursor-pointer whitespace-nowrap"
-                                        style="background: var(--warning); color: white;">
+                                        style="background: var(--warning); color: var(--on-accent);">
                                     Yes, archive this workspace
                                 </button>
                             </form>
@@ -224,7 +224,7 @@
                             <input type="hidden" name="action" value="delete_workspace">
                             <button type="submit"
                                     class="btn-opacity px-5 py-2 text-14 font-semibold rounded-control cursor-pointer whitespace-nowrap"
-                                    style="background: var(--error-500, var(--danger)); color: white;">
+                                    style="background: var(--error-500, var(--danger)); color: var(--on-accent);">
                                 Yes, delete this workspace
                             </button>
                         </form>

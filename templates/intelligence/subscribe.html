@@ -104,7 +104,7 @@
                            class="sr-only" required{% if forloop.counter == 2 %} checked{% endif %}>
                     {% if forloop.counter == 2 %}
                     <span class="absolute -top-2.5 right-4 inline-flex items-center gap-1 px-2 py-0.5 rounded-control text-12 font-semibold uppercase tracking-wide"
-                          style="background: var(--primary); color: white; box-shadow: 0 2px 6px color-mix(in srgb, var(--accent) 30%, transparent);">
+                          style="background: var(--primary); color: var(--on-accent); box-shadow: 0 2px 6px color-mix(in srgb, var(--accent) 30%, transparent);">
                         Most popular
                     </span>
                     {% endif %}
@@ -113,7 +113,7 @@
                         <div class="text-16 font-semibold text-ink">{{ plan.name }}</div>
                         <span class="plan-card-check w-5 h-5 rounded-full border-2 flex items-center justify-center flex-shrink-0"
                               style="border-color: var(--control-border);">
-                            <svg class="plan-card-check-icon w-3 h-3 hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" style="color: white;"><polyline points="20 6 9 17 4 12"/></svg>
+                            <svg class="plan-card-check-icon w-3 h-3 hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" style="color: var(--on-accent);"><polyline points="20 6 9 17 4 12"/></svg>
                         </span>
                     </div>
 
@@ -183,7 +183,7 @@
                 <input type="email" name="billing_email" id="billing_email"
                        value="{{ billing_email }}"
                        class="w-full max-w-md px-3 py-2 text-14 rounded-control outline-none transition-colors"
-                       style="border: 1px solid var(--border, var(--hairline)); background: var(--surface-0, white);">
+                       style="border: 1px solid var(--border, var(--hairline)); background: var(--surface-0, var(--surface));">
             </div>
         </div>
 

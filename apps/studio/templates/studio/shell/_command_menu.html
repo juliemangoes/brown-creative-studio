@@ -1,0 +1,35 @@
+{# Cmd/Ctrl+K command menu: jump to a section, switch client, create, change theme. Combobox pattern: focus stays in the input. #}
+<div x-data="studioCommandMenu()" @keydown.window="onGlobalKey($event)" @studio:command-open.window="show()">
+    {{ shell_commands|json_script:"studio-commands" }}
+    <template x-teleport="body">
+        <div x-show="open" x-cloak>
+            <div class="dialog-backdrop" @click="hide()"></div>
+            <div class="dialog" role="dialog" aria-modal="true" aria-label="Search or jump to"
+                 @keydown.escape.prevent="hide()" @keydown.tab.prevent>
+                <div class="flex items-center gap-2 px-4 border-b border-hairline text-ink-muted">
+                    {% include "studio/shell/_icon.html" with name="search" %}
+                    <input x-ref="input" x-model="query" @input="active = 0" type="text" autocomplete="off" spellcheck="false"
+                           @keydown.arrow-down.prevent="move(1)" @keydown.arrow-up.prevent="move(-1)" @keydown.enter.prevent="run(results[active])"
+                           role="combobox" aria-expanded="true" aria-controls="studio-command-list" aria-autocomplete="list"
+                           :aria-activedescendant="results.length ? 'studio-command-' + active : null"
+                           aria-label="Search sections, clients and actions"
+                           class="flex-1 h-12 bg-transparent text-16 text-ink outline-none placeholder-ink-muted"
+                           placeholder="Search sections, clients and actions">
+                    <span class="kbd" aria-hidden="true">Esc</span>
+                </div>
+                <ul id="studio-command-list" role="listbox" aria-label="Results" class="max-h-[50vh] overflow-y-auto p-1.5">
+                    <template x-for="(cmd, i) in results" :key="cmd.group + '|' + cmd.label">
+                        <li :id="'studio-command-' + i" role="option" :aria-selected="i === active ? 'true' : 'false'"
+                            @click="run(cmd)" @mousemove="active = i" class="menu-item justify-between">
+                            <span class="truncate" x-text="cmd.label"></span>
+                            <span class="text-12 text-ink-muted flex-shrink-0" x-text="cmd.group"></span>
+                        </li>
+                    </template>
+                    <li x-show="!results.length" role="presentation" class="px-3 py-6 text-center text-14 text-ink-muted">
+                        Nothing matches. Try a client, a section or "new".
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </template>
+</div>

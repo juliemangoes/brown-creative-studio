@@ -1,7 +1,7 @@
-{% extends "layouts/settings.html" %}
+{% extends "base.html" %}
 {% load static %}
 
-{% block title %}Organization Calendar - Brightbean{% endblock %}
+{% block title %}All clients · Calendar · {{ SITE_NAME }}{% endblock %}
 
 {% block page_header %}
 <h1 class="text-20 font-semibold text-ink mb-6" style="letter-spacing: -0.01em;">Organization Calendar</h1>
@@ -34,7 +34,7 @@
         margin-bottom: 4px;
     }
     .cross-cal-day.today .day-num {
-        background: var(--accent); color: white;
+        background: var(--accent); color: var(--on-accent);
     }
     .cross-cal-day.past .day-num { color: var(--text-secondary); }
 
@@ -78,7 +78,7 @@
         display: none;
         position: absolute; top: 4px; right: 4px;
         width: 20px; height: 20px; border-radius: 50%;
-        background: var(--accent); color: white; border: none;
+        background: var(--accent); color: var(--on-accent); border: none;
         align-items: center; justify-content: center;
         cursor: pointer; font-size: 14px; line-height: 1;
         box-shadow: 0 2px 6px color-mix(in srgb, var(--accent) 35%, transparent);
@@ -96,7 +96,7 @@
         border: 1px solid var(--hairline);
         border-radius: 6px;
         color: var(--text-secondary);
-        background: white url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 24 24' fill='none' stroke='%2378716C' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E") no-repeat right 8px center;
+        background: var(--surface) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 24 24' fill='none' stroke='%2378716C' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E") no-repeat right 8px center;
         cursor: pointer;
         transition: border-color 150ms ease;
     }
@@ -228,7 +228,7 @@
                     {% for ws in workspaces %}
                     <a href="?view={{ view_type }}&date={{ target_date|date:'Y-m-d' }}{% if request.GET.status %}&status={{ request.GET.status }}{% endif %}{% if request.GET.channel %}&channel={{ request.GET.channel }}{% endif %}{% if request.GET.tag %}&tag={{ request.GET.tag }}{% endif %}{% if ws.id|stringformat:'s' in selected_workspace_ids %}{% for sid in selected_workspace_ids %}{% if sid != ws.id|stringformat:'s' %}&workspace={{ sid }}{% endif %}{% endfor %}{% else %}{% for sid in selected_workspace_ids %}&workspace={{ sid }}{% endfor %}&workspace={{ ws.id }}{% endif %}"
                        class="flex items-center gap-2 px-3 py-1.5 text-12 font-medium text-ink-muted hover:bg-sunken transition-colors no-underline">
-                        <span class="w-3 h-3 rounded-full flex-shrink-0" style="background: {{ ws.primary_color|default: 'var(--accent)'}};"></span>
+                        <span class="w-3 h-3 rounded-full flex-shrink-0" style="background: {{ ws.primary_color|default:'var(--accent)' }};"></span>
                         <span class="flex-1">{{ ws.name }}</span>
                         {% if ws.id|stringformat:'s' in selected_workspace_ids or not selected_workspace_ids %}
                         <svg class="w-3.5 h-3.5 text-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
@@ -245,7 +245,7 @@
         <span class="text-12 font-semibold text-ink-muted uppercase tracking-wide">Workspaces:</span>
         {% for ws in workspaces %}
         <span class="inline-flex items-center gap-1.5 text-12 text-ink-muted">
-            <span class="w-2.5 h-2.5 rounded-full" style="background: {{ ws.primary_color|default: 'var(--accent)'}};"></span>
+            <span class="w-2.5 h-2.5 rounded-full" style="background: {{ ws.primary_color|default:'var(--accent)' }};"></span>
             {{ ws.name }}
         </span>
         {% endfor %}
@@ -280,7 +280,7 @@
                     <a href="{% url 'composer:compose_edit' workspace_id=pp.post.workspace_id post_id=pp.post_id %}"
                        class="cross-post-chip status-{{ pp.status }}"
                        title="{{ pp.post.workspace.name }}: {{ pp.post.caption_snippet }}">
-                        <span class="ws-dot" style="background: {{ pp.post.workspace.primary_color|default: 'var(--accent)'}};"></span>
+                        <span class="ws-dot" style="background: {{ pp.post.workspace.primary_color|default:'var(--accent)' }};"></span>
                         <span class="w-4 h-4 rounded-control flex items-center justify-center pi-{{ pp.social_account.platform }} flex-shrink-0 text-on-scrim">
                             {% include "social_accounts/partials/_platform_icon.html" with platform=pp.social_account.platform size="3" %}
                         </span>
