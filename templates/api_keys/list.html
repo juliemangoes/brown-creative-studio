@@ -4,15 +4,15 @@
 <div x-data="{ showIssueModal: false, showRevealModal: {% if reveal_token %}true{% else %}false{% endif %} }">
     <div class="flex items-start justify-between mb-8 gap-6">
         <div>
-            <h2 class="text-xl font-semibold" style="color: var(--text-primary);">API Keys</h2>
-            <p class="text-sm mt-1 max-w-xl" style="color: var(--text-tertiary);">
+            <h2 class="text-20 font-semibold" style="color: var(--text-primary);">API Keys</h2>
+            <p class="text-14 mt-1 max-w-xl" style="color: var(--text-tertiary);">
                 Used by AI agents and external scripts to act in your workspaces.
                 Each key can be scoped to one workspace and an explicit list of social accounts.
             </p>
         </div>
         <button type="button"
                 @click="showIssueModal = true"
-                class="inline-flex items-center gap-1.5 px-4 py-1.5 text-sm font-semibold text-orange-600 bg-orange-50 border border-orange-200 rounded-full hover:bg-orange-100 hover:border-orange-300 active:bg-orange-100 transition-all duration-150 cursor-pointer whitespace-nowrap">
+                class="inline-flex items-center gap-1.5 px-4 py-1.5 text-14 font-semibold text-accent bg-accent-soft border border-accent-line rounded-control hover:bg-accent-soft hover:border-accent active:bg-accent-soft transition-all duration-150 cursor-pointer whitespace-nowrap">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
             Issue new key
         </button>
@@ -22,10 +22,10 @@
     {% if messages %}
     <div class="mb-6 space-y-2">
         {% for message in messages %}
-        <div class="rounded-lg px-4 py-3 text-sm"
-             style="background: var({% if message.tags == 'error' %}--error-soft, #FEE2E2{% else %}--surface-1, #F3F4F6{% endif %});
+        <div class="rounded-control px-4 py-3 text-14"
+             style="background: var({% if message.tags == 'error' %}--error-soft{% else %}--surface-1{% endif %});
                     color: var(--text-primary);
-                    border: 1px solid var({% if message.tags == 'error' %}--error-500, #EF4444{% else %}--border{% endif %});">
+                    border: 1px solid var({% if message.tags == 'error' %}--error-500{% else %}--border{% endif %});">
             {{ message }}
         </div>
         {% endfor %}
@@ -33,7 +33,7 @@
     {% endif %}
 
     {% if revoked_count %}
-    <div class="flex justify-end mb-3 text-xs">
+    <div class="flex justify-end mb-3 text-12">
         {% if show_all %}
         <a href="{% url 'api_keys:list' %}" style="color: var(--text-tertiary);">Hide revoked keys</a>
         {% else %}
@@ -51,16 +51,16 @@
         {% endfor %}
     </div>
     {% else %}
-    <div class="px-6 py-12 text-center rounded-xl" style="background: var(--surface-0); border: 1px solid var(--border);">
+    <div class="px-6 py-12 text-center rounded-panel" style="background: var(--surface-0); border: 1px solid var(--border);">
         {% if revoked_count and not show_all %}
-        <p class="text-sm" style="color: var(--text-tertiary);">No active API keys.</p>
-        <p class="text-xs mt-2" style="color: var(--text-tertiary);">
+        <p class="text-14" style="color: var(--text-tertiary);">No active API keys.</p>
+        <p class="text-12 mt-2" style="color: var(--text-tertiary);">
             <a href="?show=all" style="color: var(--text-secondary); text-decoration: underline;">Show {{ revoked_count }} revoked</a>
             or click <strong>Issue new key</strong> to mint a new one.
         </p>
         {% else %}
-        <p class="text-sm" style="color: var(--text-tertiary);">No API keys issued yet.</p>
-        <p class="text-xs mt-2" style="color: var(--text-tertiary);">
+        <p class="text-14" style="color: var(--text-tertiary);">No API keys issued yet.</p>
+        <p class="text-12 mt-2" style="color: var(--text-tertiary);">
             Click <strong>Issue new key</strong> to mint one for an agent.
         </p>
         {% endif %}

@@ -1,11 +1,11 @@
 <div id="intel-panel-benchmark-channel" class="intel-panel mt-6 grid-cols-1 gap-6 lg:grid-cols-2">
-    <div class="rounded-xl border border-stone-200 bg-white shadow-sm">
-        <div class="flex items-center justify-between border-b border-stone-100 px-5 py-3.5">
-            <h2 class="text-sm font-semibold text-stone-900">Benchmark channel</h2>
-            <span class="inline-flex items-center rounded-md bg-stone-100 px-2 py-0.5 text-[11px] font-mono text-stone-600">5 credits</span>
+    <div class="rounded-panel border border-hairline bg-surface">
+        <div class="flex items-center justify-between border-b border-hairline px-5 py-3.5">
+            <h2 class="text-14 font-semibold text-ink">Benchmark channel</h2>
+            <span class="inline-flex items-center rounded-control bg-sunken px-2 py-0.5 text-12 font-mono text-ink-muted">5 credits</span>
         </div>
         <div class="p-5">
-            <p class="text-xs text-stone-500 mb-5 leading-relaxed">
+            <p class="text-12 text-ink-muted mb-5 leading-relaxed">
                 Compare a YouTube channel against its niche. Pulls the last ~10 videos, classifies the niche from titles, and percentile-ranks engagement + title patterns.
             </p>
 
@@ -20,7 +20,7 @@
                            placeholder="https://youtube.com/@theo-t3-gg"
                            value="{% if is_preview %}{{ preview_inputs.benchmark_channel.url }}{% endif %}"
                            class="intel-input">
-                    <p class="intel-helper">Accepts <code class="font-mono text-[11px]">@handle</code>, <code class="font-mono text-[11px]">/channel/UC…</code>, <code class="font-mono text-[11px]">/c/&lt;name&gt;</code>, or <code class="font-mono text-[11px]">/user/&lt;legacy&gt;</code>.</p>
+                    <p class="intel-helper">Accepts <code class="font-mono text-12">@handle</code>, <code class="font-mono text-12">/channel/UC…</code>, <code class="font-mono text-12">/c/&lt;name&gt;</code>, or <code class="font-mono text-12">/user/&lt;legacy&gt;</code>.</p>
                 </div>
                 <div>
                     <button type="submit" class="intel-submit"{% if is_preview %} disabled aria-disabled="true"{% endif %}>
@@ -39,9 +39,9 @@
         </div>
     </div>
 
-    <div class="rounded-xl border border-stone-200 bg-white shadow-sm">
-        <div class="border-b border-stone-100 px-5 py-3.5">
-            <h2 class="text-sm font-semibold text-stone-900">Result</h2>
+    <div class="rounded-panel border border-hairline bg-surface">
+        <div class="border-b border-hairline px-5 py-3.5">
+            <h2 class="text-14 font-semibold text-ink">Result</h2>
         </div>
         <div id="benchmark-channel-result" class="p-5 min-h-[220px]">
             {% if is_preview %}

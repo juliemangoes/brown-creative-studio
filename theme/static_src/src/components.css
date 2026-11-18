@@ -1,0 +1,422 @@
+/* ═══════════════════════════════════════════════════════════════
+   BROWN CREATIVE STUDIO COMPONENTS
+   Built only from the semantic tokens in styles.css, so each one is
+   correct in light and dark themes. Shown together, with markup, on
+   the style guide page (/design-system/, studio staff only).
+   ═══════════════════════════════════════════════════════════════ */
+
+@layer components {
+  /* ── Type ─────────────────────────────────────────────────────── */
+  /* Display face only for page titles, client names, report headlines. */
+  .page-title {
+    font-family: var(--font-display);
+    font-weight: 400;
+    font-size: 2rem;
+    line-height: 2.375rem;
+    letter-spacing: -0.01em;
+    color: var(--text-primary);
+  }
+  .display-title {
+    font-family: var(--font-display);
+    font-weight: 400;
+    font-size: 2.75rem;
+    line-height: 3.125rem;
+    letter-spacing: -0.015em;
+    color: var(--text-primary);
+  }
+  .client-name {
+    font-family: var(--font-display);
+    font-weight: 400;
+    font-size: 1.5rem;
+    line-height: 2rem;
+    color: var(--text-primary);
+  }
+  .section-title {
+    font-size: 1rem;
+    line-height: 1.5rem;
+    font-weight: 600;
+    color: var(--text-primary);
+  }
+  .eyebrow {
+    font-size: 0.75rem;
+    line-height: 1rem;
+    font-weight: 500;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--text-secondary);
+  }
+  .meta {
+    font-size: 0.8125rem;
+    line-height: 1.125rem;
+    color: var(--text-secondary);
+  }
+  .link {
+    color: var(--accent);
+    text-decoration: underline;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 2px;
+  }
+  .link:hover { text-decoration-thickness: 2px; }
+  .kbd {
+    display: inline-flex;
+    align-items: center;
+    min-width: 1.25rem;
+    height: 1.25rem;
+    padding: 0 0.25rem;
+    border: 1px solid var(--hairline);
+    border-bottom-width: 2px;
+    border-radius: 4px;
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    line-height: 1;
+    color: var(--text-secondary);
+    background: var(--surface);
+  }
+
+  /* ── Buttons: one primary action per screen ──────────────────── */
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    min-height: 2.25rem;
+    padding: 0.4375rem 0.875rem;
+    border: 1px solid transparent;
+    border-radius: var(--radius-control);
+    font-family: var(--font-body);
+    font-size: 0.875rem;
+    line-height: 1.25rem;
+    font-weight: 500;
+    white-space: nowrap;
+    cursor: pointer;
+    text-decoration: none;
+    transition: background-color var(--dur-fast) ease, border-color var(--dur-fast) ease, color var(--dur-fast) ease;
+  }
+  .btn:disabled,
+  .btn[aria-disabled="true"] {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+  .btn-primary { background: var(--accent); color: var(--on-accent); }
+  .btn-primary:not(:disabled):hover { background: var(--accent-hover); }
+  .btn-secondary { background: var(--surface); color: var(--text-primary); border-color: var(--control-border); }
+  .btn-secondary:not(:disabled):hover { background: var(--sunken); }
+  .btn-quiet { background: transparent; color: var(--text-primary); }
+  .btn-quiet:not(:disabled):hover { background: var(--sunken); }
+  .btn-danger { background: var(--danger); color: var(--on-accent); }
+  .btn-danger:not(:disabled):hover { opacity: 0.88; }
+  .btn-danger-quiet { background: transparent; color: var(--danger); border-color: color-mix(in srgb, var(--danger) 40%, transparent); }
+  .btn-danger-quiet:not(:disabled):hover { background: var(--danger-soft); }
+  .btn-sm { min-height: 1.875rem; padding: 0.25rem 0.625rem; font-size: 0.8125rem; }
+  .btn-block { width: 100%; }
+  .btn-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.25rem;
+    height: 2.25rem;
+    border-radius: var(--radius-control);
+    color: var(--text-secondary);
+    background: transparent;
+    cursor: pointer;
+    transition: background-color var(--dur-fast) ease, color var(--dur-fast) ease;
+  }
+  .btn-icon:hover { background: var(--sunken); color: var(--text-primary); }
+  .btn-icon-sm { width: 1.875rem; height: 1.875rem; }
+
+  /* ── Form fields ─────────────────────────────────────────────── */
+  .field { display: flex; flex-direction: column; gap: 0.375rem; }
+  .label { font-size: 0.8125rem; line-height: 1.125rem; font-weight: 500; color: var(--text-primary); }
+  .help { font-size: 0.8125rem; line-height: 1.125rem; color: var(--text-secondary); }
+  .field-error { font-size: 0.8125rem; line-height: 1.125rem; color: var(--danger); }
+  .input,
+  .select,
+  .textarea {
+    width: 100%;
+    min-height: 2.25rem;
+    padding: 0.4375rem 0.75rem;
+    border: 1px solid var(--control-border);
+    border-radius: var(--radius-control);
+    background: var(--surface);
+    color: var(--text-primary);
+    font-family: var(--font-body);
+    font-size: 0.875rem;
+    line-height: 1.25rem;
+    transition: border-color var(--dur-fast) ease, box-shadow var(--dur-fast) ease;
+  }
+  .input:hover, .select:hover, .textarea:hover { border-color: var(--text-secondary); }
+  .input:focus, .select:focus, .textarea:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 1px var(--accent);
+  }
+  .input[aria-invalid="true"], .select[aria-invalid="true"], .textarea[aria-invalid="true"] { border-color: var(--danger); }
+  .input:disabled, .select:disabled, .textarea:disabled { background: var(--sunken); color: var(--text-secondary); cursor: not-allowed; }
+  .select {
+    appearance: none;
+    -webkit-appearance: none;
+    background-image: var(--chevron);
+    background-repeat: no-repeat;
+    background-position: right 0.625rem center;
+    background-size: 1rem 1rem;
+    padding-right: 2.25rem;
+  }
+  .textarea { min-height: 6rem; resize: vertical; }
+  .checkbox, .radio { accent-color: var(--accent); width: 1rem; height: 1rem; }
+
+  /* ── Surfaces ────────────────────────────────────────────────── */
+  .panel {
+    background: var(--surface);
+    border: 1px solid var(--hairline);
+    border-radius: var(--radius-panel);
+  }
+  .panel-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 1rem 1.25rem;
+    border-bottom: 1px solid var(--hairline);
+  }
+  .panel-body { padding: 1.25rem; }
+  .well { background: var(--sunken); border-radius: var(--radius-panel); padding: 1rem; }
+  .divider { height: 1px; background: var(--hairline); border: 0; }
+
+  /* ── Status label: always text plus colour, never colour alone ─ */
+  .status {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+    padding: 0.0625rem 0.5rem;
+    border-radius: var(--radius-control);
+    font-size: 0.75rem;
+    line-height: 1.25rem;
+    font-weight: 500;
+    white-space: nowrap;
+    background: var(--sunken);
+    color: var(--text-secondary);
+  }
+  .status::before {
+    content: "";
+    width: 0.375rem;
+    height: 0.375rem;
+    border-radius: 9999px;
+    background: currentColor;
+    flex-shrink: 0;
+  }
+  .status-neutral { background: var(--sunken); color: var(--text-secondary); }
+  .status-accent { background: var(--accent-soft); color: var(--accent); }
+  .status-info { background: var(--info-soft); color: var(--info); }
+  .status-success { background: var(--success-soft); color: var(--success); }
+  .status-warning { background: var(--warning-soft); color: var(--warning); }
+  .status-danger { background: var(--danger-soft); color: var(--danger); }
+
+  /* ── Tabs ────────────────────────────────────────────────────── */
+  .tabs { display: flex; gap: 1.5rem; border-bottom: 1px solid var(--hairline); overflow-x: auto; }
+  .tab {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+    padding: 0.625rem 0;
+    margin-bottom: -1px;
+    border-bottom: 2px solid transparent;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--text-secondary);
+    white-space: nowrap;
+    text-decoration: none;
+    transition: color var(--dur-fast) ease, border-color var(--dur-fast) ease;
+  }
+  .tab:hover { color: var(--text-primary); }
+  .tab[aria-selected="true"], .tab[aria-current="page"], .tab.is-active { color: var(--text-primary); border-bottom-color: var(--accent); }
+
+  /* ── Tables ──────────────────────────────────────────────────── */
+  .table { width: 100%; border-collapse: collapse; font-size: 0.875rem; font-variant-numeric: tabular-nums; }
+  .table th {
+    text-align: left;
+    font-size: 0.8125rem;
+    font-weight: 500;
+    color: var(--text-secondary);
+    padding: 0.5rem 0.75rem;
+    border-bottom: 1px solid var(--hairline);
+    white-space: nowrap;
+  }
+  .table td { padding: 0.625rem 0.75rem; border-bottom: 1px solid var(--hairline); vertical-align: middle; }
+  .table tbody tr { transition: background-color var(--dur-fast) ease; }
+  .table tbody tr:hover { background: var(--sunken); }
+  .table tbody tr[aria-selected="true"] { background: var(--accent-soft); }
+  .table .num { text-align: right; }
+
+  /* ── Menus and dialogs: the only places with shadows ─────────── */
+  .menu {
+    min-width: 12rem;
+    padding: 0.25rem;
+    background: var(--surface);
+    border: 1px solid var(--hairline);
+    border-radius: var(--radius-panel);
+    box-shadow: var(--shadow-menu);
+  }
+  .menu-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    width: 100%;
+    padding: 0.375rem 0.625rem;
+    border-radius: var(--radius-control);
+    font-size: 0.875rem;
+    color: var(--text-primary);
+    text-align: left;
+    text-decoration: none;
+    cursor: pointer;
+  }
+  .menu-item:hover, .menu-item[aria-selected="true"], .menu-item:focus-visible { background: var(--sunken); outline: none; }
+  .menu-separator { height: 1px; margin: 0.25rem 0; background: var(--hairline); }
+
+  .dialog-backdrop { position: fixed; inset: 0; background: color-mix(in srgb, var(--scrim) 45%, transparent); z-index: 60; }
+  .dialog {
+    position: fixed;
+    left: 50%;
+    top: 12vh;
+    transform: translateX(-50%);
+    width: min(36rem, calc(100vw - 2rem));
+    max-height: 76vh;
+    overflow: auto;
+    background: var(--surface);
+    border: 1px solid var(--hairline);
+    border-radius: var(--radius-panel);
+    box-shadow: var(--shadow-dialog);
+    z-index: 61;
+  }
+
+  /* Right-side panel: details without losing your place. */
+  .side-panel {
+    position: fixed;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    width: min(28rem, 100vw);
+    display: flex;
+    flex-direction: column;
+    background: var(--surface);
+    border-left: 1px solid var(--hairline);
+    box-shadow: var(--shadow-dialog);
+    z-index: 50;
+  }
+  .side-panel-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 1.25rem 1.25rem 1rem;
+    border-bottom: 1px solid var(--hairline);
+  }
+  .side-panel-body { flex: 1; overflow-y: auto; padding: 1.25rem; }
+  .side-panel-footer { padding: 1rem 1.25rem; border-top: 1px solid var(--hairline); display: flex; gap: 0.5rem; justify-content: flex-end; }
+
+  /* ── Toasts ──────────────────────────────────────────────────── */
+  .toast {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+    width: min(24rem, calc(100vw - 2rem));
+    padding: 0.75rem 1rem;
+    background: var(--text-primary);
+    color: var(--canvas);
+    border-radius: var(--radius-panel);
+    box-shadow: var(--shadow-menu);
+    font-size: 0.875rem;
+  }
+
+  /* ── Progress stepper ────────────────────────────────────────── */
+  .stepper { display: flex; flex-direction: column; gap: 0; list-style: none; padding: 0; margin: 0; }
+  .step { position: relative; display: flex; gap: 0.75rem; padding-bottom: 1.25rem; }
+  .step:last-child { padding-bottom: 0; }
+  .step::before {
+    content: "";
+    position: absolute;
+    left: 0.6875rem;
+    top: 1.5rem;
+    bottom: 0.25rem;
+    width: 1px;
+    background: var(--hairline);
+  }
+  .step:last-child::before { display: none; }
+  .step-marker {
+    width: 1.375rem;
+    height: 1.375rem;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 9999px;
+    border: 1px solid var(--control-border);
+    background: var(--surface);
+    font-size: 0.75rem;
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+    color: var(--text-secondary);
+  }
+  .step[data-state="done"] .step-marker { background: var(--success); border-color: var(--success); color: var(--on-accent); }
+  .step[data-state="current"] .step-marker { border-color: var(--accent); color: var(--accent); box-shadow: 0 0 0 1px var(--accent); }
+  .step[data-state="blocked"] .step-marker { border-color: var(--danger); color: var(--danger); }
+  .step-title { font-size: 0.875rem; font-weight: 500; color: var(--text-primary); }
+  .step-meta { font-size: 0.8125rem; color: var(--text-secondary); }
+
+  /* ── Screen states: loading, empty, error, no permission ─────── */
+  .state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 0.5rem;
+    padding: 3rem 1.5rem;
+    border: 1px dashed var(--hairline);
+    border-radius: var(--radius-panel);
+  }
+  .state-title { font-size: 1rem; line-height: 1.5rem; font-weight: 600; color: var(--text-primary); }
+  .state-body { max-width: 28rem; font-size: 0.875rem; color: var(--text-secondary); }
+  .state-actions { margin-top: 0.75rem; display: flex; gap: 0.5rem; justify-content: center; flex-wrap: wrap; }
+  .state-error { border-style: solid; border-color: color-mix(in srgb, var(--danger) 35%, transparent); background: var(--danger-soft); }
+  .state-error .state-title { color: var(--danger); }
+  .skeleton { background: var(--sunken); border-radius: var(--radius-control); }
+
+  /* ── Avatars and marks ───────────────────────────────────────── */
+  .avatar {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2rem;
+    height: 2rem;
+    flex-shrink: 0;
+    border-radius: 9999px;
+    background: var(--sunken);
+    color: var(--text-secondary);
+    font-size: 0.8125rem;
+    font-weight: 600;
+    object-fit: cover;
+  }
+  .client-mark {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.75rem;
+    height: 1.75rem;
+    flex-shrink: 0;
+    border-radius: var(--radius-control);
+    background: var(--sunken);
+    color: var(--text-primary);
+    font-size: 0.8125rem;
+    font-weight: 600;
+    object-fit: cover;
+  }
+  /* The studio wordmark: display face, ink, never decorated. */
+  .wordmark {
+    font-family: var(--font-display);
+    font-weight: 400;
+    font-size: 1.25rem;
+    line-height: 1.75rem;
+    letter-spacing: -0.005em;
+    color: var(--text-primary);
+    white-space: nowrap;
+  }
+}

@@ -90,7 +90,7 @@ def invite_client(request, workspace_id):
 
     if not email:
         return HttpResponse(
-            '<div class="text-red-600 text-sm p-3">Email address is required.</div>',
+            '<div class="text-danger text-14 p-3">Email address is required.</div>',
             status=422,
         )
 
@@ -111,7 +111,7 @@ def invite_client(request, workspace_id):
         )
     except ValueError as e:
         return HttpResponse(
-            f'<div class="text-red-600 text-sm p-3">{e}</div>',
+            f'<div class="text-danger text-14 p-3">{e}</div>',
             status=422,
         )
 
@@ -152,7 +152,7 @@ def send_magic_link(request, workspace_id, membership_id):
         )
     except ValueError as e:
         return HttpResponse(
-            f'<div class="text-red-600 text-sm p-3">{e}</div>',
+            f'<div class="text-danger text-14 p-3">{e}</div>',
             status=422,
         )
 

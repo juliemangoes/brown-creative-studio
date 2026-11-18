@@ -20,10 +20,10 @@
             <div class="inline-flex items-center justify-center w-12 h-12 mb-4">
                 <img src="{% static 'img/brightbean-studio-logo.webp' %}" alt="Brightbean logo" class="w-12 h-12 object-contain">
             </div>
-            <h1 class="text-2xl font-bold tracking-tight" style="color: var(--text-primary);">
+            <h1 class="text-24 font-bold tracking-tight" style="color: var(--text-primary);">
                 Almost there
             </h1>
-            <p class="text-sm mt-1" style="color: var(--text-secondary);">
+            <p class="text-14 mt-1" style="color: var(--text-secondary);">
                 Please review and accept our terms to continue
             </p>
         </div>
@@ -40,20 +40,20 @@
             </div>
             {% endif %}
 
-            <p class="text-sm mb-6" style="color: var(--text-secondary); line-height: 1.6;">
+            <p class="text-14 mb-6" style="color: var(--text-secondary); line-height: 1.6;">
                 One quick step before you get started.
             </p>
 
             <form method="post">
                 {% csrf_token %}
 
-                <label for="id_agree" class="btn-surface-1 flex items-start gap-3 cursor-pointer mb-6 p-3 rounded-lg transition-colors" style="border: 1.5px solid var(--border);">
+                <label for="id_agree" class="btn-surface-1 flex items-start gap-3 cursor-pointer mb-6 p-3 rounded-control transition-colors" style="border: 1.5px solid var(--border);">
                     <input type="checkbox"
                            name="agree"
                            id="id_agree"
-                           class="w-4 h-4 rounded mt-0.5 flex-shrink-0 cursor-pointer accent-[var(--primary)]"
+                           class="w-4 h-4 rounded-control mt-0.5 flex-shrink-0 cursor-pointer accent-[var(--primary)]"
                            style="border-color: var(--border);">
-                    <span class="text-sm" style="color: var(--text-primary); line-height: 1.5;">
+                    <span class="text-14" style="color: var(--text-primary); line-height: 1.5;">
                         I agree to the
                         <a href="{{ TERMS_URL }}" target="_blank" rel="noopener" class="font-semibold underline hover:no-underline" style="color: var(--primary);">Terms of Service</a>
                         and
@@ -68,7 +68,7 @@
         </div>
 
         <!-- Sign out link -->
-        <p class="text-center text-sm mt-6" style="color: var(--text-secondary);">
+        <p class="text-center text-14 mt-6" style="color: var(--text-secondary);">
             <a href="{% url 'accounts:logout' %}" class="font-semibold hover:underline" style="color: var(--primary);">Sign out</a>
         </p>
     </div>

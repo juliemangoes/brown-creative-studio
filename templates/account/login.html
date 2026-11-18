@@ -6,11 +6,11 @@
 {% block auth_content %}
 <style>
   .auth-card .btn-brand {
-    background-color: #93a240;
+    background-color: var(--accent);
     box-shadow: 0 4px 14px rgba(147, 162, 64, 0.28);
   }
   .auth-card .btn-brand:hover {
-    background-color: #849139;
+    background-color: var(--accent);
     box-shadow: 0 6px 20px rgba(147, 162, 64, 0.35);
   }
   .auth-card .btn-brand:focus {
@@ -23,11 +23,11 @@
         <div class="inline-flex items-center justify-center w-12 h-12 mb-4">
             <img src="{% static 'img/brightbean-studio-logo.webp' %}" alt="BrightBean Studio logo" class="w-12 h-12 object-contain">
         </div>
-        <span class="block text-[11px] font-semibold uppercase tracking-widest mb-2" style="color: #93a240;">BrightBean · Studio</span>
-        <h1 class="text-2xl font-bold tracking-tight" style="color: var(--text-primary);">
+        <span class="block text-12 font-semibold uppercase tracking-widest mb-2" style="color: var(--accent);">BrightBean · Studio</span>
+        <h1 class="text-24 font-bold tracking-tight" style="color: var(--text-primary);">
             Welcome back
         </h1>
-        <p class="text-sm mt-1" style="color: var(--text-secondary);">
+        <p class="text-14 mt-1" style="color: var(--text-secondary);">
             Log in to BrightBean Studio | Social media scheduling &amp; approvals.
         </p>
     </div>
@@ -76,18 +76,18 @@
             {% for field in form %}
             {% if field.field.widget.input_type == "checkbox" %}
             <div class="mb-4">
-                <label for="{{ field.id_for_label }}" class="inline-flex items-center gap-2 cursor-pointer text-sm" style="color: var(--text-secondary);">
+                <label for="{{ field.id_for_label }}" class="inline-flex items-center gap-2 cursor-pointer text-14" style="color: var(--text-secondary);">
                     <input type="checkbox"
                            name="{{ field.html_name }}"
                            id="{{ field.id_for_label }}"
                            {% if field.value %}checked{% endif %}
-                           class="w-4 h-4 rounded accent-[var(--primary)]" style="border-color: var(--border);">
+                           class="w-4 h-4 rounded-control accent-[var(--primary)]" style="border-color: var(--border);">
                     {{ field.label }}
                 </label>
             </div>
             {% else %}
             <div class="mb-4">
-                <label for="{{ field.id_for_label }}" class="block text-sm font-semibold mb-1.5" style="color: var(--text-primary);">
+                <label for="{{ field.id_for_label }}" class="block text-14 font-semibold mb-1.5" style="color: var(--text-primary);">
                     {{ field.label }}
                 </label>
                 <input type="{{ field.field.widget.input_type }}"
@@ -99,7 +99,7 @@
                        {% if field.field.required %}required{% endif %}
                        class="form-input-styled {% if field.errors %}is-error{% endif %}">
                 {% if field.errors %}
-                <p class="mt-1 text-xs" style="color: var(--error-500);">{{ field.errors.0 }}</p>
+                <p class="mt-1 text-12" style="color: var(--error-500);">{{ field.errors.0 }}</p>
                 {% endif %}
             </div>
             {% endif %}
@@ -107,7 +107,7 @@
 
             <!-- Forgot password link -->
             <div class="flex justify-end mb-5">
-                <a href="{% url 'account_reset_password' %}" class="text-xs font-medium hover:underline" style="color: var(--primary);">
+                <a href="{% url 'account_reset_password' %}" class="text-12 font-medium hover:underline" style="color: var(--primary);">
                     Forgot your password?
                 </a>
             </div>
@@ -121,7 +121,7 @@
 
     <!-- Footer link -->
     {% if show_signup_link %}
-    <p class="text-center text-sm mt-6" style="color: var(--text-secondary);">
+    <p class="text-center text-14 mt-6" style="color: var(--text-secondary);">
         Don't have an account?
         <a href="{{ signup_url }}" class="font-semibold hover:underline" style="color: var(--primary);">Sign up</a>
     </p>

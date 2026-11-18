@@ -7,18 +7,18 @@
 <style>
   /* ── Media Library Tokens (inherit from brand) ── */
   .ml-dropzone {
-    border: 2px dashed var(--border, #E7E5E4);
+    border: 2px dashed var(--border, var(--hairline));
     border-radius: var(--radius-xl, 0.75rem);
     transition: border-color var(--dur-base, 200ms) var(--ease-out, ease),
                 background var(--dur-base, 200ms) var(--ease-out, ease);
   }
   .ml-dropzone.drag-over {
-    border-color: var(--primary, #F97316);
-    background: var(--primary-soft, #FFF7ED);
+    border-color: var(--primary, var(--accent));
+    background: var(--primary-soft, var(--accent-soft));
   }
   .ml-asset-card {
-    background: var(--surface-0, #FFF);
-    border: 1px solid var(--border, #E7E5E4);
+    background: var(--surface-0, var(--surface));
+    border: 1px solid var(--border, var(--hairline));
     border-radius: var(--radius-xl, 0.75rem);
     transition: all var(--dur-base, 200ms) var(--ease-out, ease);
   }
@@ -30,42 +30,42 @@
   .ml-folder-item {
     transition: all var(--dur-fast, 150ms) ease;
   }
-  .ml-folder-item:hover { background: var(--surface-1, #FAFAF9); }
+  .ml-folder-item:hover { background: var(--surface-1, var(--canvas)); }
   .ml-folder-item.active {
-    background: var(--primary-soft, #FFF7ED);
-    color: var(--brand-700, #C2410C);
+    background: var(--primary-soft, var(--accent-soft));
+    color: var(--brand-700, var(--accent));
     font-weight: 600;
   }
   .ml-sidebar {
-    background: var(--surface-0, #FFF);
-    border-right: 1px solid var(--border, #E7E5E4);
+    background: var(--surface-0, var(--surface));
+    border-right: 1px solid var(--border, var(--hairline));
   }
   .ml-filter-pill {
     font-size: 0.75rem;
     font-weight: 600;
     padding: 5px 12px;
     border-radius: 9999px;
-    border: 1px solid var(--border, #E7E5E4);
-    background: var(--surface-0, #FFF);
-    color: var(--text-secondary, #57534E);
+    border: 1px solid var(--border, var(--hairline));
+    background: var(--surface-0, var(--surface));
+    color: var(--text-secondary, var(--text-secondary));
     cursor: pointer;
     transition: all var(--dur-fast, 150ms) ease;
   }
-  .ml-filter-pill:hover { border-color: var(--border-hover, #D6D3D1); }
+  .ml-filter-pill:hover { border-color: var(--border-hover, var(--control-border)); }
   .ml-filter-pill.active {
-    background: var(--primary, #F97316);
-    color: var(--text-inverse, #FFF);
-    border-color: var(--primary, #F97316);
+    background: var(--primary, var(--accent));
+    color: var(--text-inverse, var(--on-accent));
+    border-color: var(--primary, var(--accent));
   }
   .ml-progress-bar {
-    background: var(--surface-2, #F5F5F4);
+    background: var(--surface-2, var(--sunken));
     border-radius: 9999px;
     overflow: hidden;
     height: 4px;
   }
   .ml-progress-fill {
     height: 100%;
-    background: var(--primary, #F97316);
+    background: var(--primary, var(--accent));
     border-radius: 9999px;
     transition: width 150ms ease;
   }
@@ -82,14 +82,14 @@
     border-radius: var(--radius-sm, 0.25rem);
   }
   .ml-thumb-placeholder {
-    background: linear-gradient(135deg, var(--surface-2, #F5F5F4) 0%, var(--surface-1, #FAFAF9) 100%);
+    background: linear-gradient(135deg, var(--surface-2, var(--sunken)) 0%, var(--surface-1, var(--canvas)) 100%);
   }
   @keyframes ml-shimmer {
     0% { background-position: -200% 0; }
     100% { background-position: 200% 0; }
   }
   .ml-shimmer {
-    background: linear-gradient(90deg, var(--surface-2, #F5F5F4) 25%, var(--surface-1, #FAFAF9) 50%, var(--surface-2, #F5F5F4) 75%);
+    background: linear-gradient(90deg, var(--surface-2, var(--sunken)) 25%, var(--surface-1, var(--canvas)) 50%, var(--surface-2, var(--sunken)) 75%);
     background-size: 200% 100%;
     animation: ml-shimmer 1.5s ease infinite;
   }
@@ -103,7 +103,7 @@
 
   <!-- Mobile folder sidebar toggle -->
   <button @click="folderSidebarOpen = !folderSidebarOpen"
-          class="lg:hidden fixed bottom-4 left-4 z-40 flex items-center gap-2 px-3 py-2.5 bg-white border border-stone-200 rounded-xl shadow-lg text-sm font-medium text-stone-600 hover:bg-stone-50 transition-colors cursor-pointer"
+          class="lg:hidden fixed bottom-4 left-4 z-40 flex items-center gap-2 px-3 py-2.5 bg-surface border border-hairline rounded-panel shadow-menu text-14 font-medium text-ink-muted hover:bg-sunken transition-colors cursor-pointer"
           x-show="!detailOpen">
     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 6a2 2 0 012-2h2l2 2h6a2 2 0 012 2v2M4 6v10a2 2 0 002 2h12a2 2 0 002-2V10a2 2 0 00-2-2H4z"/></svg>
     Folders
@@ -111,22 +111,22 @@
 
   <!-- Mobile folder sidebar backdrop -->
   <div x-show="folderSidebarOpen" x-cloak @click="folderSidebarOpen = false"
-       class="fixed inset-0 bg-black/30 z-40 lg:hidden"
+       class="fixed inset-0 bg-scrim/30 z-40 lg:hidden"
        x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
        x-transition:leave="transition ease-in duration-150" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0"></div>
 
   <!-- ═══════ FOLDER SIDEBAR ═══════ -->
-  <div class="ml-sidebar w-56 flex-shrink-0 flex flex-col overflow-y-auto rounded-tl-xl rounded-bl-xl
+  <div class="ml-sidebar w-56 flex-shrink-0 flex flex-col overflow-y-auto rounded-tl-panel rounded-bl-panel
               fixed inset-y-0 left-0 z-50 transition-transform duration-200
               lg:relative lg:z-auto lg:translate-x-0"
        :class="folderSidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'"
        @click="if (window.innerWidth < 1024 && $event.target.closest('a')) { folderSidebarOpen = false }">
     <div class="p-4">
       <div class="flex items-center justify-between mb-3">
-        <span class="text-xs font-bold uppercase tracking-wider" style="color: var(--text-tertiary, #78716C);">Folders</span>
+        <span class="text-12 font-bold uppercase tracking-wider" style="color: var(--text-tertiary, var(--text-secondary));">Folders</span>
         <button @click="showNewFolder = true"
-                class="w-6 h-6 flex items-center justify-center rounded-md hover:bg-stone-100 cursor-pointer transition-colors"
-                style="color: var(--text-tertiary, #78716C);"
+                class="w-6 h-6 flex items-center justify-center rounded-control hover:bg-sunken cursor-pointer transition-colors"
+                style="color: var(--text-tertiary, var(--text-secondary));"
                 title="New folder">
           <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
         </button>
@@ -134,19 +134,19 @@
 
       <!-- All Media -->
       <a href="{% url 'media_library:index' workspace_id=workspace.id %}"
-         class="ml-folder-item flex items-center gap-2 px-3 py-2 rounded-lg text-sm cursor-pointer {% if not current_folder %}active{% endif %}">
+         class="ml-folder-item flex items-center gap-2 px-3 py-2 rounded-control text-14 cursor-pointer {% if not current_folder %}active{% endif %}">
         <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 6a2 2 0 012-2h2l2 2h6a2 2 0 012 2v2M4 6v10a2 2 0 002 2h12a2 2 0 002-2V10a2 2 0 00-2-2H4z"/></svg>
         All Media
       </a>
 
       <!-- Starred -->
       <a href="{% url 'media_library:index' workspace_id=workspace.id %}?starred=1"
-         class="ml-folder-item flex items-center gap-2 px-3 py-2 rounded-lg text-sm cursor-pointer {% if is_starred %}active{% endif %}">
+         class="ml-folder-item flex items-center gap-2 px-3 py-2 rounded-control text-14 cursor-pointer {% if is_starred %}active{% endif %}">
         <svg class="w-4 h-4 flex-shrink-0" fill="{% if is_starred %}currentColor{% else %}none{% endif %}" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"/></svg>
         Starred
       </a>
 
-      <div class="my-3 border-t" style="border-color: var(--surface-2, #F5F5F4);"></div>
+      <div class="my-3 border-t" style="border-color: var(--surface-2, var(--hairline));"></div>
 
       <!-- Folder tree -->
       <div id="folder-tree"
@@ -167,17 +167,17 @@
   <div class="flex-1 flex flex-col overflow-hidden">
 
     <!-- ── Toolbar ── -->
-    <div class="flex flex-wrap items-center gap-2 sm:gap-3 px-3 sm:px-4 lg:px-6 py-3 border-b rounded-tr-xl" style="border-color: var(--border, #E7E5E4); background: var(--surface-0, #FFF);">
+    <div class="flex flex-wrap items-center gap-2 sm:gap-3 px-3 sm:px-4 lg:px-6 py-3 border-b rounded-tr-panel" style="border-color: var(--border, var(--hairline)); background: var(--surface-0, var(--surface));">
 
       <!-- Search -->
       <div class="relative flex-1 min-w-[160px] sm:max-w-sm">
-        <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4" style="color: var(--text-ghost, #A8A29E);" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+        <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4" style="color: var(--text-ghost, var(--text-secondary));" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
         <input type="search"
                name="q"
                value="{{ query }}"
                placeholder="Search media..."
-               class="input-focus w-full pl-9 pr-4 py-2 text-sm border rounded-lg outline-none"
-               style="border-color: var(--border, #E7E5E4); background: var(--surface-0, #FFF);"
+               class="input-focus w-full pl-9 pr-4 py-2 text-14 border rounded-control outline-none"
+               style="border-color: var(--border, var(--hairline)); background: var(--surface-0, var(--surface));"
                hx-get="{% url 'media_library:index' workspace_id=workspace.id %}{% if current_folder %}?folder={{ current_folder }}{% endif %}"
                hx-trigger="keyup changed delay:400ms"
                hx-target="#asset-grid"
@@ -198,8 +198,8 @@
 
       <!-- Sort -->
       <select name="sort"
-              class="text-xs border rounded-lg pl-3 pr-7 py-2 outline-none cursor-pointer appearance-none"
-              style="border-color: var(--border, #E7E5E4); color: var(--text-secondary, #57534E); background-image: url(&quot;data:image/svg+xml,%3Csvg width='10' height='6' viewBox='0 0 10 6' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1L5 5L9 1' stroke='%2378716C' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E&quot;); background-repeat: no-repeat; background-position: right 8px center;"
+              class="text-12 border rounded-control pl-3 pr-7 py-2 outline-none cursor-pointer appearance-none"
+              style="border-color: var(--border, var(--hairline)); color: var(--text-secondary, var(--text-secondary)); background-image: url(&quot;data:image/svg+xml,%3Csvg width='10' height='6' viewBox='0 0 10 6' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1L5 5L9 1' stroke='%2378716C' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E&quot;); background-repeat: no-repeat; background-position: right 8px center;"
               hx-get="{% url 'media_library:index' workspace_id=workspace.id %}{% if current_folder %}?folder={{ current_folder }}{% endif %}"
               hx-trigger="change"
               hx-target="#asset-grid"
@@ -213,14 +213,14 @@
       </select>
 
       <!-- View toggle -->
-      <div class="flex border rounded-lg overflow-hidden" style="border-color: var(--border, #E7E5E4);">
+      <div class="flex border rounded-control overflow-hidden" style="border-color: var(--border, var(--hairline));">
         <button @click="viewMode = 'grid'"
-                :class="viewMode === 'grid' ? 'bg-stone-100 text-stone-800' : 'text-stone-400 hover:text-stone-600'"
+                :class="viewMode === 'grid' ? 'bg-sunken text-ink' : 'text-ink-muted hover:text-ink-muted'"
                 class="p-2 transition-colors">
           <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path d="M5 3a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2V5a2 2 0 00-2-2H5zM5 11a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2v-2a2 2 0 00-2-2H5zM11 5a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V5zM11 13a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"/></svg>
         </button>
         <button @click="viewMode = 'list'"
-                :class="viewMode === 'list' ? 'bg-stone-100 text-stone-800' : 'text-stone-400 hover:text-stone-600'"
+                :class="viewMode === 'list' ? 'bg-sunken text-ink' : 'text-ink-muted hover:text-ink-muted'"
                 class="p-2 transition-colors">
           <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M3 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z" clip-rule="evenodd"/></svg>
         </button>
@@ -228,7 +228,7 @@
 
       <!-- Upload button -->
       <button @click="$refs.fileInput.click()"
-              class="inline-flex items-center gap-1.5 px-4 py-1.5 text-sm font-semibold text-orange-600 bg-orange-50 border border-orange-200 rounded-full hover:bg-orange-100 hover:border-orange-300 active:bg-orange-100 transition-all duration-150 cursor-pointer">
+              class="inline-flex items-center gap-1.5 px-4 py-1.5 text-14 font-semibold text-accent bg-accent-soft border border-accent-line rounded-control hover:bg-accent-soft hover:border-accent active:bg-accent-soft transition-all duration-150 cursor-pointer">
         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
         Upload
       </button>
@@ -251,27 +251,27 @@
            @keydown.space.prevent="if (!uploading) $refs.fileInput.click()">
         <template x-if="!uploading">
           <div>
-            <svg class="w-10 h-10 mx-auto mb-3" style="color: var(--text-ghost, #A8A29E);" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/></svg>
-            <p class="text-sm font-medium" style="color: var(--text-secondary, #57534E);">Drop files here to upload</p>
-            <p class="text-xs mt-1" style="color: var(--text-ghost, #A8A29E);">Images up to 20MB, videos up to 1GB</p>
+            <svg class="w-10 h-10 mx-auto mb-3" style="color: var(--text-ghost, var(--text-secondary));" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/></svg>
+            <p class="text-14 font-medium" style="color: var(--text-secondary, var(--text-secondary));">Drop files here to upload</p>
+            <p class="text-12 mt-1" style="color: var(--text-ghost, var(--text-secondary));">Images up to 20MB, videos up to 1GB</p>
           </div>
         </template>
         <template x-if="uploading">
           <div class="space-y-2 max-w-md mx-auto text-left">
             <template x-for="(file, i) in uploadQueue" :key="i">
               <div class="flex items-center gap-3 py-1.5">
-                <div class="w-8 h-8 rounded-lg flex items-center justify-center text-xs font-bold"
-                     :style="'background: var(--surface-2, #F5F5F4); color: var(--text-tertiary, #78716C);'">
+                <div class="w-8 h-8 rounded-control flex items-center justify-center text-12 font-bold"
+                     :style="'background: var(--surface-2, var(--sunken)); color: var(--text-tertiary, var(--text-secondary));'">
                   <span x-text="file.name.split('.').pop().toUpperCase().slice(0,3)"></span>
                 </div>
                 <div class="flex-1 min-w-0">
-                  <p class="text-xs font-medium truncate" style="color: var(--text-primary, #1C1917);" x-text="file.name"></p>
+                  <p class="text-12 font-medium truncate" style="color: var(--text-primary, var(--text-primary));" x-text="file.name"></p>
                   <div class="ml-progress-bar mt-1">
                     <div class="ml-progress-fill" :style="'width: ' + (file.progress || 0) + '%'"></div>
                   </div>
                 </div>
-                <span x-show="file.status === 'complete'" class="text-xs font-semibold" style="color: var(--success-500, #22C55E);">Done</span>
-                <span x-show="file.status === 'error'" class="text-xs font-semibold" style="color: var(--error-500, #EF4444);" x-text="file.error || 'Failed'"></span>
+                <span x-show="file.status === 'complete'" class="text-12 font-semibold" style="color: var(--success-500, var(--success));">Done</span>
+                <span x-show="file.status === 'error'" class="text-12 font-semibold" style="color: var(--error-500, var(--danger));" x-text="file.error || 'Failed'"></span>
               </div>
             </template>
           </div>
@@ -304,9 +304,9 @@
          x-transition:leave="transition ease-in duration-150"
          x-transition:leave-start="opacity-100"
          x-transition:leave-end="opacity-0"></div>
-    <div class="relative w-full sm:max-w-lg bg-white shadow-xl overflow-y-auto"
+    <div class="relative w-full sm:max-w-lg bg-surface shadow-menu overflow-y-auto"
          x-show="detailOpen"
-         x-transition:enter="transition ease-out duration-250"
+         x-transition:enter="transition ease-out duration-200"
          x-transition:enter-start="translate-x-full"
          x-transition:enter-end="translate-x-0"
          x-transition:leave="transition ease-in duration-200"

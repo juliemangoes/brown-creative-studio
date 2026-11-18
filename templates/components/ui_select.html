@@ -18,31 +18,31 @@ JS body can't see the parent scope.
     {% include "components/_filter_icon.html" with name=icon %}
     <button type="button" @click="uiToggle($event)"
             class="cal-filter-select{% if icon %} has-icon{% endif %} flex items-center gap-1 whitespace-nowrap"
-            :class="{% if multiple %}{{ model }}.length{% else %}{{ model }}{% endif %} && 'border-orange-300 text-orange-700'">
+            :class="{% if multiple %}{{ model }}.length{% else %}{{ model }}{% endif %} && 'border-accent text-accent'">
         <span x-text="{% if multiple %}{{ model }}.length ? {{ model }}.length + ' selected' : '{{ placeholder|escapejs }}'{% else %}uiLabel({{ model }}){% endif %}"></span>
     </button>
     <div x-show="open" x-cloak
          :style="`top:${top}px; left:${left}px;`"
-         class="fixed z-50 w-56 max-h-72 overflow-y-auto bg-white rounded-lg shadow-lg ring-1 ring-stone-200 py-1">
+         class="fixed z-50 w-56 max-h-72 overflow-y-auto bg-surface rounded-control shadow-menu ring-1 ring-hairline py-1">
         <button type="button"
                 @click="{% if multiple %}{{ model }} = []{% else %}{{ model }} = ''; open = false{% endif %}; {{ onchange }}"
-                class="w-full text-left px-3 py-1.5 text-xs font-semibold hover:bg-stone-50 border-b border-stone-100"
-                :class="{% if multiple %}!{{ model }}.length{% else %}!{{ model }}{% endif %} ? 'text-orange-600' : 'text-stone-500'">
+                class="w-full text-left px-3 py-1.5 text-12 font-semibold hover:bg-sunken border-b border-hairline"
+                :class="{% if multiple %}!{{ model }}.length{% else %}!{{ model }}{% endif %} ? 'text-accent' : 'text-ink-muted'">
             {{ placeholder }} — all
         </button>
         {% for opt in options %}
         {% if multiple %}
-        <label class="flex items-center gap-2 px-3 py-1.5 text-xs text-stone-700 hover:bg-stone-50 cursor-pointer">
+        <label class="flex items-center gap-2 px-3 py-1.5 text-12 text-ink hover:bg-sunken cursor-pointer">
             <input type="checkbox" value="{{ opt.value }}" x-model="{{ model }}" @change="{{ onchange }}"
-                   class="rounded border-stone-300 text-orange-500 focus:ring-orange-400">
-            {% if opt.icon %}<span class="w-4 h-4 rounded flex items-center justify-center pi-{{ opt.icon }} flex-shrink-0 text-white">{% include "social_accounts/partials/_platform_icon.html" with platform=opt.icon size="3" %}</span>{% endif %}
+                   class="rounded-control border-control text-accent focus:ring-accent">
+            {% if opt.icon %}<span class="w-4 h-4 rounded-control flex items-center justify-center pi-{{ opt.icon }} flex-shrink-0 text-on-scrim">{% include "social_accounts/partials/_platform_icon.html" with platform=opt.icon size="3" %}</span>{% endif %}
             <span class="truncate">{{ opt.label }}</span>
         </label>
         {% else %}
         <button type="button" @click="{{ model }} = '{{ opt.value|escapejs }}'; open = false; {{ onchange }}"
-                class="w-full flex items-center gap-2 px-3 py-1.5 text-xs text-stone-700 hover:bg-stone-50 text-left"
-                :class="String({{ model }}) === '{{ opt.value|escapejs }}' && 'bg-orange-50 text-orange-700'">
-            {% if opt.icon %}<span class="w-4 h-4 rounded flex items-center justify-center pi-{{ opt.icon }} flex-shrink-0 text-white">{% include "social_accounts/partials/_platform_icon.html" with platform=opt.icon size="3" %}</span>{% endif %}
+                class="w-full flex items-center gap-2 px-3 py-1.5 text-12 text-ink hover:bg-sunken text-left"
+                :class="String({{ model }}) === '{{ opt.value|escapejs }}' && 'bg-accent-soft text-accent'">
+            {% if opt.icon %}<span class="w-4 h-4 rounded-control flex items-center justify-center pi-{{ opt.icon }} flex-shrink-0 text-on-scrim">{% include "social_accounts/partials/_platform_icon.html" with platform=opt.icon size="3" %}</span>{% endif %}
             <span class="truncate">{{ opt.label }}</span>
         </button>
         {% endif %}

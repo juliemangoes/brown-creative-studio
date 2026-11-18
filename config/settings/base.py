@@ -78,6 +78,7 @@ LOCAL_APPS = [
     "apps.analytics",
     # Brown Creative Studio (see CHANGES.md)
     "apps.about",
+    "apps.design_system",
     "theme",
 ]
 

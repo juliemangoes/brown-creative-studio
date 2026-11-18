@@ -21,12 +21,12 @@
                can't extend the app shell (which needs workspace context the OAuth
                view doesn't supply), so it can't read the app's brand token. Mirrors
                login.html's inline override — keep in sync if the brand palette changes. */
-            --bb-primary: #93a240;
-            --bb-primary-hover: #849139;
-            --bb-text: #1f2421;
-            --bb-text-muted: #6b7280;
-            --bb-border: #e5e7eb;
-            --bb-bg: #f7f7f4;
+            --bb-primary: var(--accent);
+            --bb-primary-hover: var(--accent);
+            --bb-text: var(--text-primary);
+            --bb-text-muted: var(--text-secondary);
+            --bb-border: var(--hairline);
+            --bb-bg: var(--canvas);
         }
         * { box-sizing: border-box; }
         body {
@@ -55,7 +55,7 @@
             color: var(--bb-primary);
         }
         .bb-card {
-            background: #fff;
+            background: var(--surface);
             border: 1px solid var(--bb-border);
             border-radius: 14px;
             padding: 28px 28px 24px;
@@ -67,7 +67,7 @@
             list-style: none;
             margin: 0 0 22px;
             padding: 14px 16px;
-            background: #fafaf7;
+            background: var(--canvas);
             border: 1px solid var(--bb-border);
             border-radius: 10px;
             font-size: 14px;
@@ -89,18 +89,18 @@
         }
         .bb-btn-primary {
             background-color: var(--bb-primary);
-            color: #fff;
+            color: var(--on-accent);
             box-shadow: 0 4px 14px rgba(147,162,64,.28);
         }
         .bb-btn-primary:hover { background-color: var(--bb-primary-hover); box-shadow: 0 6px 20px rgba(147,162,64,.35); }
         .bb-btn-primary:focus-visible { outline: none; box-shadow: 0 0 0 3px rgba(147,162,64,.4); }
         .bb-btn-ghost {
-            background: #fff;
+            background: var(--surface);
             color: var(--bb-text);
             border-color: var(--bb-border);
         }
-        .bb-btn-ghost:hover { background: #f3f4f1; }
-        .bb-error { color: #b91c1c; font-size: 13px; margin: 10px 0 0; }
+        .bb-btn-ghost:hover { background: var(--sunken); }
+        .bb-error { color: var(--danger); font-size: 13px; margin: 10px 0 0; }
         .bb-foot { text-align: center; margin-top: 18px; font-size: 12px; color: var(--bb-text-muted); }
     </style>
 </head>

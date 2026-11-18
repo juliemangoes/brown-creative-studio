@@ -7,13 +7,13 @@
 <div class="w-full max-w-md px-4">
     <!-- Logo & Header -->
     <div class="text-center mb-8">
-        <div class="inline-flex items-center justify-center w-12 h-12 rounded-2xl mb-4" style="background: var(--primary-soft);">
+        <div class="inline-flex items-center justify-center w-12 h-12 rounded-panel mb-4" style="background: var(--primary-soft);">
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
                 <polyline points="22,6 12,13 2,6"/>
             </svg>
         </div>
-        <h1 class="text-2xl font-bold tracking-tight" style="color: var(--text-primary);">
+        <h1 class="text-24 font-bold tracking-tight" style="color: var(--text-primary);">
             Confirm email address
         </h1>
     </div>
@@ -23,7 +23,7 @@
         {% if confirmation %}
             {% user_display confirmation.email_address.user as user_display %}
             {% if can_confirm %}
-                <p class="text-sm mb-6 leading-relaxed" style="color: var(--text-secondary);">
+                <p class="text-14 mb-6 leading-relaxed" style="color: var(--text-secondary);">
                     Please confirm that
                     <strong style="color: var(--text-primary);">{{ confirmation.email_address.email }}</strong>
                     is your email address.
@@ -52,7 +52,7 @@
     </div>
 
     <!-- Footer link -->
-    <p class="text-center text-sm mt-6" style="color: var(--text-secondary);">
+    <p class="text-center text-14 mt-6" style="color: var(--text-secondary);">
         <a href="{% url 'account_login' %}" class="font-semibold hover:underline" style="color: var(--primary);">Back to sign in</a>
     </p>
 </div>

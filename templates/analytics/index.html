@@ -6,14 +6,14 @@
 {% block extra_head %}
 <style>
     .analytics-shell { display: flex; flex-direction: column; flex: 1; }
-    .a-card { background: #fff; border: 1px solid var(--border); border-radius: var(--radius-xl); }
+    .a-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-xl); }
     .a-card-hover { transition: box-shadow var(--dur-base) ease, border-color var(--dur-base) ease, transform var(--dur-base) ease; }
     .a-card-hover:hover { box-shadow: var(--shadow-md); border-color: var(--border-hover); transform: translateY(-2px); }
     .a-mono { font-family: var(--font-mono); }
 
     .a-pill-group { display: inline-flex; align-items: center; background: var(--surface-1); border: 1px solid var(--border); border-radius: var(--radius-full); padding: 3px; }
     .a-pill-group > a, .a-pill-group > button { padding: 5px 14px; font-size: 0.8125rem; font-weight: 600; border-radius: var(--radius-full); border: none; cursor: pointer; background: transparent; color: var(--text-tertiary); text-decoration: none; }
-    .a-pill-group > a.active, .a-pill-group > button.active { background: #fff; color: var(--neutral-900); box-shadow: var(--shadow-xs); }
+    .a-pill-group > a.active, .a-pill-group > button.active { background: var(--surface); color: var(--neutral-900); box-shadow: var(--shadow-xs); }
 
     .a-delta { display: inline-flex; align-items: center; gap: 3px; border-radius: var(--radius-full); font-family: var(--font-mono); font-weight: 700; font-size: 11.5px; padding: 2px 7px; }
     .a-delta.good { color: var(--success-700); background: var(--success-50); }
@@ -41,7 +41,7 @@
     /* Drawer */
     .a-drawer-backdrop { position: fixed; inset: 0; background: rgba(23,20,18,0.32); z-index: 120; opacity: 0; pointer-events: none; transition: opacity var(--dur-base) var(--ease-out); }
     .a-drawer-backdrop.open { opacity: 1; pointer-events: auto; }
-    .a-drawer { position: fixed; top: 0; right: 0; bottom: 0; width: min(460px, 92vw); z-index: 121; background: #fff; box-shadow: var(--shadow-xl); display: flex; flex-direction: column; transform: translateX(100%); transition: transform var(--dur-base) var(--ease-out); }
+    .a-drawer { position: fixed; top: 0; right: 0; bottom: 0; width: min(460px, 92vw); z-index: 121; background: var(--surface); box-shadow: var(--shadow-xl); display: flex; flex-direction: column; transform: translateX(100%); transition: transform var(--dur-base) var(--ease-out); }
     .a-drawer.open { transform: translateX(0); }
 </style>
 {% endblock %}

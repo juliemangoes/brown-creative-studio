@@ -1,14 +1,14 @@
 {% load allauth %}
 {% if attrs.errors %}
 <div class="mb-1">
-    <ul class="text-xs" style="color: var(--error-500);">
+    <ul class="text-12" style="color: var(--error-500);">
         {% for error in attrs.errors %}<li>{{ error }}</li>{% endfor %}
     </ul>
 </div>
 {% endif %}
 <div class="mb-4">
     {% if attrs.type == "textarea" %}
-        <label for="{{ attrs.id }}" class="block text-sm font-semibold mb-1.5" style="color: var(--text-primary);">
+        <label for="{{ attrs.id }}" class="block text-14 font-semibold mb-1.5" style="color: var(--text-primary);">
             {% slot label %}{% endslot %}
         </label>
         <textarea class="form-input-styled {% if attrs.errors %}is-error{% endif %}"
@@ -20,8 +20,8 @@
                   {% if attrs.id %}id="{{ attrs.id }}"{% endif %}
                   {% if attrs.placeholder %}placeholder="{{ attrs.placeholder }}"{% endif %}>{% slot value %}{% endslot %}</textarea>
     {% elif attrs.type == "checkbox" or attrs.type == "radio" %}
-        <label for="{{ attrs.id }}" class="inline-flex items-center gap-2 text-sm cursor-pointer" style="color: var(--text-secondary);">
-            <input class="w-4 h-4 rounded border-2 accent-[var(--primary)]"
+        <label for="{{ attrs.id }}" class="inline-flex items-center gap-2 text-14 cursor-pointer" style="color: var(--text-secondary);">
+            <input class="w-4 h-4 rounded-control border-2 accent-[var(--primary)]"
                    style="border-color: var(--border);"
                    {% if attrs.required %}required{% endif %}
                    {% if attrs.disabled %}disabled{% endif %}
@@ -33,7 +33,7 @@
             {% slot label %}{% endslot %}
         </label>
     {% else %}
-        <label for="{{ attrs.id }}" class="block text-sm font-semibold mb-1.5" style="color: var(--text-primary);">
+        <label for="{{ attrs.id }}" class="block text-14 font-semibold mb-1.5" style="color: var(--text-primary);">
             {% slot label %}{% endslot %}
         </label>
         <input class="form-input-styled {% if attrs.errors %}is-error{% endif %}"
@@ -48,7 +48,7 @@
                type="{{ attrs.type }}">
     {% endif %}
     {% if slots.help_text %}
-        <p class="mt-1 text-xs" style="color: var(--text-tertiary);">
+        <p class="mt-1 text-12" style="color: var(--text-tertiary);">
             {% slot help_text %}{% endslot %}
         </p>
     {% endif %}

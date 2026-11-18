@@ -1,7 +1,7 @@
 {% if pending_invites %}
 <div style="background: var(--surface-0); border: 1px solid var(--border); border-radius: var(--radius-xl); overflow: hidden;">
     <div class="px-6 py-4" style="border-bottom: 1px solid var(--border);">
-        <h3 class="text-sm font-semibold" style="color: var(--text-primary);">Pending Invitations</h3>
+        <h3 class="text-14 font-semibold" style="color: var(--text-primary);">Pending Invitations</h3>
     </div>
     <div id="client-invitations-list">
         {% for invite in pending_invites %}
@@ -15,15 +15,15 @@
 
             <!-- Email & Info -->
             <div class="flex-1 min-w-0">
-                <div class="text-sm font-medium truncate" style="color: var(--text-primary);">{{ invite.email }}</div>
-                <div class="text-xs" style="color: var(--text-tertiary);">
+                <div class="text-14 font-medium truncate" style="color: var(--text-primary);">{{ invite.email }}</div>
+                <div class="text-12" style="color: var(--text-tertiary);">
                     Invited by {{ invite.invited_by.display_name }} · Expires {{ invite.expires_at|timesince }} from now
                 </div>
             </div>
 
             <!-- Role Badge -->
             <div class="flex-shrink-0">
-                <span class="text-xs font-medium px-2.5 py-1 rounded-full" style="background: #FEF3C7; color: #92400E;">Client</span>
+                <span class="text-12 font-medium px-2.5 py-1 rounded-control" style="background: var(--warning-soft); color: var(--warning);">Client</span>
             </div>
 
             <!-- Actions -->
@@ -33,7 +33,7 @@
                       hx-swap="outerHTML">
                     {% csrf_token %}
                     <button type="submit"
-                            class="btn-neutral-surface text-xs px-3 py-1.5 rounded-full font-medium cursor-pointer transition-colors"
+                            class="btn-neutral-surface text-12 px-3 py-1.5 rounded-control font-medium cursor-pointer transition-colors"
                             style="border: 1px solid var(--border); color: var(--text-primary); background: var(--surface-0);">
                         Resend
                     </button>
@@ -44,8 +44,8 @@
                       hx-confirm="Revoke invitation to {{ invite.email }}?">
                     {% csrf_token %}
                     <button type="submit"
-                            class="btn-danger-soft-bg text-xs px-3 py-1.5 rounded-full font-medium cursor-pointer transition-colors"
-                            style="color: #DC2626; background: transparent;">
+                            class="btn-danger-soft-bg text-12 px-3 py-1.5 rounded-control font-medium cursor-pointer transition-colors"
+                            style="color: var(--danger); background: transparent;">
                         Revoke
                     </button>
                 </form>
