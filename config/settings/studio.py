@@ -9,7 +9,11 @@ Nothing here may hold a secret: every value is either a public fact about the
 deployment or read from the environment.
 """
 
+from pathlib import Path
+
 import environ
+
+_BASE_DIR = Path(__file__).resolve().parent.parent.parent
 
 # base.py has already loaded .env into os.environ (read_env), so a bare Env
 # sees the same values without reading the file a second time.
@@ -59,3 +63,17 @@ BILLING_CURRENCIES = [c.strip().upper() for c in _env.list("BILLING_CURRENCIES",
 INTERFACE_LANGUAGES = [("en", "English"), ("es", "Español")]
 # Today flags a client still in Onboarding after this many days.
 STUDIO_ONBOARDING_STALL_DAYS = _env.int("STUDIO_ONBOARDING_STALL_DAYS", default=14)
+# …or when nobody on the client's side has done anything for this many days.
+STUDIO_ONBOARDING_IDLE_DAYS = _env.int("STUDIO_ONBOARDING_IDLE_DAYS", default=5)
+
+# Private client files (brand assets, onboarding uploads). On local storage they
+# live outside MEDIA_ROOT and are never served directly; on S3 they are private
+# objects under private/. Links expire after FILE_LINK_TTL seconds.
+PRIVATE_MEDIA_ROOT = _env("PRIVATE_MEDIA_ROOT", default=str(_BASE_DIR / "private_media"))
+PRIVATE_FILE_MAX_BYTES = _env.int("PRIVATE_FILE_MAX_BYTES", default=50 * 1024 * 1024)
+FILE_LINK_TTL = _env.int("FILE_LINK_TTL", default=300)
+# Malware scanning of uploads: "clamd" in production, "mock" (EICAR test string
+# only, nothing else is scanned) in development. See apps/studio/scanning.py.
+MALWARE_SCAN_BACKEND = _env("MALWARE_SCAN_BACKEND", default="mock").strip().lower()
+CLAMD_HOST = _env("CLAMD_HOST", default="clamav").strip()
+CLAMD_PORT = _env.int("CLAMD_PORT", default=3310)

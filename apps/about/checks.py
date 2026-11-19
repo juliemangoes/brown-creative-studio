@@ -110,4 +110,13 @@ def check_studio_deployment(app_configs, **kwargs):
             )
         )
 
+    if getattr(settings, "MALWARE_SCAN_BACKEND", "mock") != "clamd":
+        messages.append(
+            Warning(
+                "Uploads are not scanned for malware (MALWARE_SCAN_BACKEND is not 'clamd').",
+                hint="Start the clamav service (docker compose --profile scan) and set MALWARE_SCAN_BACKEND=clamd.",
+                id="about.W008",
+            )
+        )
+
     return messages

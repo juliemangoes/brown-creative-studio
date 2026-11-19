@@ -1,0 +1,5 @@
+<nav class="tabs mb-6" aria-label="Projects">
+    <a href="{% url 'projects:all' %}" class="tab"{% if subnav == "tasks" %} aria-current="page"{% endif %}>All tasks</a>
+    {% if can_manage_any %}<a href="{% url 'projects:workload' %}" class="tab"{% if subnav == "workload" %} aria-current="page"{% endif %}>Workload</a>{% endif %}
+    <a href="{% url 'projects:templates' %}" class="tab"{% if subnav == "templates" %} aria-current="page"{% endif %}>Templates</a>
+</nav>

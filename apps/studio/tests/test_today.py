@@ -186,3 +186,48 @@ def test_today_shows_times_in_the_studio_time_zone(client, studio):
     body = client.get(reverse("studio:today")).content.decode()
     assert "times in America/Guatemala" in body
     assert "17:15" in body and "23:15" not in body
+
+
+# ── Phase 3: overdue tasks, onboarding runs, brand sign-offs ────────────────
+
+
+def test_today_lists_overdue_tasks_in_scope(studio):
+    from apps.projects.services import create_from_template, ensure_builtin_templates
+
+    templates = ensure_builtin_templates(studio["org"])
+    start = timezone.localdate() - timedelta(days=20)
+    project = create_from_template(
+        studio["restaurant"], templates["shoot"], name="Old shoot", starts_on=start, owner=studio["manager"]
+    )
+    create_from_template(
+        studio["skincare"], templates["shoot"], name="Luma shoot", starts_on=start, owner=studio["owner"]
+    )
+    overdue = build_today(studio["editor"], studio["org"]).overdue_tasks  # restaurant only
+    assert overdue and {t.workspace_id for t in overdue} == {studio["restaurant"].id}
+    task = project.tasks.first()
+    task.assignee = studio["contributor"]
+    task.save()
+    mine = build_today(studio["contributor"], studio["org"]).overdue_tasks
+    assert [t.pk for t in mine] == [task.pk]  # freelancers: only their own
+
+
+def test_quiet_onboarding_run_is_stalled(studio):
+    from apps.client_onboarding.services import start_run
+
+    run, _ = start_run(studio["skincare"], studio["owner"], services=["social_media"], contacts=[])
+    assert build_today(studio["owner"], studio["org"]).stalled == []
+    run.started_at = timezone.now() - timedelta(days=7)
+    run.save()
+    row = build_today(studio["owner"], studio["org"]).stalled[0]
+    assert row["workspace"] == studio["skincare"] and row["waiting_on"] == "client" and row["quiet_days"] == 7
+
+
+def test_brand_signoffs_waiting_and_sent_back(studio):
+    from apps.brand.models import BrandStage
+
+    BrandStage.objects.create(
+        workspace=studio["restaurant"], key="strategy", status="changes_requested", client_comment="Warmer"
+    )
+    signoffs = build_today(studio["owner"], studio["org"]).brand_signoffs
+    assert [s.key for s in signoffs] == ["strategy"]
+    assert build_today(studio["contributor"], studio["org"]).brand_signoffs == []  # no client record access

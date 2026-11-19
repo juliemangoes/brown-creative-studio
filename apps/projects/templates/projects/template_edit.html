@@ -1,0 +1,78 @@
+{% extends "base.html" %}
+{% block title %}{{ template.name|default:"New template" }} · Templates · {{ SITE_NAME }}{% endblock %}
+{% block content %}
+<div class="w-full max-w-5xl mx-auto">
+    <p class="meta mb-1"><a href="{% url 'projects:templates' %}" class="link">← Templates</a></p>
+    <h1 class="page-title mb-6">{{ template.name|default:"New template" }}</h1>
+    {{ tasks_json|json_script:"template-tasks" }}
+    <form method="post" x-data="templateEditor()" @submit="serialize()" class="space-y-6">
+        {% csrf_token %}
+        {% if form.non_field_errors or form.tasks_json.errors %}<div class="state state-error" role="alert"><p class="state-title">Check the template</p><p class="state-body">{{ form.non_field_errors|join:" " }} {{ form.tasks_json.errors|join:" " }}</p></div>{% endif %}
+        <div class="panel panel-body grid sm:grid-cols-2 gap-4">
+            <div class="field"><label class="label" for="{{ form.name.id_for_label }}">Name</label>{{ form.name }}</div>
+            <div class="field"><label class="label" for="{{ form.kind.id_for_label }}">Type</label>{{ form.kind }}</div>
+            <div class="field sm:col-span-2"><label class="label" for="{{ form.description.id_for_label }}">Description</label>{{ form.description }}</div>
+        </div>
+        <section class="panel" aria-labelledby="tasks-title">
+            <div class="panel-header"><h2 id="tasks-title" class="section-title">Tasks</h2><span class="meta">Days count from the project's start date.</span></div>
+            <div class="overflow-x-auto">
+                <table class="table">
+                    <thead><tr><th scope="col">Task</th><th scope="col">Starts on day</th><th scope="col">Takes (days)</th><th scope="col">Milestone</th><th scope="col">Assign to owner</th><th scope="col">Waits on</th><th scope="col"><span class="sr-only">Actions</span></th></tr></thead>
+                    <tbody>
+                        <template x-for="(task, i) in tasks" :key="task.key">
+                            <tr>
+                                <td><label class="sr-only" :for="'title-' + i">Task title</label><input :id="'title-' + i" class="input min-w-[14rem]" x-model="task.title" maxlength="200">
+                                    <details class="mt-1"><summary class="meta cursor-pointer" x-text="task.checklist.length ? task.checklist.length + ' checklist items' : 'Add a checklist'"></summary>
+                                        <label class="sr-only" :for="'check-' + i">Checklist, one item per line</label><textarea :id="'check-' + i" class="textarea mt-1" rows="3" :value="task.checklist.join('\n')" @input="task.checklist = $event.target.value.split('\n').filter(l => l.trim())"></textarea></details></td>
+                                <td><label class="sr-only" :for="'off-' + i">Starts on day</label><input :id="'off-' + i" type="number" min="0" max="365" class="input w-20" x-model.number="task.offset_days"></td>
+                                <td><label class="sr-only" :for="'dur-' + i">Takes days</label><input :id="'dur-' + i" type="number" min="1" max="365" class="input w-20" x-model.number="task.duration_days"></td>
+                                <td><label class="sr-only" :for="'ms-' + i">Milestone</label><input :id="'ms-' + i" type="checkbox" class="checkbox" x-model="task.milestone"></td>
+                                <td><label class="sr-only" :for="'own-' + i">Assign to project owner</label><input :id="'own-' + i" type="checkbox" class="checkbox" :checked="task.assign === 'owner'" @change="task.assign = $event.target.checked ? 'owner' : ''"></td>
+                                <td><label class="sr-only" :for="'dep-' + i">Waits on</label><select :id="'dep-' + i" multiple size="3" class="select min-w-[10rem]" @change="task.depends_on = [...$event.target.selectedOptions].map(o => o.value)">
+                                    <template x-for="other in tasks.filter(o => o.key !== task.key)" :key="other.key"><option :value="other.key" :selected="task.depends_on.includes(other.key)" x-text="other.title || 'Untitled'"></option></template></select></td>
+                                <td class="whitespace-nowrap">
+                                    <button type="button" class="btn-icon btn-icon-sm" @click="move(i, -1)" :disabled="i === 0" :aria-label="'Move ' + (task.title || 'task') + ' up'">↑</button>
+                                    <button type="button" class="btn-icon btn-icon-sm" @click="move(i, 1)" :disabled="i === tasks.length - 1" :aria-label="'Move ' + (task.title || 'task') + ' down'">↓</button>
+                                    <button type="button" class="btn-icon btn-icon-sm" @click="remove(i)" :aria-label="'Remove ' + (task.title || 'task')">✕</button>
+                                </td>
+                            </tr>
+                        </template>
+                    </tbody>
+                </table>
+            </div>
+            <div class="panel-body border-t border-hairline"><button type="button" class="btn btn-secondary btn-sm" @click="add()">Add task</button></div>
+        </section>
+        <input type="hidden" name="tasks_json" x-ref="out">
+        <div class="flex justify-end gap-2"><a href="{% url 'projects:templates' %}" class="btn btn-quiet">Cancel</a><button type="submit" class="btn btn-primary">Save template</button></div>
+    </form>
+</div>
+{% endblock %}
+{% block extra_js %}
+<script nonce="{{ request.csp_nonce }}">
+function templateEditor() {
+  var raw = JSON.parse(document.getElementById('template-tasks').textContent || '[]');
+  var tasks = (typeof raw === 'string' ? JSON.parse(raw) : raw).map(function (t, i) {
+    return Object.assign({ key: 't' + i, title: '', offset_days: 0, duration_days: 1, milestone: false, assign: '', checklist: [], depends_on: [], description: '' }, t);
+  });
+  return {
+    tasks: tasks,
+    add: function () {
+      var last = this.tasks[this.tasks.length - 1];
+      this.tasks.push({ key: 'n' + Date.now(), title: '', offset_days: last ? last.offset_days + last.duration_days : 0, duration_days: 1, milestone: false, assign: '', checklist: [], depends_on: [], description: '' });
+    },
+    remove: function (i) {
+      var key = this.tasks[i].key;
+      this.tasks.splice(i, 1);
+      this.tasks.forEach(function (t) { t.depends_on = t.depends_on.filter(function (k) { return k !== key; }); });
+    },
+    move: function (i, d) {
+      var j = i + d;
+      if (j < 0 || j >= this.tasks.length) return;
+      var t = this.tasks.splice(i, 1)[0];
+      this.tasks.splice(j, 0, t);
+    },
+    serialize: function () { this.$refs.out.value = JSON.stringify(this.tasks); },
+  };
+}
+</script>
+{% endblock %}

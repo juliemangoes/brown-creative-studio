@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block title %}Templates · Projects · {{ SITE_NAME }}{% endblock %}
+{% block content %}
+<div class="w-full max-w-6xl mx-auto">
+    {% url 'projects:template_new' as new_url %}
+    {% if can_edit %}{% include "ds/_page_header.html" with title="Projects" description="Templates set the tasks, milestones and timing a new project starts with." action_url=new_url action_label="New template" %}
+    {% else %}{% include "ds/_page_header.html" with title="Projects" description="Templates set the tasks, milestones and timing a new project starts with." %}{% endif %}
+    {% include "projects/_subnav.html" with subnav="templates" can_manage_any=True %}
+    <ul class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        {% for template in templates %}
+        <li class="panel panel-body flex flex-col">
+            <p class="meta">{{ template.get_kind_display }}{% if template.builtin_key %} · starter{% endif %}</p>
+            <h2 class="text-16 font-semibold mt-1">{{ template.name }}</h2>
+            <p class="text-14 text-ink-muted mt-1 flex-1">{{ template.description }}</p>
+            <p class="meta mt-3 tabular-nums">{{ template.tasks|length }} tasks · about {{ template.length_days }} days</p>
+            {% if can_edit %}<a href="{% url 'projects:template_edit' template_id=template.id %}" class="btn btn-secondary btn-sm mt-3 self-start">Edit<span class="sr-only"> {{ template.name }}</span></a>{% endif %}
+        </li>
+        {% endfor %}
+    </ul>
+    <p class="meta mt-4">Onboarding steps and questions have their own <a href="{% url 'client_onboarding:templates' %}" class="link">onboarding templates</a>.{% if not can_edit %} Only people allowed to manage templates can change them.{% endif %}</p>
+</div>
+{% endblock %}

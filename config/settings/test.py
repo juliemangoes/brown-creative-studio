@@ -40,6 +40,9 @@ STORAGES["default"] = {  # noqa: F405
     "BACKEND": "django.core.files.storage.FileSystemStorage",
 }
 MEDIA_ROOT = BASE_DIR / "test_media"  # noqa: F405
+# Brown Creative Studio (CHANGES.md): private client files, kept out of the checkout's private_media/.
+PRIVATE_MEDIA_ROOT = str(BASE_DIR / "test_media" / "private")  # noqa: F405
+MALWARE_SCAN_BACKEND = "mock"
 MEDIA_URL = "/media/"
 SERVE_MEDIA = True
 

@@ -1,0 +1,127 @@
+{% extends "client_portal/portal_base.html" %}
+{% load i18n ds %}
+{% block title %}{% translate "Brand Hub" %} · {{ workspace.name }}{% endblock %}
+{% block content %}
+<div class="space-y-10">
+    <header>
+        <h1 class="display-title">{% translate "Brand Hub" %}</h1>
+        <p class="text-ink-muted mt-1">{% blocktranslate with name=workspace.name %}Everything about the {{ name }} brand in one place: what it stands for, how it looks and sounds, and the files to use.{% endblocktranslate %}</p>
+    </header>
+
+    {% if awaiting and can_approve %}
+    <section id="signoff" aria-labelledby="signoff-title" class="space-y-4">
+        <h2 id="signoff-title" class="section-title">{% translate "Waiting for your sign-off" %}</h2>
+        {% for stage in awaiting %}
+        <article class="panel panel-body" x-data="{ changes: false }">
+            <p class="meta">{% blocktranslate with date=stage.sent_at|date:"j M" %}Sent {{ date }}{% endblocktranslate %}</p>
+            <h3 class="text-20 font-semibold mt-1">{{ stage.get_key_display }}</h3>
+            <p class="mt-2 whitespace-pre-line">{{ stage.client_summary }}</p>
+            {% for stage_key, files in stage_files.items %}{% if stage_key == stage.pk and files %}
+            <ul class="flex flex-wrap gap-2 mt-3">{% for f in files %}<li><a href="{% url 'brand_portal:download' asset_id=f.id %}" class="btn btn-secondary btn-sm">{{ f.title }} <span class="uppercase text-ink-muted">{{ f.file_format }}</span></a></li>{% endfor %}</ul>
+            {% endif %}{% endfor %}
+            <div class="flex flex-wrap gap-2 mt-4" x-show="!changes">
+                <form method="post" action="{% url 'brand_portal:sign_off' stage_id=stage.id %}">{% csrf_token %}<button type="submit" class="btn btn-primary">{% translate "Sign off" %}</button></form>
+                <button type="button" class="btn btn-secondary" @click="changes = true; $nextTick(() => $refs.comment.focus())">{% translate "Ask for changes" %}</button>
+            </div>
+            <form method="post" action="{% url 'brand_portal:changes' stage_id=stage.id %}" class="mt-4 space-y-3" x-show="changes" x-cloak>
+                {% csrf_token %}
+                <div class="field"><label class="label" for="comment-{{ stage.id }}">{% translate "What would you like changed?" %}</label><textarea id="comment-{{ stage.id }}" x-ref="comment" name="comment" class="textarea" rows="4" required></textarea></div>
+                <div class="flex gap-2"><button type="submit" class="btn btn-primary">{% translate "Send to the studio" %}</button><button type="button" class="btn btn-quiet" @click="changes = false">{% translate "Cancel" %}</button></div>
+            </form>
+        </article>
+        {% endfor %}
+    </section>
+    {% endif %}
+
+    {% if stages %}
+    <section aria-labelledby="progress-title">
+        <h2 id="progress-title" class="section-title mb-3">{% translate "Brand project" %}</h2>
+        <div class="panel panel-body"><ol class="stepper">
+            {% for stage in stages %}
+            <li class="step" data-state="{% if stage.status == 'signed_off' %}done{% elif stage.status == 'awaiting_signoff' or stage.status == 'in_progress' or stage.status == 'changes_requested' %}current{% endif %}"{% if stage.status == 'awaiting_signoff' %} aria-current="step"{% endif %}>
+                <span class="step-marker" aria-hidden="true">{% if stage.status == 'signed_off' %}✓{% else %}{{ forloop.counter }}{% endif %}</span>
+                <div><p class="step-title">{{ stage.get_key_display }}</p>
+                    <p class="step-meta">{% if stage.status == 'signed_off' %}{% blocktranslate with date=stage.signed_off_at|date:"j M" %}Signed off {{ date }}{% endblocktranslate %}{% elif stage.status == 'awaiting_signoff' %}{% translate "Waiting for your sign-off" %}{% elif stage.status == 'changes_requested' %}{% translate "The studio is working on your changes" %}{% elif stage.status == 'in_progress' %}{% translate "In progress" %}{% else %}{% translate "Coming up" %}{% endif %}</p></div>
+            </li>
+            {% endfor %}
+        </ol></div>
+    </section>
+    {% endif %}
+
+    {% if brand %}
+    {% if brand.has_strategy %}
+    <section aria-labelledby="strategy-title">
+        <h2 id="strategy-title" class="section-title mb-3">{% translate "Strategy" %}</h2>
+        <div class="panel panel-body space-y-5">
+            {% if brand.purpose %}<div><h3 class="text-14 font-medium text-ink-muted">{% translate "Purpose" %}</h3><p class="mt-1 whitespace-pre-line">{{ brand.purpose }}</p></div>{% endif %}
+            {% if brand.positioning %}<div><h3 class="text-14 font-medium text-ink-muted">{% translate "Positioning" %}</h3><p class="mt-1 whitespace-pre-line">{{ brand.positioning }}</p></div>{% endif %}
+            {% if brand.values %}<div><h3 class="text-14 font-medium text-ink-muted">{% translate "Values" %}</h3><ul class="mt-1 flex flex-wrap gap-2">{% for v in brand.values %}<li class="status status-neutral">{{ v }}</li>{% endfor %}</ul></div>{% endif %}
+            {% if brand.personality %}<div><h3 class="text-14 font-medium text-ink-muted">{% translate "Personality" %}</h3><ul class="mt-1 flex flex-wrap gap-2">{% for v in brand.personality %}<li class="status status-neutral">{{ v }}</li>{% endfor %}</ul></div>{% endif %}
+            {% if brand.audiences %}<div><h3 class="text-14 font-medium text-ink-muted">{% translate "Who we speak to" %}</h3><ul class="mt-1 space-y-2">{% for a in brand.audiences %}<li><span class="font-medium">{{ a.name }}</span>{% if a.description %}: {{ a.description }}{% endif %}</li>{% endfor %}</ul></div>{% endif %}
+        </div>
+    </section>
+    {% endif %}
+
+    <section aria-labelledby="identity-title">
+        <h2 id="identity-title" class="section-title mb-3">{% translate "Identity" %}</h2>
+        <div class="panel panel-body space-y-8">
+            {% if logos %}
+            <div>
+                <h3 class="text-14 font-medium text-ink-muted mb-3">{% translate "Logos" %}</h3>
+                <ul class="grid sm:grid-cols-2 gap-4">
+                    {% for logo in logos %}
+                    <li class="border border-hairline rounded-panel p-4">
+                        <div class="h-32 flex items-center justify-center bg-sunken rounded-control mb-3">{% if logo.preview %}<img src="{% url 'brand_portal:download' asset_id=logo.preview.id %}?inline=1" alt="{{ logo.title }} {{ logo.variant }}" class="max-h-28 max-w-[80%] object-contain" loading="lazy">{% endif %}</div>
+                        <p class="font-medium">{{ logo.title }}{% if logo.variant %} <span class="text-ink-muted font-normal">· {{ logo.variant }}</span>{% endif %}</p>
+                        <ul class="flex flex-wrap gap-2 mt-2" aria-label="{% translate 'Download formats' %}">{% for f in logo.files %}<li><a href="{% url 'brand_portal:download' asset_id=f.id %}" class="btn btn-secondary btn-sm uppercase">{{ f.file_format }}<span class="sr-only"> {% translate "download" %}</span></a></li>{% endfor %}</ul>
+                    </li>
+                    {% endfor %}
+                </ul>
+            </div>
+            {% endif %}
+            {% if colors %}<div><h3 class="text-14 font-medium text-ink-muted mb-3">{% translate "Colours" %}</h3>{% include "brand/_colors.html" %}</div>{% endif %}
+            {% if brand.fonts or fonts_files %}
+            <div><h3 class="text-14 font-medium text-ink-muted mb-2">{% translate "Fonts" %}</h3>
+                <ul class="space-y-1">{% for font in brand.fonts %}<li><span class="font-medium">{{ font.name }}</span>{% if font.usage %}: {{ font.usage }}{% endif %}</li>{% endfor %}</ul>
+                {% if fonts_files %}<ul class="flex flex-wrap gap-2 mt-3">{% for f in fonts_files %}<li><a href="{% url 'brand_portal:download' asset_id=f.id %}" class="btn btn-secondary btn-sm">{{ f.title }} <span class="uppercase text-ink-muted">{{ f.file_format }}</span></a></li>{% endfor %}</ul>{% endif %}
+            </div>
+            {% endif %}
+        </div>
+    </section>
+
+    {% if brand.has_voice %}
+    <section aria-labelledby="voice-title">
+        <h2 id="voice-title" class="section-title mb-3">{% translate "Voice and messaging" %}</h2>
+        <div class="panel panel-body space-y-5">
+            {% if brand.tagline %}<p class="font-display text-24">{{ brand.tagline }}</p>{% endif %}
+            {% if brand.voice %}<div><h3 class="text-14 font-medium text-ink-muted">{% translate "How we sound" %}</h3><p class="mt-1 whitespace-pre-line">{{ brand.voice }}</p></div>{% endif %}
+            {% if brand.voice_do or brand.voice_dont %}
+            <div class="grid sm:grid-cols-2 gap-4">
+                <div><h3 class="text-14 font-medium text-ink-muted">{% translate "We say" %}</h3><ul class="mt-1 space-y-1">{% for v in brand.voice_do %}<li>{{ v }}</li>{% endfor %}</ul></div>
+                <div><h3 class="text-14 font-medium text-ink-muted">{% translate "We don't say" %}</h3><ul class="mt-1 space-y-1">{% for v in brand.voice_dont %}<li>{{ v }}</li>{% endfor %}</ul></div>
+            </div>
+            {% endif %}
+            {% if brand.key_messages %}<div><h3 class="text-14 font-medium text-ink-muted">{% translate "Key messages" %}</h3><ul class="mt-1 space-y-1 list-disc pl-5">{% for m in brand.key_messages %}<li>{{ m }}</li>{% endfor %}</ul></div>{% endif %}
+            {% if brand.elevator_pitch %}<div><h3 class="text-14 font-medium text-ink-muted">{% translate "In a few sentences" %}</h3><p class="mt-1 whitespace-pre-line">{{ brand.elevator_pitch }}</p></div>{% endif %}
+        </div>
+    </section>
+    {% endif %}
+    {% endif %}
+
+    {% if resources %}
+    <section aria-labelledby="resources-title">
+        <h2 id="resources-title" class="section-title mb-3">{% translate "Templates, guidelines and examples" %}</h2>
+        <ul class="panel divide-y divide-hairline">
+            {% for f in resources %}
+            <li class="flex items-center justify-between gap-3 px-5 py-3"><span><span class="font-medium">{{ f.title }}</span> <span class="meta">· {{ f.get_kind_display }} · {{ f.size_label }}</span></span><a href="{% url 'brand_portal:download' asset_id=f.id %}" class="btn btn-secondary btn-sm">{% translate "Download" %}<span class="sr-only"> {{ f.title }}</span></a></li>
+            {% endfor %}
+        </ul>
+    </section>
+    {% endif %}
+
+    {% if not brand and not stages and not resources and not logos %}
+    {% translate "Nothing here yet" as empty_title %}{% translate "The studio will share your brand here as the work comes together." as empty_body %}
+    {% include "ds/_state.html" with kind="empty" title=empty_title body=empty_body %}
+    {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,109 @@
+{% extends "base.html" %}
+{% load ds %}
+{% block title %}{{ task.title }} · {{ workspace.name }} · {{ SITE_NAME }}{% endblock %}
+{% block content %}
+<div class="w-full max-w-4xl mx-auto">
+    <header class="mb-6">
+        <p class="meta mb-1"><a href="{{ next }}" class="link">← {{ task.project.name }}</a> · {{ workspace.name }}</p>
+        <h1 class="page-title">{% if task.is_milestone %}<span class="text-accent" aria-hidden="true">◆ </span><span class="sr-only">Milestone: </span>{% endif %}{{ task.title }}</h1>
+        <div class="flex flex-wrap items-center gap-2 mt-2">
+            {% status "task" task.status %}
+            <span class="meta">{% if task.assignee %}{{ task.assignee.name|default:task.assignee.email }}{% else %}Not assigned{% endif %}{% if task.due_on %} · {% if task.is_overdue %}<span class="text-danger font-medium">overdue, was due {{ task.due_on|date:"D j M" }}</span>{% else %}due {{ task.due_on|date:"D j M" }}{% endif %}{% endif %}{% if task.starts_on %} · starts {{ task.starts_on|date:"j M" }}{% endif %}</span>
+        </div>
+    </header>
+
+    {% if blocked_by %}
+    <div class="panel panel-body mb-6" role="note" style="border-color: var(--warning);">
+        <p class="text-14 font-medium">Waiting on {{ blocked_by|length }} task{{ blocked_by|length|pluralize }}</p>
+        <ul class="mt-1 text-14">{% for dep in blocked_by %}<li><a href="{% url 'projects:task' workspace_id=workspace.id task_id=dep.id %}" class="link">{{ dep.title }}</a> <span class="meta">· {{ dep.get_status_display|lower }}{% if dep.due_on %}, due {{ dep.due_on|date:"j M" }}{% endif %}</span></li>{% endfor %}</ul>
+    </div>
+    {% endif %}
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div class="lg:col-span-2 space-y-6 min-w-0">
+            {% if editable %}
+            <section class="panel panel-body" aria-labelledby="status-title">
+                <h2 id="status-title" class="section-title mb-3">Status</h2>
+                <form method="post" action="{% url 'projects:task_status' workspace_id=workspace.id task_id=task.id %}" class="flex flex-wrap gap-2">
+                    {% csrf_token %}<input type="hidden" name="next" value="{{ request.get_full_path }}">
+                    {% for value, label in statuses %}<button type="submit" name="status" value="{{ value }}" class="btn btn-sm {% if value == task.status %}btn-secondary{% else %}btn-quiet{% endif %}"{% if value == task.status %} aria-pressed="true"{% else %} aria-pressed="false"{% endif %}>{{ label }}</button>{% endfor %}
+                </form>
+            </section>
+            {% endif %}
+
+            {% if task.description %}<section class="panel panel-body" aria-labelledby="notes-title"><h2 id="notes-title" class="section-title mb-2">Notes <span class="status status-neutral">Internal</span></h2><p class="text-14 whitespace-pre-line">{{ task.description }}</p></section>{% endif %}
+
+            <section class="panel panel-body" aria-labelledby="checklist-title">
+                <h2 id="checklist-title" class="section-title mb-3">Checklist</h2>
+                <ul class="space-y-2">
+                    {% for item in task.checklist.all %}
+                    <li>
+                        {% if editable %}
+                        <form method="post" action="{% url 'projects:checklist_toggle' workspace_id=workspace.id task_id=task.id item_id=item.id %}">{% csrf_token %}<input type="hidden" name="next" value="{{ next }}">
+                            <button type="submit" class="flex items-center gap-2 text-14 text-left" aria-pressed="{{ item.is_done|yesno:'true,false' }}"><span class="checkbox inline-flex items-center justify-center" aria-hidden="true">{% if item.is_done %}✓{% endif %}</span><span class="{% if item.is_done %}line-through text-ink-muted{% endif %}">{{ item.text }}</span></button>
+                        </form>
+                        {% else %}
+                        <span class="text-14 {% if item.is_done %}line-through text-ink-muted{% endif %}">{% if item.is_done %}✓ {% endif %}{{ item.text }}</span>
+                        {% endif %}
+                    </li>
+                    {% empty %}<li class="text-14 text-ink-muted">No checklist.</li>
+                    {% endfor %}
+                </ul>
+                {% if editable %}
+                <form method="post" action="{% url 'projects:checklist_add' workspace_id=workspace.id task_id=task.id %}" class="flex gap-2 mt-3">{% csrf_token %}<input type="hidden" name="next" value="{{ next }}">
+                    <label class="sr-only" for="new-item">New checklist item</label><input id="new-item" name="text" class="input flex-1" maxlength="300" placeholder="Add an item"><button type="submit" class="btn btn-secondary btn-sm">Add</button>
+                </form>
+                {% endif %}
+            </section>
+
+            <section class="panel panel-body" aria-labelledby="comments-title">
+                <h2 id="comments-title" class="section-title mb-3">Team comments <span class="status status-neutral">Internal</span></h2>
+                <div class="space-y-4">
+                    {% for comment in task.comments.all %}
+                    <div class="flex gap-3"><span class="avatar" aria-hidden="true">{{ comment.author.name|default:comment.author.email|default:"?"|make_list|first|upper }}</span>
+                        <div><p class="text-14"><span class="font-medium">{{ comment.author.name|default:comment.author.email|default:"Removed user" }}</span> <span class="meta">· {{ comment.created_at|date:"j M, H:i" }}</span></p><p class="text-14 mt-0.5 whitespace-pre-line">{{ comment.body }}</p></div></div>
+                    {% empty %}<p class="text-14 text-ink-muted">No comments yet.</p>
+                    {% endfor %}
+                </div>
+                <form method="post" action="{% url 'projects:comment_add' workspace_id=workspace.id task_id=task.id %}" class="mt-4 space-y-2">{% csrf_token %}<input type="hidden" name="next" value="{{ next }}">
+                    <label class="label" for="comment-body">Add a comment</label><textarea id="comment-body" name="body" class="textarea" rows="3" required></textarea>
+                    <button type="submit" class="btn btn-secondary btn-sm">Comment</button>
+                </form>
+            </section>
+        </div>
+
+        <aside class="space-y-6 min-w-0">
+            <section class="panel panel-body" aria-labelledby="links-title">
+                <h2 id="links-title" class="section-title mb-3">Files and links</h2>
+                <ul class="space-y-2">{% for link in task.links.all %}<li class="text-14"><a href="{{ link.url }}" class="link break-all" rel="noopener noreferrer" target="_blank">{{ link.label }}</a></li>{% empty %}<li class="text-14 text-ink-muted">None yet.</li>{% endfor %}</ul>
+                {% if editable %}
+                <form method="post" action="{% url 'projects:link_add' workspace_id=workspace.id task_id=task.id %}" class="mt-3 space-y-2">{% csrf_token %}<input type="hidden" name="next" value="{{ next }}">
+                    <div class="field"><label class="label" for="link-url">Link</label><input id="link-url" name="url" type="url" class="input" placeholder="https://" required></div>
+                    <div class="field"><label class="label" for="link-label">Label</label><input id="link-label" name="label" class="input" maxlength="160" placeholder="Shot list, brand folder…"></div>
+                    <button type="submit" class="btn btn-secondary btn-sm">Add link</button>
+                </form>
+                {% endif %}
+            </section>
+            {% if task.depends_on.all %}
+            <section class="panel panel-body" aria-labelledby="deps-title"><h2 id="deps-title" class="section-title mb-2">Waits on</h2>
+                <ul class="space-y-1 text-14">{% for dep in task.depends_on.all %}<li><a href="{% url 'projects:task' workspace_id=workspace.id task_id=dep.id %}" class="link">{{ dep.title }}</a> {% status "task" dep.status %}</li>{% endfor %}</ul></section>
+            {% endif %}
+        </aside>
+    </div>
+
+    {% if can_manage %}
+    <section class="panel mt-6" aria-labelledby="edit-title">
+        <div class="panel-header"><h2 id="edit-title" class="section-title">Edit task</h2></div>
+        <form method="post" class="panel-body grid sm:grid-cols-2 gap-4">
+            {% csrf_token %}<input type="hidden" name="next" value="{{ next }}">
+            {% include "projects/_fields.html" %}
+            <div class="sm:col-span-2 flex justify-between gap-2">
+                <button type="submit" form="delete-task" class="btn btn-danger-quiet">Delete task</button>
+                <button type="submit" class="btn btn-primary">Save task</button>
+            </div>
+        </form>
+        <form id="delete-task" method="post" action="{% url 'projects:task_delete' workspace_id=workspace.id task_id=task.id %}" x-data @submit="if (!confirm('Delete this task? This can\'t be undone.')) $event.preventDefault()">{% csrf_token %}</form>
+    </section>
+    {% endif %}
+</div>
+{% endblock %}

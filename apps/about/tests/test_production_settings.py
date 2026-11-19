@@ -31,6 +31,7 @@ def production_ready(settings, tmp_path):
     settings.EMAIL_BACKEND_TYPE = "smtp"
     settings.EMAIL_HOST = "smtp.resend.com"
     settings.DEFAULT_FROM_EMAIL = "studio@studio.example"
+    settings.MALWARE_SCAN_BACKEND = "clamd"
     running_commit.cache_clear()
     yield settings
     running_commit.cache_clear()
@@ -70,6 +71,7 @@ def test_unknown_commit_is_an_error(production_ready, tmp_path):
         ("EMAIL_BACKEND_TYPE", "resend", "about.W007"),
         ("EMAIL_HOST", "localhost", "about.W007"),
         ("DEFAULT_FROM_EMAIL", "noreply@yourdomain.com", "about.W007"),
+        ("MALWARE_SCAN_BACKEND", "mock", "about.W008"),
     ],
 )
 def test_each_gap_is_flagged(production_ready, setting, value, check_id):

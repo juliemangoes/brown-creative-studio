@@ -114,3 +114,18 @@ def shell(request):
         "shell_in_all_clients": workspace is None,
         "shell_commands": commands,
     }
+
+
+def portal(request):
+    """Extra portal tabs and notices from the fork's apps (only on portal pages)."""
+    if getattr(request, "portal_workspace", None) is None:
+        return {}
+    from apps.studio import portal as studio_portal
+
+    current = getattr(getattr(request, "resolver_match", None), "namespace", "")
+    return {
+        "portal_sections": [
+            {"label": s.label, "url": s.url, "active": current == s.key} for s in studio_portal.sections(request)
+        ],
+        "portal_notices": studio_portal.notices(request),
+    }

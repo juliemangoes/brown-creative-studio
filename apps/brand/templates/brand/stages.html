@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+{% load ds %}
+{% block title %}Brand stages · {{ workspace.name }} · {{ SITE_NAME }}{% endblock %}
+{% block content %}
+<div class="w-full max-w-6xl mx-auto">
+    {% include "clients/_header.html" %}
+    {% include "brand/_tabs.html" %}
+
+    {% if not has_stages %}
+    <div class="panel panel-body">
+        {% include "ds/_state.html" with kind="empty" title="No brand stages yet" body="A brand project sets these up: each stage ends with the client's sign-off in the portal. Start one from Projects with the Brand project or Brand strategy template, or set the stages up here." %}
+        {% if can_manage_brand %}
+        <div class="flex flex-wrap justify-center gap-2 mt-4">
+            <a href="{% url 'projects:list' workspace_id=workspace.id %}" class="btn btn-primary">Start a brand project</a>
+            <form method="post" action="{% url 'brand:stages_start' workspace_id=workspace.id %}">{% csrf_token %}<input type="hidden" name="set" value="brand"><button type="submit" class="btn btn-secondary">All seven stages only</button></form>
+            <form method="post" action="{% url 'brand:stages_start' workspace_id=workspace.id %}">{% csrf_token %}<input type="hidden" name="set" value="strategy"><button type="submit" class="btn btn-quiet">Strategy stages only</button></form>
+        </div>
+        {% endif %}
+    </div>
+    {% else %}
+    <ol class="space-y-4">
+        {% for stage, form in stages %}
+        <li class="panel" x-data="{ open: false }">
+            <div class="panel-body flex flex-wrap items-start justify-between gap-3">
+                <div class="min-w-0">
+                    <p class="meta">Stage {{ forloop.counter }}{% if stage.project %} · <a href="{% url 'projects:project' workspace_id=workspace.id project_id=stage.project_id %}" class="link">{{ stage.project.name }}</a>{% endif %}{% if stage.milestone %} · due {{ stage.milestone.due_on|date:"j M" }}{% endif %}</p>
+                    <h2 class="text-16 font-semibold">{{ stage.get_key_display }}</h2>
+                    {% if stage.status == "signed_off" %}<p class="meta mt-1">Signed off by {{ stage.signed_off_by.name|default:stage.signed_off_by.email }} on {{ stage.signed_off_at|date:"j M Y, H:i" }}{% if stage.client_comment %}: “{{ stage.client_comment }}”{% endif %}</p>
+                    {% elif stage.status == "awaiting_signoff" %}<p class="meta mt-1">Sent {{ stage.sent_at|date:"j M, H:i" }}. Waiting for the client.</p>
+                    {% elif stage.status == "changes_requested" %}<p class="text-14 mt-1"><span class="font-medium">The client asked:</span> “{{ stage.client_comment }}”</p>{% endif %}
+                    {% if stage.key == "identity" and stage.revision_limit is not None %}<p class="meta mt-1 tabular-nums{% if stage.over_revision_limit %} text-danger font-medium{% endif %}">{{ stage.revisions_used }} of {{ stage.revision_limit }} revision rounds used{% if stage.over_revision_limit %}: over the contract's limit{% endif %}</p>{% endif %}
+                </div>
+                <div class="flex items-center gap-2">{% status "brand_stage" stage.status %}{% if form %}<button type="button" class="btn btn-quiet btn-sm" @click="open = !open" :aria-expanded="open">Manage</button>{% endif %}</div>
+            </div>
+            {% if form %}
+            <div x-show="open" x-cloak class="border-t border-hairline panel-body grid md:grid-cols-2 gap-6">
+                <form method="post" action="{% url 'brand:stage_send' workspace_id=workspace.id stage_id=stage.id %}" class="space-y-3">
+                    {% csrf_token %}
+                    <h3 class="text-14 font-semibold">Ask the client to sign off</h3>
+                    <div class="field"><label class="label" for="send-{{ stage.id }}">What they're signing off</label><textarea id="send-{{ stage.id }}" name="client_summary" class="textarea" rows="4" required placeholder="What this stage settled and what they're agreeing to.">{{ stage.client_summary }}</textarea></div>
+                    <p class="meta">Files marked for this stage and shared with the client appear next to it. Client admins and reviewers get an email with a link.</p>
+                    <button type="submit" class="btn btn-primary btn-sm">{% if stage.status == "awaiting_signoff" %}Send again{% else %}Send for sign-off{% endif %}</button>
+                </form>
+                <form method="post" action="{% url 'brand:stage_save' workspace_id=workspace.id stage_id=stage.id %}" class="space-y-3">
+                    {% csrf_token %}
+                    <h3 class="text-14 font-semibold">Stage details</h3>
+                    {% for field in form %}<div class="field"><label class="label" for="{{ field.id_for_label }}">{{ field.label }}</label>{{ field }}</div>{% endfor %}
+                    <button type="submit" class="btn btn-secondary btn-sm">Save</button>
+                </form>
+            </div>
+            {% endif %}
+        </li>
+        {% endfor %}
+    </ol>
+    {% endif %}
+</div>
+{% endblock %}

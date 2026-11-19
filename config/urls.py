@@ -70,6 +70,10 @@ urlpatterns = [
     # Media Library
     path("workspace/<uuid:workspace_id>/media/", include("apps.media_library.urls")),
     # Client Portal (Stream F)
+    # Brown Creative Studio (CHANGES.md): the fork's portal sections, before the portal's catch-all token URL.
+    path("portal/brand/", include("apps.brand.urls_portal")),
+    path("portal/onboarding/", include("apps.client_onboarding.urls_portal")),
+    path("portal/projects/", include("apps.projects.urls_portal")),
     path("portal/", include("apps.client_portal.urls")),
     path("notifications/", include("apps.notifications.urls")),
     path("onboarding/", include("apps.onboarding.urls")),
@@ -78,6 +82,9 @@ urlpatterns = [
     path("", include("apps.about.urls")),
     path("", include("apps.design_system.urls")),
     path("clients/", include("apps.clients.urls")),
+    path("projects/", include("apps.projects.urls")),
+    path("brand/", include("apps.brand.urls")),
+    path("client-onboarding/", include("apps.client_onboarding.urls")),
     path("", include("apps.studio.urls")),
     path("", include("apps.accounts.urls_root")),
 ]

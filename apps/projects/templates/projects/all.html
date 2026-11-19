@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+{% load ds %}
+{% block title %}Projects · {{ SITE_NAME }}{% endblock %}
+{% block content %}
+<div class="w-full max-w-6xl mx-auto" x-data="{ saving: false }">
+    {% include "ds/_page_header.html" with title="Projects" description="Every task across the clients you work on. Filter, save the views you use, and switch between list, board, timeline and calendar." %}
+    {% include "projects/_subnav.html" with subnav="tasks" %}
+
+    {% if open_projects %}
+    <section class="mb-8" aria-labelledby="open-projects-title">
+        <h2 id="open-projects-title" class="section-title mb-3">Open projects</h2>
+        <ul class="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
+            {% for project in open_projects|slice:":9" %}
+            <li class="panel panel-body">
+                <p class="meta">{{ project.workspace.name }}</p>
+                <a href="{% url 'projects:project' workspace_id=project.workspace_id project_id=project.id %}" class="text-14 font-medium text-ink hover:underline">{{ project.name }}</a>
+                <div class="mt-3 flex items-center gap-3"><div class="meter flex-1" aria-hidden="true"><span style="width: {% widthratio project.done project.total|default:1 100 %}%"></span></div><span class="meta tabular-nums">{{ project.done }} of {{ project.total }}</span></div>
+                <p class="meta mt-1">{% if project.due_on %}Due {{ project.due_on|date:"j M" }}{% endif %}{% if project.owner %} · {{ project.owner.name|default:project.owner.email }}{% endif %}</p>
+            </li>
+            {% endfor %}
+        </ul>
+    </section>
+    {% endif %}
+
+    <section aria-labelledby="tasks-title">
+        <div class="flex flex-wrap items-center justify-between gap-3 mb-3">
+            <h2 id="tasks-title" class="section-title">Tasks</h2>
+            {% if saved_filters %}
+            <div class="flex flex-wrap items-center gap-2" aria-label="Saved filters">
+                {% for f in saved_filters %}
+                <span class="inline-flex items-center gap-1">
+                    <a href="{{ base_url }}?{{ f.query }}" class="btn btn-quiet btn-sm{% if f.query == current_query %} btn-secondary{% endif %}">{{ f.name }}</a>
+                    <form method="post" action="{% url 'projects:delete_filter' filter_id=f.id %}">{% csrf_token %}<input type="hidden" name="next" value="{{ request.get_full_path }}"><button type="submit" class="btn-icon btn-icon-sm" aria-label="Delete saved filter {{ f.name }}"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" aria-hidden="true"><path d="M18 6L6 18M6 6l12 12"/></svg></button></form>
+                </span>
+                {% endfor %}
+            </div>
+            {% endif %}
+        </div>
+        <div class="panel panel-body mb-4">
+            {% include "projects/_filters.html" %}
+            <div class="mt-3 pt-3 border-t border-hairline">
+                <button type="button" class="link text-13" x-show="!saving" @click="saving = true; $nextTick(() => $refs.filterName.focus())">Save these filters</button>
+                <form method="post" action="{% url 'projects:save_filter' %}" class="flex flex-wrap items-end gap-2" x-show="saving" x-cloak>
+                    {% csrf_token %}<input type="hidden" name="query" value="{{ current_query }}"><input type="hidden" name="next" value="{{ request.get_full_path }}">
+                    <div class="field"><label class="label" for="filter-name">Name</label><input id="filter-name" x-ref="filterName" name="name" class="input" maxlength="80" placeholder="My overdue tasks" required></div>
+                    <button type="submit" class="btn btn-secondary btn-sm">Save</button><button type="button" class="btn btn-quiet btn-sm" @click="saving = false">Cancel</button>
+                </form>
+            </div>
+        </div>
+        {% include "projects/_task_views.html" %}
+    </section>
+</div>
+{% endblock %}
+{% block extra_js %}{% load static %}<script src="{% static 'js/projects-board.js' %}"></script>{% endblock %}

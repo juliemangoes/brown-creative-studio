@@ -28,6 +28,7 @@ added.
 Added to BrightBean's per-client permissions (`apps/studio/permissions.py`):
 `view_client_profile`, `manage_client_profile`, `view_projects`, `manage_projects`,
 `view_shoots`, `manage_shoots`, `view_billing`, `manage_billing`, `view_internal`,
+`manage_brand` (Phase 3: owners, managers and editors),
 and the portal keys `portal_view_content`, `portal_approve`, `portal_view_reports`,
 `portal_view_billing`, `portal_manage_users`. Projects, shoots and billing pages arrive
 in Phases 4–5; their keys exist now so roles do not change later.

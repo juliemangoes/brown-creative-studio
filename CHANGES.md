@@ -9,6 +9,52 @@ live in new Django apps and new files; those are listed per entry but need no
 merge care. See [docs/fork/README.md](docs/fork/README.md) for the working rules
 and the upstream merge procedure.
 
+## 2026-11-19 · Phase 3: client setup
+
+### Upstream files changed by hand
+
+| File | Change | Reason |
+|---|---|---|
+| `config/settings/base.py` | Added `apps.projects`, `apps.brand`, `apps.client_onboarding` to `LOCAL_APPS`, and the `apps.studio.context_processors.portal` context processor. | New apps; portal sections from the fork's apps. |
+| `config/settings/test.py` | `PRIVATE_MEDIA_ROOT` under `test_media/`, `MALWARE_SCAN_BACKEND = "mock"`. | Tests never write private files into the checkout, and never depend on a scanner. |
+| `config/urls.py` | Includes `/projects/`, `/brand/`, `/client-onboarding/`, and `/portal/brand/`, `/portal/onboarding/`, `/portal/projects/` **before** `apps.client_portal.urls`. | The portal's last pattern is a catch-all magic-link token (`/portal/<token>/`), which would otherwise swallow `/portal/onboarding/`. |
+| `templates/client_portal/portal_base.html` | One loop over `portal_sections` after the Activity tab; Django messages and `portal_notices` at the top of `<main>`; the Activity tab is only current in the `client_portal` namespace. | The fork's portal sections (Getting started, Projects, Brand Hub) appear only when they have content, without editing the portal's views. The portal never showed messages, so confirmations from new actions were invisible. |
+| `.env.example`, `.gitignore`, `.dockerignore` | Private files, malware scanning and onboarding settings; `private_media/` ignored. | Documented settings; client files never committed or copied into images. |
+
+`docker-compose.studio.yml` (fork-owned) gains a `private_media` volume and an optional
+`clamav` service (`--profile scan`).
+
+### Behaviour changes to watch on upstream merges
+
+- `ClientScopeMiddleware` now lets client users reach `studio:file` (signed downloads, which
+  check access themselves) and BrightBean's `onboarding:connection_*` pages (onboarding step 8
+  sends clients there to connect their social accounts).
+- Onboarding creates client portal users itself (no password; they sign in by emailed magic
+  link, using BrightBean's `MagicLinkToken`) with the client role presets from Phase 2. Studio
+  staff of the same studio are refused.
+- `WorkspaceMembership` permission dicts gain `manage_brand` (owner, manager, editor).
+
+### New files
+
+- `apps/projects/`: projects, tasks (checklists, comments, links, dependencies), templates,
+  saved filters; list, board, timeline and calendar views; workload; retainer delivery; portal
+  Projects page (milestones and progress only).
+- `apps/brand/`: brand profile, seven brand stages with client sign-off, brand files; studio
+  pages and the portal Brand Hub.
+- `apps/client_onboarding/`: onboarding templates per service line, runs, steps, participants;
+  studio progress page; guided portal flow; hourly reminder task; completion.
+- `apps/studio/files.py`, `scanning.py`, `portal.py`, `forms.py`: private files with signed
+  short-lived links, malware scanning adapter (ClamAV or mock), portal sections and emails.
+- `static/js/projects-board.js`; new components in `theme/static_src/src/components.css`
+  (meter, board, timeline, month grid, swatch).
+
+### Changed test expectations
+
+| Test | Change | Reason |
+|---|---|---|
+| `apps/about/tests/test_production_settings.py` | The "configured deployment" fixture sets `MALWARE_SCAN_BACKEND = "clamd"`; a case checks the new `about.W008`. | New deploy check: uploads must be scanned in production. |
+| `apps/brand/tests/test_brand.py` etc. | New. | Phase 3. |
+
 ## 2026-11-19 · Phase 2: clients and roles
 
 ### Upstream files changed by hand

@@ -32,8 +32,25 @@ CLIENT_WORKSPACE_VIEWS = frozenset(
         "approvals:version_diff",
     }
 )
-CLIENT_NAMESPACES = frozenset({"client_portal", "about"})
-CLIENT_VIEWS = frozenset({"accounts:logout", "accounts:accept_terms", "notifications:unsubscribe", "health_check"})
+# Portal namespaces: BrightBean's portal, the public about pages, and the fork's portal sections.
+CLIENT_NAMESPACES = frozenset({"client_portal", "about", "onboarding_portal", "brand_portal", "projects_portal"})
+CLIENT_VIEWS = frozenset(
+    {
+        "accounts:logout",
+        "accounts:accept_terms",
+        "notifications:unsubscribe",
+        "health_check",
+        # Signed file links check the client's access themselves.
+        "studio:file",
+        # Onboarding step 8 sends clients to BrightBean's account-connection page.
+        "onboarding:connection_page",
+        "onboarding:connection_oauth_start",
+        "onboarding:connection_done",
+        "onboarding:connection_bluesky",
+        "onboarding:connection_mastodon",
+        "onboarding:oauth_callback",
+    }
+)
 SKIPPED_PREFIXES = ("/static/", "/media/", "/admin/", "/api/", "/oauth/", "/webhooks/", "/.well-known/")
 
 

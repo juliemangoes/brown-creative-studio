@@ -1,0 +1,17 @@
+{# Colour swatches with copyable values. Context: colors (name, hex, rgb, role) #}
+<ul class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+    {% for color in colors %}
+    <li x-data="{ copied: '' }">
+        <div class="swatch" style="background: {{ color.hex }};" role="img" aria-label="{{ color.name|default:'Colour' }} swatch"></div>
+        <p class="text-14 font-medium mt-2">{{ color.name|default:"Colour" }}</p>
+        {% if color.role %}<p class="meta">{{ color.role }}</p>{% endif %}
+        <div class="flex flex-wrap gap-x-3 gap-y-1 mt-1 text-13 tabular-nums">
+            <button type="button" class="link" @click="navigator.clipboard.writeText('{{ color.hex }}'); copied = 'hex'; setTimeout(() => copied = '', 1500)">{{ color.hex }}<span class="sr-only"> (copy)</span></button>
+            <button type="button" class="link" @click="navigator.clipboard.writeText('rgb({{ color.rgb }})'); copied = 'rgb'; setTimeout(() => copied = '', 1500)">RGB {{ color.rgb }}<span class="sr-only"> (copy)</span></button>
+        </div>
+        <p class="meta" aria-live="polite" x-text="copied ? 'Copied' : ''"></p>
+    </li>
+    {% empty %}
+    <li class="text-14 text-ink-muted col-span-full">No colours yet.</li>
+    {% endfor %}
+</ul>

@@ -82,6 +82,9 @@ LOCAL_APPS = [
     "apps.studio",
     "apps.audit",
     "apps.clients",
+    "apps.projects",
+    "apps.brand",
+    "apps.client_onboarding",
     "theme",
 ]
 
@@ -127,6 +130,7 @@ TEMPLATES = [
                 "apps.intelligence.context_processors.intelligence_flag",
                 "apps.about.context_processors.site_identity",
                 "apps.studio.context_processors.shell",
+                "apps.studio.context_processors.portal",
             ],
         },
     },

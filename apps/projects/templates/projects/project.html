@@ -1,0 +1,75 @@
+{% extends "base.html" %}
+{% load ds %}
+{% block title %}{{ project.name }} · {{ workspace.name }} · {{ SITE_NAME }}{% endblock %}
+{% block content %}
+<div class="w-full max-w-6xl mx-auto" x-data="{ panel: null }">
+    <header class="flex flex-wrap items-end justify-between gap-4 mb-6">
+        <div class="min-w-0">
+            <p class="meta mb-1"><a href="{% url 'projects:list' workspace_id=workspace.id %}" class="link">{{ workspace.name }} · Projects</a></p>
+            <h1 class="page-title">{{ project.name }}</h1>
+            <div class="flex flex-wrap items-center gap-2 mt-2">
+                {% status "project" project.status %}
+                <span class="meta">{{ project.get_kind_display }}{% if project.starts_on %} · {{ project.starts_on|date:"j M" }} to {{ project.due_on|date:"j M Y" }}{% endif %}{% if project.owner %} · owned by {{ project.owner.name|default:project.owner.email }}{% endif %}</span>
+            </div>
+        </div>
+        {% if can_manage %}
+        <div class="flex gap-2"><button type="button" class="btn btn-secondary" @click="panel = 'edit'">Edit project</button><button type="button" class="btn btn-primary" @click="panel = 'task'">Add task</button></div>
+        {% endif %}
+    </header>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+        <section class="panel panel-body lg:col-span-2" aria-labelledby="milestones-title">
+            <div class="flex items-center justify-between mb-3"><h2 id="milestones-title" class="section-title">Milestones</h2><span class="meta">Shown to the client{% if not project.show_in_portal %} (hidden for this project){% endif %}</span></div>
+            {% if milestones %}
+            <ol class="stepper">
+                {% for m in milestones %}
+                <li class="step" data-state="{% if m.is_done %}done{% elif m.is_overdue %}blocked{% elif forloop.first or milestones|length == 1 %}current{% endif %}">
+                    <span class="step-marker" aria-hidden="true">{% if m.is_done %}✓{% else %}{{ forloop.counter }}{% endif %}</span>
+                    <div><a href="{% url 'projects:task' workspace_id=workspace.id task_id=m.id %}" class="step-title hover:underline">{{ m.title }}</a>
+                        <p class="step-meta">{% if m.is_done %}Done {{ m.completed_at|date:"j M" }}{% elif m.is_overdue %}Overdue · was due {{ m.due_on|date:"j M" }}{% elif m.due_on %}Due {{ m.due_on|date:"j M" }}{% endif %}</p></div>
+                </li>
+                {% endfor %}
+            </ol>
+            {% else %}<p class="text-14 text-ink-muted">No milestones. Mark a task as a milestone to show it to the client.</p>{% endif %}
+        </section>
+        <section class="panel panel-body" aria-labelledby="progress-title">
+            <h2 id="progress-title" class="section-title mb-3">Progress</h2>
+            <p class="text-32 font-semibold tabular-nums">{{ progress.percent }}%</p>
+            <div class="meter mt-2" aria-hidden="true"><span style="width: {{ progress.percent }}%"></span></div>
+            <p class="meta mt-2">{{ progress.done }} of {{ progress.total }} tasks done.</p>
+            {% if project.client_summary %}<h3 class="text-13 font-medium text-ink-muted mt-4">For the client</h3><p class="text-14 mt-1 whitespace-pre-line">{{ project.client_summary }}</p>{% endif %}
+            {% if project.description %}<h3 class="text-13 font-medium text-ink-muted mt-4">Internal brief <span class="status status-neutral">Internal</span></h3><p class="text-14 mt-1 whitespace-pre-line">{{ project.description }}</p>{% endif %}
+        </section>
+    </div>
+
+    <section aria-labelledby="tasks-title">
+        <h2 id="tasks-title" class="sr-only">Tasks</h2>
+        <details class="panel panel-body mb-4"{% if params.status or params.assignee or params.due or params.milestones %} open{% endif %}>
+            <summary class="text-14 font-medium cursor-pointer">Filter tasks</summary>
+            <div class="mt-3">{% include "projects/_filters.html" %}</div>
+        </details>
+        {% include "projects/_task_views.html" %}
+    </section>
+
+    {% if can_manage %}
+    <template x-teleport="body">
+        <div x-show="panel !== null" x-cloak @keydown.escape.window="panel = null">
+            <div class="dialog-backdrop" @click="panel = null"></div>
+            <form x-show="panel === 'edit'" method="post" action="{% url 'projects:project_update' workspace_id=workspace.id project_id=project.id %}" class="side-panel" role="dialog" aria-modal="true" aria-labelledby="edit-project-title">
+                {% csrf_token %}
+                <div class="side-panel-header"><div><p class="meta">{{ workspace.name }}</p><h2 id="edit-project-title" class="text-20 font-semibold">Project</h2></div>{% include "projects/_side_close.html" %}</div>
+                <div class="side-panel-body space-y-4">{% include "projects/_fields.html" with form=project_form %}</div>
+                <div class="side-panel-footer"><button type="button" class="btn btn-quiet" @click="panel = null">Cancel</button><button type="submit" class="btn btn-primary">Save project</button></div>
+            </form>
+            <form x-show="panel === 'task'" method="post" action="{% url 'projects:task_create' workspace_id=workspace.id project_id=project.id %}" class="side-panel" role="dialog" aria-modal="true" aria-labelledby="new-task-title">
+                {% csrf_token %}<input type="hidden" name="next" value="{{ request.get_full_path }}">
+                <div class="side-panel-header"><div><p class="meta">{{ project.name }}</p><h2 id="new-task-title" class="text-20 font-semibold">New task</h2></div>{% include "projects/_side_close.html" %}</div>
+                <div class="side-panel-body space-y-4">{% include "projects/_fields.html" with form=task_form %}</div>
+                <div class="side-panel-footer"><button type="button" class="btn btn-quiet" @click="panel = null">Cancel</button><button type="submit" class="btn btn-primary">Add task</button></div>
+            </form>
+        </div>
+    </template>
+    {% endif %}
+</div>
+{% endblock %}
+{% block extra_js %}{% load static %}<script src="{% static 'js/projects-board.js' %}"></script>{% endblock %}

@@ -61,7 +61,7 @@
                         <button type="button" class="btn btn-quiet" @click="panel = null">Cancel</button><button type="submit" class="btn btn-primary">Save</button>
                     </div>
                 </form>
-                <form id="delete-{{ contact.pk }}" method="post" action="{% url 'clients:contact_delete' workspace_id=workspace.id contact_id=contact.pk %}" onsubmit="return confirm('Remove {{ contact.name|escapejs }} from this client\'s contacts?')">{% csrf_token %}</form>
+                <form id="delete-{{ contact.pk }}" method="post" action="{% url 'clients:contact_delete' workspace_id=workspace.id contact_id=contact.pk %}" x-data @submit="if (!confirm('Remove {{ contact.name|escapejs }} from this client\'s contacts?')) $event.preventDefault()">{% csrf_token %}</form>
             </div>
             {% endfor %}
         </div>

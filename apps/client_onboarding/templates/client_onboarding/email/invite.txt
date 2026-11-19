@@ -1,0 +1,10 @@
+Hello {{ user.name|default:"there" }},
+
+{{ site_name }} is ready to start working with {{ workspace.name }}. The first step is a short onboarding: your details, a few questions, your logos and photos, and booking our kickoff.
+
+It takes about 20 minutes, saves as you go, and you can share it with your team.
+
+Start here (this link signs you in; no password needed):
+{{ portal_url }}
+
+{{ site_name }}

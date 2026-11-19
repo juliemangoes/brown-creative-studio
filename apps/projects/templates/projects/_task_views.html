@@ -1,0 +1,8 @@
+{# View switcher and the chosen view. Context from projects.views._task_views #}
+<nav class="tabs mb-4" aria-label="Task views">
+    {% for key, label, url in task_views %}<a href="{{ url }}" class="tab"{% if key == view %} aria-current="page"{% endif %}>{{ label }}</a>{% endfor %}
+</nav>
+{% if view == "board" %}{% include "projects/_board.html" %}
+{% elif view == "timeline" %}{% include "projects/_timeline.html" %}
+{% elif view == "calendar" %}{% include "projects/_calendar.html" %}
+{% else %}{% include "projects/_list.html" %}{% endif %}

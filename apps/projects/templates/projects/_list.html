@@ -1,0 +1,23 @@
+{% load ds %}
+{% if tasks %}
+<div class="panel overflow-x-auto">
+    <table class="table">
+        <caption class="sr-only">Tasks</caption>
+        <thead><tr><th scope="col">Task</th>{% if show_client %}<th scope="col">Client</th>{% endif %}<th scope="col">Project</th><th scope="col">Assigned to</th><th scope="col">Due</th><th scope="col">Status</th></tr></thead>
+        <tbody>
+            {% for task in tasks %}
+            <tr>
+                <td>{% include "projects/_task_title.html" %}{% if task.checklist_total %}<span class="block meta tabular-nums">{{ task.checklist_done }} of {{ task.checklist_total }} checked</span>{% endif %}</td>
+                {% if show_client %}<td class="text-14">{{ task.workspace.name }}</td>{% endif %}
+                <td class="text-14"><a href="{% url 'projects:project' workspace_id=task.workspace_id project_id=task.project_id %}" class="link">{{ task.project.name }}</a></td>
+                <td class="text-14">{% if task.assignee %}{{ task.assignee.name|default:task.assignee.email }}{% else %}<span class="text-ink-muted">Nobody yet</span>{% endif %}</td>
+                <td class="text-14 tabular-nums whitespace-nowrap">{% if task.due_on %}{% if task.is_overdue %}<span class="text-danger font-medium">{{ task.due_on|date:"D j M" }} · overdue</span>{% else %}{{ task.due_on|date:"D j M" }}{% endif %}{% else %}<span class="text-ink-muted">No date</span>{% endif %}</td>
+                <td>{% status "task" task.status %}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% else %}
+{% include "ds/_state.html" with kind="empty" title="No tasks match" body="Change the filters, or add tasks from a project." %}
+{% endif %}

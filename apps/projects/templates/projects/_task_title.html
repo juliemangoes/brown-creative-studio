@@ -1,0 +1,1 @@
+{% load ds %}<a href="{% url 'projects:task' workspace_id=task.workspace_id task_id=task.id %}?next={{ request.get_full_path|urlencode }}" class="font-medium text-ink hover:underline">{% if task.is_milestone %}<span class="text-accent" aria-hidden="true">◆ </span><span class="sr-only">Milestone: </span>{% endif %}{{ task.title }}</a>
