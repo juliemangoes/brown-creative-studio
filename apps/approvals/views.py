@@ -193,7 +193,7 @@ def add_comment(request, workspace_id, post_id):
     attachment = request.FILES.get("attachment")
 
     try:
-        comment_service.create_comment(
+        comment = comment_service.create_comment(
             post=post,
             author=request.user,
             body=body,
@@ -203,6 +203,10 @@ def add_comment(request, workspace_id, post_id):
         )
     except ValueError as e:
         return HttpResponse(str(e), status=400)
+    # Brown Creative Studio (CHANGES.md): a pin on an image or a video timestamp.
+    from apps.reviews.services import attach_pin
+
+    attach_pin(comment, request.POST)
 
     # Return updated comment list
     comments = comment_service.get_comments_for_post(post, request.user)

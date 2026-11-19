@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% block title %}Approval rule · {{ workspace.name }} · {{ SITE_NAME }}{% endblock %}
+{% block content %}
+<div class="w-full max-w-6xl mx-auto">
+    {% include "clients/_header.html" %}
+    <form method="post" class="panel panel-body space-y-6 max-w-3xl">
+        {% csrf_token %}
+        <div>
+            <h2 class="section-title">Approval rule</h2>
+            <p class="text-14 text-ink-muted mt-1">Studio review comes first, then the client. Nothing can be scheduled until every required approval covers the exact version going out; silence never counts as approval.</p>
+        </div>
+        <fieldset class="field"><legend class="label">Who must approve</legend>
+            <label class="flex items-center gap-2 text-14 mt-1"><input type="radio" name="mode" value="required_internal_and_client" class="checkbox"{% if workspace.approval_workflow_mode == "required_internal_and_client" %} checked{% endif %}{% if not can_manage %} disabled{% endif %}> The studio, then the client</label>
+            <label class="flex items-center gap-2 text-14 mt-1"><input type="radio" name="mode" value="required_internal" class="checkbox"{% if workspace.approval_workflow_mode == "required_internal" %} checked{% endif %}{% if not can_manage %} disabled{% endif %}> The studio only</label>
+        </fieldset>
+        <div class="grid sm:grid-cols-2 gap-6">
+            <fieldset class="field"><legend class="label">Studio reviewers</legend>
+                <p class="meta mb-1">Leave all unticked to let anyone with approval rights review.</p>
+                {% for u in staff %}<label class="flex items-center gap-2 text-14"><input type="checkbox" name="internal_approvers" value="{{ u.pk }}" class="checkbox"{% if u.pk in chosen_staff %} checked{% endif %}{% if not can_manage %} disabled{% endif %}> {{ u.name|default:u.email }}</label>{% empty %}<p class="text-14 text-ink-muted">Nobody with approval rights yet.</p>{% endfor %}
+            </fieldset>
+            <fieldset class="field"><legend class="label">Client approvers</legend>
+                <p class="meta mb-1">Leave all unticked to let any of the client's admins and reviewers approve.</p>
+                {% for u in clients %}<label class="flex items-center gap-2 text-14"><input type="checkbox" name="client_approvers" value="{{ u.pk }}" class="checkbox"{% if u.pk in chosen_clients %} checked{% endif %}{% if not can_manage %} disabled{% endif %}> {{ u.name|default:u.email }}</label>{% empty %}<p class="text-14 text-ink-muted">No portal users yet.</p>{% endfor %}
+            </fieldset>
+            <div class="field"><label class="label" for="ih">Hours the studio has to review</label><input id="ih" type="number" name="internal_hours" min="1" max="720" class="input w-28" value="{{ rule.internal_hours }}"{% if not can_manage %} disabled{% endif %}></div>
+            <div class="field"><label class="label" for="ch">Hours the client has to approve</label><input id="ch" type="number" name="client_hours" min="1" max="720" class="input w-28" value="{{ rule.client_hours }}"{% if not can_manage %} disabled{% endif %}></div>
+        </div>
+        {% if can_manage %}<button type="submit" class="btn btn-primary">Save rule</button>{% endif %}
+    </form>
+</div>
+{% endblock %}

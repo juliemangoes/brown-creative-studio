@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% block title %}Portal access · {{ workspace.name }} · {{ SITE_NAME }}{% endblock %}
+{% block content %}
+<div class="w-full max-w-6xl mx-auto">
+    {% include "clients/_header.html" %}
+    <div class="flex items-center justify-between gap-3 mb-4">
+        <p class="text-14 text-ink-muted max-w-2xl">Each sign-in link belongs to one person and works once. Revoke a link, or all of someone's links, if an email was forwarded or someone has left.</p>
+        <a href="{% url 'client_portal_admin:client_list' workspace_id=workspace.id %}" class="btn btn-secondary btn-sm">Invite or send a link</a>
+    </div>
+    <section class="panel">
+        {% if rows %}
+        <ul class="divide-y divide-hairline">
+            {% for m, tokens in rows %}
+            <li class="px-5 py-4">
+                <div class="flex flex-wrap items-center justify-between gap-3">
+                    <div><p class="text-14 font-medium">{{ m.user.name|default:m.user.email }}</p><p class="meta">{{ m.user.email }}{% if m.custom_role %} · {{ m.custom_role.name }}{% endif %}</p></div>
+                    {% if can_manage and tokens %}<form method="post" action="{% url 'reviews:revoke_all' workspace_id=workspace.id membership_id=m.id %}">{% csrf_token %}<button type="submit" class="btn btn-danger-quiet btn-sm">Revoke all<span class="sr-only"> links for {{ m.user.email }}</span></button></form>{% endif %}
+                </div>
+                {% if tokens %}
+                <ul class="mt-2 space-y-1">
+                    {% for t in tokens %}
+                    <li class="flex flex-wrap items-center justify-between gap-2 text-13">
+                        <span class="tabular-nums">Sent {{ t.created_at|date:"j M, H:i" }} · {% if t.is_consumed %}used{% elif t.expires_at <= now %}expired{% else %}open until {{ t.expires_at|date:"j M, H:i" }}{% endif %}</span>
+                        {% if can_manage and not t.is_consumed and t.expires_at > now %}<form method="post" action="{% url 'reviews:revoke_link' workspace_id=workspace.id token_id=t.id %}">{% csrf_token %}<button type="submit" class="link">Revoke</button></form>{% endif %}
+                    </li>
+                    {% endfor %}
+                </ul>
+                {% else %}<p class="meta mt-1">No links sent yet.</p>{% endif %}
+            </li>
+            {% endfor %}
+        </ul>
+        {% else %}
+        <div class="panel-body">{% include "ds/_state.html" with kind="empty" title="No portal users yet" body="Invite the client's people from Client settings, or start onboarding." %}</div>
+        {% endif %}
+    </section>
+</div>
+{% endblock %}

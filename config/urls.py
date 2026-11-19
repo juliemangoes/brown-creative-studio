@@ -74,6 +74,7 @@ urlpatterns = [
     path("portal/brand/", include("apps.brand.urls_portal")),
     path("portal/onboarding/", include("apps.client_onboarding.urls_portal")),
     path("portal/projects/", include("apps.projects.urls_portal")),
+    path("portal/review/", include("apps.reviews.urls_portal")),
     path("portal/", include("apps.client_portal.urls")),
     path("notifications/", include("apps.notifications.urls")),
     path("onboarding/", include("apps.onboarding.urls")),
@@ -85,6 +86,7 @@ urlpatterns = [
     path("projects/", include("apps.projects.urls")),
     path("brand/", include("apps.brand.urls")),
     path("client-onboarding/", include("apps.client_onboarding.urls")),
+    path("reviews/", include("apps.reviews.urls")),
     path("", include("apps.studio.urls")),
     path("", include("apps.accounts.urls_root")),
 ]

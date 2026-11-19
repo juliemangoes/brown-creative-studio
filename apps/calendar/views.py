@@ -1153,6 +1153,13 @@ def reschedule_post(request, workspace_id):
             require_publishable(pp)
         except ValueError as exc:
             return JsonResponse({"error": str(exc)}, status=400)
+        # Brown Creative Studio (CHANGES.md): the required approvals must cover this exact content.
+        if pp.status != "failed":
+            from apps.reviews.services import schedule_block_reason
+
+            reason = schedule_block_reason(pp)
+            if reason:
+                return JsonResponse({"error": reason}, status=400)
 
     try:
         import zoneinfo
@@ -1329,11 +1336,18 @@ def bulk_platform_action(request, workspace_id):
                 return JsonResponse({"error": str(exc)}, status=400)
         media_by_post = media_types_by_post({pp.post_id for pp in promoting})
         blocked = []
+        # Brown Creative Studio (CHANGES.md): bulk_update skips save signals, so check approvals here.
+        from apps.reviews.services import schedule_block_reason
+
         for pp in promoting:
             try:
                 require_publishable(pp, media_types=media_by_post.get(pp.post_id, set()))
             except ValueError as exc:
                 blocked.append(str(exc))
+                continue
+            reason = schedule_block_reason(pp) if pp.status != "failed" else None
+            if reason:
+                blocked.append(reason)
         if blocked:
             noun = "post" if len(blocked) == 1 else "posts"
             reasons = " ".join(dict.fromkeys(blocked))

@@ -35,6 +35,8 @@ def workspace_create(request):
     workspace = Workspace.objects.create(
         organization=request.org,
         name=name,
+        # Brown Creative Studio (CHANGES.md): every client starts with studio review, then client approval.
+        approval_workflow_mode=Workspace.ApprovalWorkflowMode.REQUIRED_INTERNAL_AND_CLIENT,
     )
 
     WorkspaceMembership.objects.create(

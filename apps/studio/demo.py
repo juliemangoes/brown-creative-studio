@@ -660,4 +660,9 @@ class _Builder:
 
 
 def seed_demo(now=None) -> DemoResult:
-    return _Builder(now).build()
+    from apps.reviews.services import bypass
+
+    # Demo posts are created directly in their final states (scheduled, published),
+    # which the review checks rightly refuse for real content.
+    with bypass():
+        return _Builder(now).build()
