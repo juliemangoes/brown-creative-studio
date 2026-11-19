@@ -17,12 +17,12 @@ Toolbar: nav arrows + period + Today + view dropdown | right: filter dropdowns.
         <!-- Left: Navigation arrows + period label + Today + View dropdown -->
         <div class="flex items-center gap-2">
             <a href="{% url 'calendar:calendar' workspace_id=workspace.id %}?mode=calendar&view={{ view_type }}&date={{ prev_date }}"
-               class="w-7 h-7 rounded-control text-ink-muted hover:text-ink hover:bg-sunken flex items-center justify-center transition-all duration-150">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+               aria-label="Previous period" class="w-7 h-7 rounded-control text-ink-muted hover:text-ink hover:bg-sunken flex items-center justify-center transition-all duration-150">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
             </a>
             <a href="{% url 'calendar:calendar' workspace_id=workspace.id %}?mode=calendar&view={{ view_type }}&date={{ next_date }}"
-               class="w-7 h-7 rounded-control text-ink-muted hover:text-ink hover:bg-sunken flex items-center justify-center transition-all duration-150">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+               aria-label="Next period" class="w-7 h-7 rounded-control text-ink-muted hover:text-ink hover:bg-sunken flex items-center justify-center transition-all duration-150">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
             </a>
         </div>
 

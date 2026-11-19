@@ -144,7 +144,7 @@
 
 /* ── Layer 2: semantic tokens (dark) ───────────────────────────── */
 /* Follows the system setting unless the person chose a theme, which
-   sets data-theme on <html> (see templates/partials/_theme_init.html). */
+   sets data-theme on <html> (see apps/studio/templates/studio/_theme_init.html). */
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
     color-scheme: dark;

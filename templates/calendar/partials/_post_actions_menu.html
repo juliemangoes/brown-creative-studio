@@ -16,7 +16,8 @@ Expects context: workspace, post_id, account_id.
             menuStyle = { position: 'fixed', top: (r.bottom + 4) + 'px', left: (r.right - 144) + 'px', zIndex: 9999 };
         }
     "
-            class="p-1.5 rounded-full border border-hairline text-ink-muted hover:border-control hover:text-ink-muted transition-colors cursor-pointer">
+            aria-label="Post actions" aria-haspopup="menu" :aria-expanded="open"
+            class="p-1.5 rounded-full border border-hairline text-ink-muted hover:border-control hover:text-ink transition-colors cursor-pointer">
         <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20"><circle cx="10" cy="4" r="1.5"/><circle cx="10" cy="10" r="1.5"/><circle cx="10" cy="16" r="1.5"/></svg>
     </button>
     <template x-teleport="body">

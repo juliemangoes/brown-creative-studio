@@ -425,4 +425,6 @@
 @layer components {
   .portal { font-size: 1rem; line-height: 1.5rem; }
   .portal .tab { font-size: 1rem; padding: 0.75rem 0; }
+  /* Comfortable touch targets: clients approve from their phones. */
+  .portal .btn { min-height: 2.75rem; padding-left: 1rem; padding-right: 1rem; font-size: 1rem; }
 }

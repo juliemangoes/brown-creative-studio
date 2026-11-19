@@ -9,6 +9,80 @@ live in new Django apps and new files; those are listed per entry but need no
 merge care. See [docs/fork/README.md](docs/fork/README.md) for the working rules
 and the upstream merge procedure.
 
+## 2026-11-19 · Phase 1: design system
+
+### Mechanical changes (reproducible)
+
+`python manage.py apply_design_tokens` (`apps/design_system/codemod.py`) rewrote every
+template under `templates/` and `apps/*/templates/` except emails, plus the markup
+strings in `apps/client_portal/views_admin.py`, `apps/composer/forms.py`,
+`apps/composer/views.py` and `apps/members/views.py`:
+
+- Tailwind palette classes (`orange-*`, `amber-*`, `stone-*`, `gray-*`, status and
+  decorative colours, `white`, `black`) to semantic utilities (`bg-surface`,
+  `text-ink-muted`, `bg-accent`, `text-danger`, `bg-scrim/50`…).
+- `text-xs`…`text-7xl` and arbitrary sizes to the 12/13/14/16/20/24/32/44 scale;
+  `rounded-*` to `rounded-control` (6 px) or `rounded-panel` (10 px); pill buttons to 6 px;
+  small shadows removed, large ones to `shadow-menu`/`shadow-dialog`; hover lifts and
+  `backdrop-blur` removed; durations clamped to 120–200 ms.
+- Palette hex, `rgb()` and `white`/`black` keywords in `style` attributes and `<style>`
+  blocks to token variables; CSS font sizes and radii to the scales.
+
+After an upstream merge, run the command and review its report; the guard tests in
+`apps/design_system/tests/test_guards.py` fail while anything is left.
+
+### Upstream files changed by hand
+
+| File | Change | Reason |
+|---|---|---|
+| `theme/static_src/src/styles.css` | Rewritten token layer: brown scale, semantic tokens for light and dark, upstream token names kept as aliases, Tailwind palette/sizes/radii/shadows reset to the studio scales, self-hosted fonts; component classes restyled on tokens; imports `components.css`. | The brief's design tokens and dark theme. |
+| `templates/base.html` | Wordmark, registry rail (`studio/shell/_rail_nav.html`), top bar with client switcher and command menu, quiet "New" menu, theme choice in the account menu, review banner and "Connect channels" block removed, vendored flatpickr/Chart.js/SortableJS, chart colours read from tokens, main area without the floating card. | App shell from the brief; no CDN. |
+| `config/settings/base.py` | Added `apps.design_system`, `apps.studio` and the `shell` context processor; CSP no longer allows `cdn.jsdelivr.net`; OAuth scope text uses `SITE_NAME`. | New apps; strict CSP; branding. |
+| `config/urls.py` | Includes `apps.design_system.urls` (`/design-system/`). | Style guide. |
+| `apps/api/api.py` | Title from `SITE_NAME`; `docs_decorator` lets only the Swagger page load from the CDN. | Branding; CSP. |
+| `apps/approvals/templatetags/approval_extras.py` | Status badge colours are tokens; labels in sentence case. | Status = word + colour, both themes. |
+| `apps/organizations/views.py` | Clients without a brand colour get a colour-blind-checked categorical colour instead of orange. | No orange; distinguishable clients. |
+| `apps/analytics/services.py`, `apps/api/schemas.py`, `apps/mcp/handlers.py`, `apps/members/services.py`, `apps/oauth_server/metadata.py`, `apps/composer/curated_feeds.py` | "BrightBean" in user-facing strings replaced with `SITE_NAME` or neutral wording. | Branding. |
+| `templates/calendar/calendar.html`, `calendar/partials/publish_calendar_shell.html`, `_post_actions_menu.html`, `_no_channels_empty_state.html`, `month_grid.html`, `event_form.html`, `publish_approvals.html` | Display title, one primary action ("New post"), `aria-pressed` view toggle, next-action empty state, labelled icon controls, adjacent-month days readable, event presets from a validated palette, accent/secondary buttons. | Design and WCAG 2.2 AA. |
+| `templates/approvals/partials/_approval_row.html`, `_toasts.html` | Secondary row actions, labelled checkboxes; toasts on tokens with `role="status"`/`alert`. | One primary action; both themes. |
+| `templates/composer/compose.html`, `create_landing.html`, `categories.html`, `partials/feeds_tab.html` | Sentence-case actions, accent buttons, labelled back button and focusable preview region; BrightBean illustration removed. | Design, accessibility, branding. |
+| `templates/client_portal/portal_base.html`, `dashboard.html`, `_client_card.html`, `approval_queue.html`, `magic_link_confirm.html` | Client identity header with a discreet studio mark and the client colour as a detail; tabs; 16 px body; Approve as the one primary action; no lifts or pulses. | Portal brief. |
+| `templates/organizations/cross_calendar.html`, `templates/media_library/shared_library.html` | Extend `base.html` instead of the settings layout; display titles. | "All clients" pages are primary destinations. |
+| `templates/analytics/_hero_chart.html`, `_post_detail.html`, `_page_header.html` | Token colours; display title. | Both themes. |
+| `templates/account/login.html`, `signup.html`, `accept_terms.html`, `templates/oauth2_provider/base.html`, `authorize.html`, `templates/members/accept_invite.html`, `invite_expired.html` | Wordmark instead of the BrightBean logo; green glows removed. | Branding. |
+| Account, invitation and notification emails | `{% site_name %}` / `current_site.name` instead of "Brightbean"; brown instead of orange. | Branding. |
+| `templates/onboarding/partials/_checklist.html` | Starts collapsed on phones; ring colour from tokens. | It covered the whole phone screen. |
+| Page titles across templates | " - Brightbean" / "· BrightBean Studio" to "· {{ SITE_NAME }}". | Branding. |
+| `static/favicon/*` | New monogram (Instrument Serif "B" on the accent) and manifest. | Branding. |
+
+Deleted: `templates/partials/_review_banner.html` (Trustpilot card for BrightBean),
+`static/img/brightbean-logo.webp`, `static/img/brightbean-studio-logo.webp`.
+Not changed on purpose: the Intelligence templates (the add-on is off and unreachable),
+internal identifiers (`bb_studio_` keys, `X-Brightbean-Email-Class`, User-Agent strings)
+and model choice labels (changing them adds migrations to upstream apps; they move to
+sentence case with the translation work).
+
+### New files
+
+- `apps/design_system/`: codemod and `apply_design_tokens` command, guard and contrast
+  tests, `{% status %}` tag, page-header/state/status partials, style guide at
+  `/design-system/`, designed 403/404/500 pages.
+- `apps/studio/`: navigation registry, shell context processor, rail/top bar/client
+  switcher/command menu/theme templates.
+- `theme/static_src/src/components.css`, `static/js/studio-shell.js`.
+- `static/fonts/` (Instrument Serif, Geist; OFL), `static/js/vendor/` (flatpickr 4.6.13,
+  Chart.js 4.4.6, SortableJS 1.15.6; MIT, licences included).
+
+### Changed test expectations
+
+| Test | Change | Reason |
+|---|---|---|
+| `apps/common/tests/test_sidebar_connect_channels.py` | Deleted. | The rail no longer suggests platforms to connect; accounts are connected from the client's settings. `apps/studio/tests/test_shell.py` asserts the block is gone. |
+| `apps/common/tests/test_review_banner.py` | Four "banner is shown" tests replaced by one asserting it never renders; dismissal-endpoint tests kept. | The review card is removed. |
+| `apps/social_accounts/tests/test_views.py` | Expects "Brown Creative Studio" where it expected "BrightBean" in the account-removal copy. | Branding. |
+| `apps/analytics/tests/test_services.py` | Same, in the "calculated by" note. | Branding. |
+| `apps/social_accounts/tests/test_youtube_compliance.py` | `test_history_keeps_180_days…` builds its dates on the America/Los_Angeles calendar, as the purge does. | Upstream flake: with UTC dates it failed every day between 00:00 and 08:00 UTC (also on unmodified upstream code). |
+
 ## 2026-11-18 · Phase 0: fork and baseline
 
 ### Upstream files changed

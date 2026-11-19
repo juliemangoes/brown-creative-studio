@@ -8,7 +8,7 @@ can_approve, display_timezone, and the parent Alpine scope (selectedPosts, diffO
      x-data="{ expanded: false, panel: null, comment: '' }">
     <div class="flex items-start gap-3 p-4">
         {% if can_approve and post.is_actionable %}
-        <input type="checkbox" :value="'{{ post.id }}'" x-model="selectedPosts"
+        <input type="checkbox" :value="'{{ post.id }}'" x-model="selectedPosts" aria-label="Select {{ post.title|default:post.caption|truncatechars:40 }}"
                class="mt-1.5 w-4 h-4 rounded-control border-control cursor-pointer flex-shrink-0" style="accent-color: var(--primary);">
         {% endif %}
 

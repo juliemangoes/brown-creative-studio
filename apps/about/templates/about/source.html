@@ -21,7 +21,7 @@
             <a href="{{ SOURCE.archive_url }}" class="btn-outline !w-auto">Download .zip</a>
         </div>
         <p class="text-13 mb-2" style="color: var(--text-secondary);">Or copy it with Git:</p>
-        <pre class="text-13 p-3 rounded-control overflow-x-auto" style="background: var(--surface-2); font-family: var(--font-mono);">git clone {{ SOURCE.clone_url }}
+        <pre tabindex="0" aria-label="Git commands" class="text-13 p-3 rounded-control overflow-x-auto" style="background: var(--surface-2); font-family: var(--font-mono);">git clone {{ SOURCE.clone_url }}
 git -C {{ SOURCE.clone_dir }} checkout {{ SOURCE.commit }}</pre>
         {% elif SOURCE.repository_url %}
         <p class="text-14 mb-4" style="color: var(--text-secondary);">

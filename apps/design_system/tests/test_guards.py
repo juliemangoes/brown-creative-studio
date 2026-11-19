@@ -163,3 +163,13 @@ def test_stylesheets_use_tokens_not_palette_hex(name):
     text = (BASE / "theme" / "static_src" / "src" / name).read_text(encoding="utf-8")
     found = [m[1] for m in HEX_RE.finditer(text) if m[1].upper() in UI_HEX]
     assert not found, f"{name} uses Tailwind palette colours: {sorted(set(found))}"
+
+
+def test_templates_never_use_the_brand_scale_directly():
+    """--brand-50..900 are fixed values; only semantic tokens follow the light and dark themes."""
+    found = []
+    for path in _page_templates():
+        for lineno, line in enumerate(path.read_text(encoding="utf-8").splitlines(), 1):
+            if "var(--brand-" in line:
+                found.append(f"{_rel(path)}:{lineno}")
+    assert not found, "Brand-scale variables in templates; use a semantic token:\n" + "\n".join(found)

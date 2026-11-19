@@ -246,3 +246,11 @@ def test_css_font_sizes_and_radii_follow_the_scales():
         r("box-shadow: 0 1px 2px rgba(194, 65, 12, 0.08);")
         == "box-shadow: 0 1px 2px color-mix(in srgb, var(--accent) 8%, transparent);"
     )
+
+
+def test_hover_lifts_are_removed():
+    assert (
+        r('class="p-4 hover:shadow-menu hover:-translate-y-0.5 hover:border-control"')
+        == 'class="p-4 hover:border-control"'
+    )
+    assert r('class="menu shadow-menu"') == 'class="menu shadow-menu"'

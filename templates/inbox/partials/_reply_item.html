@@ -7,7 +7,7 @@
         <div class="bg-surface border border-hairline rounded-panel rounded-tl-control px-3.5 py-2.5" style="box-shadow: var(--shadow-xs);">
             <div class="flex items-center gap-2 mb-1">
                 <span class="text-12 font-semibold text-ink">{{ reply.author.get_short_name|default:reply.author.email }}</span>
-                <span class="badge-pill" style="background: var(--primary-soft); color: var(--brand-700);">Reply</span>
+                <span class="badge-pill" style="background: var(--primary-soft); color: var(--accent);">Reply</span>
                 <span class="text-12 text-ink-muted ml-auto">{{ reply.sent_at|timesince }} ago</span>
             </div>
             <p class="text-13 text-ink leading-relaxed whitespace-pre-wrap">{{ reply.body }}</p>

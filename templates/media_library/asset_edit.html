@@ -30,7 +30,7 @@
     transition: all var(--dur-fast, 150ms) ease;
   }
   .ml-tool-btn:hover { background: var(--surface-1, var(--canvas)); color: var(--text-primary, var(--text-primary)); }
-  .ml-tool-btn.active { background: var(--primary-soft, var(--accent-soft)); color: var(--brand-700, var(--accent)); }
+  .ml-tool-btn.active { background: var(--accent-soft); color: var(--accent); }
   .ml-trim-track {
     height: 48px;
     background: var(--surface-2, var(--sunken));
@@ -155,7 +155,7 @@
         <span class="text-12" style="color: var(--text-ghost);">sec</span>
       </div>
       <span class="text-12 font-semibold px-2.5 py-1 rounded-control"
-            style="background: var(--primary-soft); color: var(--brand-700);"
+            style="background: var(--primary-soft); color: var(--accent);"
             x-text="'Duration: ' + (trimEnd - trimStart).toFixed(1) + 's'"></span>
     </div>
 

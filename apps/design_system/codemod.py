@@ -106,6 +106,10 @@ TEXT_SIZE_RE = re.compile(
 )
 DURATION_RE = re.compile(_START + _PRE + r"(?P<imp>!?)duration-(?P<ms>\d+)" + _END)
 BLUR_RE = re.compile(_START + _PRE + r"(?P<imp>!?)backdrop-(?:blur|saturate)(?:-[\w\[\].]+)?" + _END)
+# Hover "lifts" (raise and cast a shadow) are not part of this design; hover is a colour change.
+LIFT_RE = re.compile(
+    r"(?<![\w\-/\[.$])(?:group-)?hover:(?:-?translate-y-[\w.\[\]]+|shadow-(?:menu|dialog))(?![\w\-\[])"
+)
 
 _TW_SIZES_PX = {
     "xs": 12,
@@ -365,6 +369,7 @@ def _rewrite_line(line: str, context: str, path: str, lineno: int, changes: list
     line = TEXT_SIZE_RE.sub(text_size, line)
     line = DURATION_RE.sub(duration, line)
     line = BLUR_RE.sub("", line)
+    line = LIFT_RE.sub("", line)
     if line != original:
         # Removed tokens leave doubled spaces between classes; indentation is untouched.
         line = re.sub(r"(?<=\S) {2,}(?=\S)", " ", line)
@@ -647,8 +652,8 @@ def _rewrite_declarations(css: str) -> str:
         if lowered == "font-size":
             size = re.fullmatch(r"\s*([0-9.]+)(px|rem)\s*(!important)?\s*", val)
             if size:
-                px = nearest_size(_px(size[1], size[2]))
-                return f"{prop}: {px / 16:g}rem{' !important' if size[3] else ''}"
+                step = nearest_size(_px(size[1], size[2]))
+                return f"{prop}: {step / 16:g}rem{' !important' if size[3] else ''}"
         if lowered in (
             "border-radius",
             "border-top-left-radius",
