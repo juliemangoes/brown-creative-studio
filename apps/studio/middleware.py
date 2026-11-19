@@ -94,5 +94,29 @@ class ClientScopeMiddleware:
             return None
 
         if is_client_only(request):
+            _open_portal_session(request)
             return redirect("client_portal:dashboard")
         return None
+
+
+def _open_portal_session(request) -> None:
+    """A client who signed in with their password gets the portal session a magic link would give.
+
+    BrightBean's portal only recognises magic-link sessions; without this a
+    client signing in normally would land on "link expired". The workspace is
+    their last client workspace, else their first; the portal re-checks the
+    membership on every request.
+    """
+    if request.session.get("is_portal_session"):
+        return
+    from apps.members.models import WorkspaceMembership
+
+    memberships = WorkspaceMembership.objects.filter(
+        user=request.user, workspace_role="client", workspace__is_archived=False
+    ).order_by("workspace__name")
+    last = getattr(request.user, "last_workspace_id", None)
+    membership = (last and memberships.filter(workspace_id=last).first()) or memberships.first()
+    if membership is None:
+        return
+    request.session["is_portal_session"] = True
+    request.session["portal_workspace_id"] = str(membership.workspace_id)

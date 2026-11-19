@@ -5,7 +5,7 @@
 <div class="w-full max-w-6xl mx-auto">
     <header class="flex flex-wrap items-end justify-between gap-4 mb-6">
         <div class="min-w-0">
-            <p class="meta mb-1">{{ now|date:"l j F" }}</p>
+            <p class="meta mb-1">{{ now|date:"l j F" }} · times in {{ studio_tz }}</p>
             <h1 class="page-title">Today</h1>
             <p class="text-14 text-ink-muted mt-1 max-w-2xl">
                 {% if today.attention_count %}{{ today.attention_count }} thing{{ today.attention_count|pluralize }} need{{ today.attention_count|pluralize:"s," }} attention{% else %}Nothing urgent{% endif %}{% if today.selected %} for {{ today.selected.name }}{% else %} across {{ today.workspaces|length }} client{{ today.workspaces|length|pluralize }}{% endif %}.
@@ -28,8 +28,8 @@
         {% include "ds/_state.html" with kind="empty" title="No clients yet" body="Today fills up once you work on a client: approvals, what's going out, gaps in the calendar and accounts to reconnect." action_url=clients_url action_label="Go to clients" %}
     </div>
     {% else %}
-    <div class="grid lg:grid-cols-3 gap-6">
-        <div class="lg:col-span-2 space-y-6">
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div class="lg:col-span-2 space-y-6 min-w-0">
 
             {# ── Approvals waiting ─────────────────────────────────────── #}
             <section class="panel" aria-labelledby="approvals-title">
@@ -115,7 +115,7 @@
             </section>
         </div>
 
-        <aside class="space-y-6">
+        <aside class="space-y-6 min-w-0">
             {# ── Content gaps ─────────────────────────────────────────── #}
             <section class="panel" aria-labelledby="gaps-title">
                 <div class="panel-header"><h2 id="gaps-title" class="section-title">Content gaps, next 30 days</h2></div>

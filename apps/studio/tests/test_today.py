@@ -174,3 +174,15 @@ def test_today_empty_state_for_a_new_studio(client, db):
     response = client.get(reverse("studio:today"))
     assert response.status_code == 200
     assert "No clients yet" in response.content.decode()
+
+
+def test_today_shows_times_in_the_studio_time_zone(client, studio):
+    from datetime import UTC, datetime
+
+    tomorrow = (timezone.now() + timedelta(days=1)).date()
+    when = datetime(tomorrow.year, tomorrow.month, tomorrow.day, 23, 15, tzinfo=UTC)  # 17:15 in Guatemala (UTC-6)
+    make_post(studio["restaurant"], studio["r_account"], status="scheduled", when=when, title="Evening special")
+    client.force_login(studio["owner"])
+    body = client.get(reverse("studio:today")).content.decode()
+    assert "times in America/Guatemala" in body
+    assert "17:15" in body and "23:15" not in body

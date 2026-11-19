@@ -5,8 +5,8 @@
 <div class="w-full max-w-6xl mx-auto" x-data="{ editing: {% if profile_form.errors %}true{% else %}false{% endif %} }">
     {% include "clients/_header.html" %}
 
-    <div class="grid lg:grid-cols-3 gap-6">
-        <div class="lg:col-span-2 space-y-6">
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div class="lg:col-span-2 space-y-6 min-w-0">
             <section class="panel" aria-labelledby="health-title">
                 <div class="panel-header"><h2 id="health-title" class="section-title">Health</h2><span class="status status-{{ health.tone }}">{{ health.label }}</span></div>
                 <ul class="divide-y divide-hairline">
@@ -17,7 +17,7 @@
                             <p class="text-14 text-ink-muted mt-0.5">{{ signal.detail }}</p>
                         </div>
                         <div class="flex items-center gap-3 flex-shrink-0">
-                            <span class="status status-{{ signal.tone }}">{% if signal.tone == "danger" %}Act now{% elif signal.tone == "warning" %}Soon{% else %}Fine{% endif %}</span>
+                            <span class="status status-{{ signal.tone }}">{% if signal.tone == "danger" %}Act now{% elif signal.tone == "warning" %}Soon{% elif signal.tone == "neutral" %}Not tracked{% else %}Fine{% endif %}</span>
                             {% if signal.url %}<a href="{{ signal.url }}" class="link text-13">Open<span class="sr-only"> {{ signal.label|lower }}</span></a>{% endif %}
                         </div>
                     </li>
@@ -26,16 +26,16 @@
             </section>
 
             <section class="panel" aria-labelledby="upcoming-title">
-                <div class="panel-header"><h2 id="upcoming-title" class="section-title">Going out next</h2><a href="{% url 'calendar:calendar' workspace_id=workspace.id %}" class="link text-13">Calendar</a></div>
+                <div class="panel-header"><h2 id="upcoming-title" class="section-title">Going out next <span class="meta font-normal">· {{ workspace.effective_timezone|default:"studio time" }}</span></h2><a href="{% url 'calendar:calendar' workspace_id=workspace.id %}" class="link text-13">Calendar</a></div>
                 {% if upcoming %}
                 <ul class="divide-y divide-hairline">
-                    {% for pp in upcoming %}
+                    {% for item in upcoming %}
                     <li class="flex items-center justify-between gap-4 px-5 py-3">
                         <div class="min-w-0">
-                            <a href="{% url 'composer:compose_edit' workspace_id=workspace.id post_id=pp.post_id %}" class="text-14 font-medium text-ink hover:underline truncate block">{{ pp.post.title|default:pp.post.caption|truncatechars:70 }}</a>
-                            <p class="meta">{{ pp.social_account.get_platform_display }} · {{ pp.scheduled_at|date:"D j M, H:i" }}</p>
+                            <a href="{{ item.edit_url }}" class="text-14 font-medium text-ink hover:underline truncate block">{{ item.post.title|default:item.post.caption|default:"Untitled post"|truncatechars:70 }}</a>
+                            <p class="meta">{{ item.platforms|join:", " }} · {{ item.due|date:"D j M, H:i" }}</p>
                         </div>
-                        {% status "post" pp.status %}
+                        {% status "post" item.status %}
                     </li>
                     {% endfor %}
                 </ul>
@@ -61,7 +61,7 @@
             </section>
         </div>
 
-        <aside class="space-y-6">
+        <aside class="space-y-6 min-w-0">
             <section class="panel panel-body" aria-labelledby="retainer-title">
                 <h2 id="retainer-title" class="section-title mb-3">This month</h2>
                 {% if retainer %}

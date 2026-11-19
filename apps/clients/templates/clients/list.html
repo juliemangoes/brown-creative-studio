@@ -49,7 +49,7 @@
                         <span class="status status-{{ row.health.tone }}">{{ row.health.label }}</span>
                     </td>
                     <td class="num">{{ row.planned }}{% if row.retainer.posts_per_month %} <span class="text-ink-muted">of {{ row.retainer.posts_per_month }}</span>{% endif %}</td>
-                    <td class="num">{% if row.retainer %}{{ row.retainer.currency }} {{ row.retainer.monthly_fee|floatformat:"2g" }}{% else %}<span class="text-ink-muted">None</span>{% endif %}</td>
+                    <td class="num whitespace-nowrap">{% if row.retainer %}{{ row.retainer.currency }} {{ row.retainer.monthly_fee|floatformat:"2g" }}{% else %}<span class="text-ink-muted">None</span>{% endif %}</td>
                 </tr>
                 {% endfor %}
             </tbody>

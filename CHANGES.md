@@ -9,6 +9,54 @@ live in new Django apps and new files; those are listed per entry but need no
 merge care. See [docs/fork/README.md](docs/fork/README.md) for the working rules
 and the upstream merge procedure.
 
+## 2026-11-19 · Phase 2: clients and roles
+
+### Upstream files changed by hand
+
+| File | Change | Reason |
+|---|---|---|
+| `config/settings/base.py` | Added `apps.audit` and `apps.clients` to `LOCAL_APPS`; added `apps.studio.middleware.ClientScopeMiddleware` and `apps.audit.context.AuditContextMiddleware` right after `RBACMiddleware`. | Client users stay in the portal (server-side); audit entries know who acted. |
+| `config/urls.py` | Includes `apps.clients.urls` (`/clients/`) and `apps.studio.urls` (`/today/`). | New pages. |
+| `apps/accounts/views.py` | `dashboard` sends studio staff to Today (3 lines at the top). | The brief's start page. Client-only users never reach it (the middleware sends them to the portal). |
+| `.env.example` | `STUDIO_TIME_ZONE`, `STUDIO_COUNTRY`, `BILLING_CURRENCIES`, `STUDIO_ONBOARDING_STALL_DAYS`. | Documented studio defaults. |
+
+No upstream model, migration or permission table was edited. The new permission keys
+are added at start-up by `apps.studio.permissions.register()` (into
+`BUILTIN_ROLE_PERMISSIONS`, `BUILTIN_ORG_PERMISSIONS` and `ORG_PERMISSION_KEYS`), and are
+deliberately **not** added to `PERMISSION_KEYS`, which doubles as the Agent API scope
+list: the REST API and MCP stay limited to what BrightBean already exposes to staff.
+After an upstream merge, `apps/studio/tests/test_roles.py` fails if a new upstream role
+lacks the studio keys.
+
+### Behaviour changes to watch on upstream merges
+
+- A client user (only `client` workspace roles in an organization) who signs in with a
+  password is given the portal session a magic link would give, for their last (else
+  first) client workspace. BrightBean's portal otherwise only accepts magic-link
+  sessions. Code: `apps/studio/middleware.py`.
+- Client users get 403 on every studio URL of their own workspace except the approval
+  endpoints the portal posts to (`CLIENT_WORKSPACE_VIEWS`), and are redirected to the
+  portal from studio-wide pages. A new upstream view needs no change: it is blocked
+  unless added to the allow lists.
+
+### New files
+
+- `apps/studio/`: `permissions.py` (keys, role defaults, client role presets),
+  `StaffPermissionGrant` model, `middleware.py`, `decorators.py`
+  (`studio_staff_required`, `require_studio_permission`), `today.py` and the Today page,
+  `demo.py` and `seed_demo`, `services.py`.
+- `apps/audit/`: append-only `AuditEvent`, actor middleware, signal handlers for
+  approvals, publishing, memberships, roles and grants.
+- `apps/clients/`: `ClientProfile`, `Contact`, `ServiceLine`, `Retainer`, health
+  signals, client list and client pages.
+
+### Changed test expectations
+
+None. New tests: `apps/studio/tests/test_roles.py`, `test_today.py`,
+`test_demo_and_sweep.py` (157 workspace URLs × GET/POST refused for another client's
+user and for staff not on that client), `apps/clients/tests/test_clients.py`,
+`apps/audit/tests/test_audit.py`.
+
 ## 2026-11-19 · Phase 1: design system
 
 ### Mechanical changes (reproducible)

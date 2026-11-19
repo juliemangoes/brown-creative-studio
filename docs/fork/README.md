@@ -11,6 +11,7 @@ django-background-tasks) and under its license (AGPL-3.0).
 | [`baseline.md`](baseline.md) | Phase 0 baseline: test results, and where the build brief no longer matches the code |
 | [`deployment.md`](deployment.md) | Production on a VPS with Docker Compose, S3 storage, email, monitoring, backups |
 | [`design-system.md`](design-system.md) | Tokens, components, the shell registry and how to check a change |
+| [`clients-and-roles.md`](clients-and-roles.md) | Roles and permission keys, how client data is kept apart, audit log, Today, demo data |
 
 ## Rules that keep upstream merges cheap
 

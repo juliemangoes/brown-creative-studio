@@ -23,6 +23,8 @@ Role mapping (the brief's table):
 
 from __future__ import annotations
 
+from typing import Any
+
 # ── Workspace (per-client) keys ───────────────────────────────────────────────
 STUDIO_WORKSPACE_KEYS: dict[str, str] = {
     "view_client_profile": "See the client record (pipeline, contacts, services, retainer)",
@@ -119,11 +121,11 @@ def register() -> None:
             perms.setdefault(key, value)
 
     known = {key for key, _ in members.ORG_PERMISSION_KEYS}
-    members.ORG_PERMISSION_KEYS = tuple(members.ORG_PERMISSION_KEYS) + tuple(
+    members.ORG_PERMISSION_KEYS = tuple(members.ORG_PERMISSION_KEYS) + tuple(  # type: ignore[assignment]
         (key, label) for key, label in STUDIO_ORG_KEYS.items() if key not in known
     )
     for role, keys in ORG_ROLE_DEFAULTS.items():
-        members.BUILTIN_ORG_PERMISSIONS.setdefault(role, set()).update(keys)
+        members.BUILTIN_ORG_PERMISSIONS.setdefault(role, set()).update(keys)  # type: ignore[call-overload,arg-type]
 
 
 def client_role_permissions(preset: str) -> dict[str, bool]:
@@ -135,7 +137,7 @@ def client_role_permissions(preset: str) -> dict[str, bool]:
     return base
 
 
-def ensure_client_roles(organization) -> dict[str, object]:
+def ensure_client_roles(organization) -> dict[str, Any]:
     """Create (or refresh) the client role presets for ``organization``. Returns name -> CustomRole."""
     from apps.members.models import CustomRole
 

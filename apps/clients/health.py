@@ -134,11 +134,24 @@ def accounts_signal(workspace) -> Signal | None:
 
 
 def client_health(workspace, now=None) -> Health:
-    from apps.clients.models import Retainer
+    from apps.clients.models import ClientProfile, Retainer
 
     now = now or timezone.now()
-    retainer = Retainer.current_for(workspace)
-    signals = [approvals_signal(workspace, now), runway_signal(workspace, now, retainer)]
+    stage = ClientProfile.objects.filter(workspace=workspace).values_list("stage", flat=True).first()
+    if stage in (None, ClientProfile.Stage.ACTIVE):
+        runway_check = runway_signal(workspace, now, Retainer.current_for(workspace))
+    else:
+        # Content runway only matters while the studio is producing for the client.
+        planned, _ = runway(workspace, now)
+        label = dict(ClientProfile.Stage.choices).get(stage or "", "")
+        runway_check = Signal(
+            "runway",
+            "Content runway",
+            "neutral",
+            f"{planned} planned for the next 30 days. Tracked once the client is active (now: {label}).",
+            reverse("calendar:calendar", kwargs={"workspace_id": workspace.id}),
+        )
+    signals = [approvals_signal(workspace, now), runway_check]
     account = accounts_signal(workspace)
     if account:
         signals.append(account)

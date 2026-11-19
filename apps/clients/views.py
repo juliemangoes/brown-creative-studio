@@ -23,8 +23,9 @@ from apps.clients.models import ClientProfile, Contact, Retainer, ServiceLine
 from apps.clients.services import change_stage, create_client, profile_for
 from apps.members.decorators import require_permission
 from apps.members.models import WorkspaceMembership
-from apps.studio.decorators import require_studio_permission, studio_staff_required
+from apps.studio.decorators import in_local_time, in_studio_time, require_studio_permission, studio_staff_required
 from apps.studio.permissions import has_studio_permission, workspace_permission
+from apps.studio.today import posts_by_post
 
 SAVED_VIEWS = [
     ("active", "Active", [ClientProfile.Stage.ACTIVE]),
@@ -56,6 +57,7 @@ def _visible_memberships(request):
 
 
 @studio_staff_required
+@in_studio_time
 def client_list(request):
     view_key = request.GET.get("view", "active")
     view = next((v for v in SAVED_VIEWS if v[0] == view_key), SAVED_VIEWS[0])
@@ -142,12 +144,12 @@ def _overview(request, profile_form=None, status=200):
         .distinct()
         .count()
     )
-    upcoming = (
+    upcoming = posts_by_post(
         PlatformPost.objects.filter(post__workspace=ws, scheduled_at__gte=timezone.now())
         .exclude(status__in=["published", "failed"])
-        .select_related("post", "social_account")
-        .order_by("scheduled_at")[:6]
-    )
+        .select_related("post__workspace", "social_account")
+        .order_by("scheduled_at")[:40]
+    )[:6]
     if profile_form is None and ctx["can_edit"]:
         profile_form = ProfileForm(instance=ctx["profile"])
     ctx.update(
@@ -165,12 +167,14 @@ def _overview(request, profile_form=None, status=200):
 
 
 @require_permission("view_client_profile")
+@in_local_time
 def client_detail(request, workspace_id):
     return _overview(request)
 
 
 @require_permission("manage_client_profile")
 @require_POST
+@in_local_time
 def profile_update(request, workspace_id):
     profile = profile_for(request.workspace)
     previous_stage = profile.stage
@@ -188,6 +192,7 @@ def profile_update(request, workspace_id):
 
 
 @require_permission("view_client_profile")
+@in_local_time
 def client_contacts(request, workspace_id):
     ctx = _context(request, "contacts")
     contacts = list(Contact.objects.for_workspace(request.workspace.id).order_by("-is_primary", "name"))
@@ -230,6 +235,7 @@ def contact_delete(request, workspace_id, contact_id):
 
 
 @require_permission("view_client_profile")
+@in_local_time
 def client_services(request, workspace_id):
     ctx = _context(request, "services")
     ws = request.workspace
@@ -275,6 +281,7 @@ def retainer_save(request, workspace_id):
 
 
 @require_permission("view_client_profile")
+@in_local_time
 def client_activity(request, workspace_id):
     if not workspace_permission(request, "view_internal"):
         raise PermissionDenied

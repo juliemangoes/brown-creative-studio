@@ -157,6 +157,16 @@ def test_client_is_sent_to_the_portal_from_studio_wide_pages(client, studio, nam
 
 
 @pytest.mark.django_db
+def test_client_signing_in_with_a_password_lands_in_their_portal(client, studio):
+    client.force_login(studio["customer"])
+    response = client.get(reverse("dashboard"), follow=True)
+    assert response.redirect_chain[-1][0] == reverse("client_portal:dashboard")
+    assert response.status_code == 200
+    assert client.session["portal_workspace_id"] == str(studio["restaurant"].id)
+    assert "Luma Skincare" not in response.content.decode()
+
+
+@pytest.mark.django_db
 def test_client_can_still_use_the_portal_and_its_approval_endpoints(client, studio):
     client.force_login(studio["customer"])
     session = client.session

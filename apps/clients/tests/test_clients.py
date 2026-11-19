@@ -402,3 +402,30 @@ def test_runway_counts_planned_posts_against_the_retainer(studio):
     assert planned == 4
     assert last.date() == (now + timedelta(days=23)).date()
     assert {s.key: s for s in client_health(ws, now).signals}["runway"].tone == "success"
+
+
+def test_overview_lists_a_multi_platform_post_once_in_client_time(client, studio):
+    from datetime import UTC, datetime
+
+    from apps.composer.models import PlatformPost
+
+    ws = studio["restaurant"]
+    ws.timezone = "America/Belize"
+    ws.save()
+    ig, fb = make_account(ws, "Casa Maya"), make_account(ws, "Casa Maya Page", platform="facebook")
+    day = (timezone.now() + timedelta(days=2)).date()
+    when = datetime(day.year, day.month, day.day, 23, 0, tzinfo=UTC)  # 17:00 in Belize
+    post = make_post(ws, ig, status="scheduled", when=when, title="Marimba night")
+    PlatformPost.objects.create(post=post, social_account=fb, status="scheduled", scheduled_at=when)
+    client.force_login(studio["owner"])
+    body = client.get(_ws_url("clients:detail", ws)).content.decode()
+    assert body.count("Marimba night") == 1
+    assert "Instagram, Facebook" in body
+    assert "17:00" in body
+
+
+def test_runway_is_not_flagged_before_the_client_is_active(studio):
+    profile = profile_for(studio["skincare"])
+    change_stage(profile, ClientProfile.Stage.ONBOARDING, studio["owner"])
+    runway_signal = {s.key: s for s in client_health(studio["skincare"]).signals}["runway"]
+    assert runway_signal.tone == "neutral" and "Onboarding" in runway_signal.detail

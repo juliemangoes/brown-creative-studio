@@ -15,6 +15,7 @@ from __future__ import annotations
 from collections import OrderedDict
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta
+from typing import Any
 
 from django.conf import settings
 from django.urls import reverse
@@ -52,8 +53,8 @@ def staff_memberships(user, organization):
 
 @dataclass
 class PostItem:
-    workspace: object
-    post: object
+    workspace: Any
+    post: Any
     due: datetime | None
     statuses: list[str]
     platforms: list[str]
@@ -97,7 +98,7 @@ class ApprovalItem(PostItem):
 @dataclass
 class Today:
     workspaces: list
-    selected: object | None
+    selected: Any
     approvals: list[ApprovalItem] = field(default_factory=list)
     upcoming: OrderedDict = field(default_factory=OrderedDict)  # date -> [PostItem]
     upcoming_count: int = 0
@@ -130,6 +131,21 @@ def _group_by_post(platform_posts):
         if pp.publish_error:
             entry["errors"].append(pp.publish_error)
     return grouped.values()
+
+
+def posts_by_post(platform_posts) -> list[PostItem]:
+    """One item per post (platforms and statuses combined), in the queryset's order."""
+    return [
+        PostItem(
+            workspace=entry["pp"].post.workspace,
+            post=entry["pp"].post,
+            due=post_due_at(entry["pp"]),
+            statuses=entry["statuses"],
+            platforms=entry["platforms"],
+            error=(entry["errors"][0] if entry["errors"] else ""),
+        )
+        for entry in _group_by_post(platform_posts)
+    ]
 
 
 def _platform_posts(workspace_ids):
@@ -191,17 +207,7 @@ def failed(workspace_ids, now) -> list[PostItem]:
         .filter(status="failed", updated_at__gte=now - timedelta(days=FAILED_LOOKBACK_DAYS))
         .order_by("-updated_at")
     )
-    return [
-        PostItem(
-            workspace=entry["pp"].post.workspace,
-            post=entry["pp"].post,
-            due=post_due_at(entry["pp"]),
-            statuses=entry["statuses"],
-            platforms=entry["platforms"],
-            error=(entry["errors"][0] if entry["errors"] else ""),
-        )
-        for entry in _group_by_post(qs)
-    ]
+    return posts_by_post(qs)
 
 
 def content_gaps(workspaces, profiles, now) -> list[dict]:
