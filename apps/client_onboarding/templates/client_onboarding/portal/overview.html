@@ -1,0 +1,46 @@
+{% extends "client_portal/portal_base.html" %}
+{% load i18n %}
+{% block title %}{% translate "Getting started" %} · {{ workspace.name }}{% endblock %}
+{% block content %}
+<div class="space-y-8">
+    <header>
+        <h1 class="display-title">{% if run.status == "completed" %}{% translate "You're all set" %}{% else %}{% translate "Getting started" %}{% endif %}</h1>
+        {% if run.status == "completed" %}
+        <p class="text-ink-muted mt-2">{% translate "Thank you. Onboarding is complete and the studio has everything it needs to start." %}</p>
+        {% else %}
+        <p class="mt-2 whitespace-pre-line">{{ run.welcome_message }}</p>
+        {% endif %}
+    </header>
+
+    <section aria-labelledby="steps-title" class="panel panel-body">
+        <div class="flex items-center justify-between gap-3 mb-4">
+            <h2 id="steps-title" class="section-title">{% translate "Your steps" %}</h2>
+            <span class="meta tabular-nums">{% blocktranslate %}{{ done }} of {{ total }} done{% endblocktranslate %}</span>
+        </div>
+        <div class="meter mb-5" aria-hidden="true"><span style="width: {% widthratio done total 100 %}%"></span></div>
+        <ol class="stepper">
+            {% for step in steps %}
+            <li class="step" data-state="{% if step.is_finished %}done{% elif step == next_step %}current{% endif %}"{% if step == next_step %} aria-current="step"{% endif %}>
+                <span class="step-marker" aria-hidden="true">{% if step.is_finished %}✓{% else %}{{ forloop.counter }}{% endif %}</span>
+                <div class="flex-1 flex flex-wrap items-center justify-between gap-2">
+                    <div>
+                        <a href="{% url 'onboarding_portal:step' key=step.key %}" class="step-title text-16 hover:underline">{{ step.get_key_display }}</a>
+                        <p class="step-meta">{% if step.status == "done" %}{% translate "Done" %}{% elif step.status == "skipped" %}{% translate "Skipped" %}{% elif step.is_studio_step %}{% translate "The studio takes care of this" %}{% elif step.status == "in_progress" %}{% translate "Started — finish when you're ready" %}{% else %}{% translate "To do" %}{% endif %}</p>
+                    </div>
+                    {% if step == next_step and run.is_open %}<a href="{% url 'onboarding_portal:step' key=step.key %}" class="btn btn-primary">{% if step.status == "in_progress" %}{% translate "Continue" %}{% else %}{% translate "Start" %}{% endif %}</a>{% endif %}
+                </div>
+            </li>
+            {% endfor %}
+        </ol>
+    </section>
+
+    {% if run.timeline %}
+    <section aria-labelledby="timeline-title">
+        <h2 id="timeline-title" class="section-title mb-3">{% translate "What happens next" %}</h2>
+        <ol class="panel divide-y divide-hairline">
+            {% for item in run.timeline %}<li class="flex items-center justify-between gap-3 px-5 py-3"><span>{{ item.label }}</span><span class="meta">{{ item.when }}</span></li>{% endfor %}
+        </ol>
+    </section>
+    {% endif %}
+</div>
+{% endblock %}

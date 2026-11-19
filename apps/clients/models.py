@@ -34,6 +34,10 @@ class ClientProfile(models.Model):
     legal_name = models.CharField(max_length=255, blank=True, default="")
     industry = models.CharField(max_length=120, blank=True, default="")
     website = models.URLField(blank=True, default="")
+    address = models.TextField(blank=True, default="", help_text="Billing address, as it should appear on invoices.")
+    tax_id = models.CharField(
+        max_length=60, blank=True, default="", help_text="Tax or business registration number, if any."
+    )
     city = models.CharField(max_length=120, blank=True, default="")
     country = models.CharField(max_length=2, blank=True, default="", help_text="ISO 3166-1 alpha-2, e.g. BZ")
     portal_language = models.CharField(max_length=5, choices=settings.INTERFACE_LANGUAGES, default="en")

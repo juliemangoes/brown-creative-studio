@@ -1,0 +1,161 @@
+{% extends "base.html" %}
+{% load ds %}
+{% block title %}Onboarding · {{ workspace.name }} · {{ SITE_NAME }}{% endblock %}
+{% block content %}
+<div class="w-full max-w-6xl mx-auto">
+    {% include "clients/_header.html" %}
+
+    {% if not run %}
+    <section class="panel" aria-labelledby="start-title">
+        <div class="panel-header"><h2 id="start-title" class="section-title">Start onboarding</h2><a href="{% url 'client_onboarding:templates' %}" class="link text-13">Templates</a></div>
+        {% if form %}
+        <form method="post" action="{% url 'client_onboarding:start' workspace_id=workspace.id %}" class="panel-body grid md:grid-cols-2 gap-6">
+            {% csrf_token %}
+            <fieldset class="field"><legend class="label">{{ form.services.label }}</legend>
+                <div class="space-y-2 mt-1">{% for choice in form.services %}<label class="flex items-center gap-2 text-14" for="{{ choice.id_for_label }}">{{ choice.tag }} {{ choice.choice_label }}</label>{% endfor %}</div>
+                <p class="meta mt-1">The steps and questions adapt to these.</p></fieldset>
+            <fieldset class="field"><legend class="label">{{ form.contacts.label }}</legend>
+                {% if form.contacts.field.queryset.exists %}
+                <div class="space-y-2 mt-1">{% for choice in form.contacts %}<label class="flex items-center gap-2 text-14" for="{{ choice.id_for_label }}">{{ choice.tag }} {{ choice.choice_label }}</label>{% endfor %}</div>
+                <p class="meta mt-1">Each gets a sign-in link by email; no password needed. The first is the client admin.</p>
+                {% else %}<p class="text-14 text-ink-muted mt-1">No contacts with an email yet. <a href="{% url 'clients:contacts' workspace_id=workspace.id %}" class="link">Add one</a> first.</p>{% endif %}
+            </fieldset>
+            <div class="field md:col-span-2"><label class="label" for="{{ form.welcome_message.id_for_label }}">{{ form.welcome_message.label }}</label>{{ form.welcome_message }}</div>
+            <div class="field"><label class="label" for="{{ form.reminder_days.id_for_label }}">{{ form.reminder_days.label }}</label>{{ form.reminder_days }}<p class="meta mt-1">{{ form.reminder_days.help_text }}</p></div>
+            <div class="field"><label class="label" for="{{ form.kickoff_url.id_for_label }}">{{ form.kickoff_url.label }}</label>{{ form.kickoff_url }}<p class="meta mt-1">{{ form.kickoff_url.help_text }}</p></div>
+            <div class="md:col-span-2 flex justify-end"><button type="submit" class="btn btn-primary">Start and send invitations</button></div>
+        </form>
+        {% else %}
+        <div class="panel-body">{% include "ds/_state.html" with kind="empty" title="Onboarding hasn't started" body="Someone who manages this client starts it from here." %}</div>
+        {% endif %}
+    </section>
+    {% else %}
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div class="lg:col-span-2 space-y-6 min-w-0">
+            <section class="panel" aria-labelledby="progress-title">
+                <div class="panel-header">
+                    <h2 id="progress-title" class="section-title">Progress</h2>
+                    {% if run.status == "completed" %}<span class="status status-success">Completed {{ run.completed_at|date:"j M" }}</span>{% else %}<span class="meta tabular-nums">{{ done }} of {{ total }} steps</span>{% endif %}
+                </div>
+                <div class="panel-body">
+                    <div class="meter mb-5" aria-hidden="true"{% if run.status == "completed" %} data-tone="success"{% endif %}><span style="width: {{ percent }}%"></span></div>
+                    <ol class="stepper">
+                        {% for step in steps %}
+                        <li class="step" data-state="{% if step.is_finished %}done{% elif step.blocker %}blocked{% elif step.status == 'in_progress' %}current{% endif %}" x-data="{ open: false }">
+                            <span class="step-marker" aria-hidden="true">{% if step.is_finished %}✓{% else %}{{ forloop.counter }}{% endif %}</span>
+                            <div class="flex-1 min-w-0">
+                                <div class="flex flex-wrap items-center justify-between gap-2">
+                                    <p class="step-title">{{ step.get_key_display }}{% if step.is_studio_step %} <span class="meta font-normal">· confirmed by the studio</span>{% endif %}</p>
+                                    <div class="flex items-center gap-2">{% status "onboarding" step.status %}{% if can_manage and run.is_open %}<button type="button" class="btn btn-quiet btn-sm" @click="open = !open" :aria-expanded="open">Manage<span class="sr-only"> {{ step.get_key_display }}</span></button>{% endif %}</div>
+                                </div>
+                                <p class="step-meta">{% if step.is_finished %}{{ step.get_status_display }} {{ step.completed_at|date:"j M" }}{% if step.completed_by %} by {{ step.completed_by.name|default:step.completed_by.email }}{% endif %}{% elif step.status == "in_progress" %}Started, not finished{% elif step.is_studio_step %}Waiting on the studio{% else %}Waiting on the client{% endif %}</p>
+                                {% if step.blocker %}<p class="text-14 text-danger mt-1"><span class="font-medium">Blocked:</span> {{ step.blocker }} <span class="status status-neutral">Internal</span></p>{% endif %}
+                                {% if can_manage and run.is_open %}
+                                <div x-show="open" x-cloak class="mt-3 space-y-3">
+                                    <form method="post" action="{% url 'client_onboarding:step_action' workspace_id=workspace.id step_id=step.id %}" class="space-y-2">
+                                        {% csrf_token %}
+                                        {% if step.is_studio_step %}<div class="field"><label class="label" for="note-{{ step.id }}">Note for the client (shown on this step)</label><input id="note-{{ step.id }}" name="client_note" class="input" value="{{ step.client_note }}" placeholder="e.g. Signed on 12 Nov, thank you!"></div>{% endif %}
+                                        <div class="field"><label class="label" for="blocker-{{ step.id }}">Blocker (internal)</label><input id="blocker-{{ step.id }}" name="blocker" class="input" value="{{ step.blocker }}" placeholder="What's holding this up?"></div>
+                                        <div class="flex flex-wrap gap-2">
+                                            {% if not step.is_finished %}<button type="submit" name="action" value="done" class="btn btn-secondary btn-sm">Mark done</button><button type="submit" name="action" value="skip" class="btn btn-quiet btn-sm">Skip</button>{% else %}<button type="submit" name="action" value="reopen" class="btn btn-quiet btn-sm">Reopen</button>{% endif %}
+                                            <button type="submit" name="action" value="blocker" class="btn btn-quiet btn-sm">Save notes</button>
+                                        </div>
+                                    </form>
+                                </div>
+                                {% endif %}
+                            </div>
+                        </li>
+                        {% endfor %}
+                    </ol>
+                </div>
+            </section>
+
+            <section class="panel" aria-labelledby="answers-title">
+                <div class="panel-header"><h2 id="answers-title" class="section-title">Questionnaire answers</h2></div>
+                <dl class="divide-y divide-hairline">
+                    {% for question, answer in questions %}
+                    <div class="px-5 py-3"><dt class="text-13 font-medium text-ink-muted">{{ question.label }}{% if question.maps_to %} <span class="meta font-normal">→ brand {{ question.maps_to }}</span>{% endif %}</dt>
+                        <dd class="text-14 mt-1 whitespace-pre-line">{% if answer.value %}{{ answer.value }}<span class="block meta mt-1">{{ answer.by_name }} · {{ answer.at|slice:":10" }}</span>{% else %}<span class="text-ink-muted">Not answered yet{% if question.required %} (required){% endif %}</span>{% endif %}</dd></div>
+                    {% endfor %}
+                </dl>
+            </section>
+        </div>
+
+        <aside class="space-y-6 min-w-0">
+            {% if run.status == "completed" %}
+            <section class="panel panel-body" aria-labelledby="result-title">
+                <h2 id="result-title" class="section-title mb-3">What onboarding created</h2>
+                <ul class="space-y-2 text-14">
+                    <li><a href="{% url 'brand:profile' workspace_id=workspace.id %}" class="link">Brand profile</a>, filled from the answers</li>
+                    {% for project in projects %}<li><a href="{% url 'projects:project' workspace_id=workspace.id project_id=project.id %}" class="link">{{ project.name }}</a> <span class="meta">· {{ project.tasks.count }} tasks</span></li>{% endfor %}
+                </ul>
+            </section>
+            {% endif %}
+            <section class="panel" aria-labelledby="people-title">
+                <div class="panel-header"><h2 id="people-title" class="section-title">People</h2></div>
+                <ul class="divide-y divide-hairline">
+                    {% for p in participants %}
+                    <li class="px-5 py-3">
+                        <p class="text-14 font-medium">{{ p.user.name|default:p.user.email }}</p>
+                        <p class="meta">{% if p.has_responded %}Last did something {{ p.last_action_at|timesince }} ago{% elif p.last_seen_at %}Opened it, nothing filled in yet{% else %}<span class="text-danger">Hasn't responded</span>{% endif %}{% if p.reminders_sent %} · {{ p.reminders_sent }} reminder{{ p.reminders_sent|pluralize }}{% endif %}</p>
+                    </li>
+                    {% empty %}<li class="px-5 py-3 text-14 text-ink-muted">Nobody invited yet.</li>
+                    {% endfor %}
+                </ul>
+                {% if can_manage and run.is_open %}
+                <div class="panel-body border-t border-hairline space-y-3">
+                    {% if uninvited %}
+                    <form method="post" action="{% url 'client_onboarding:invite' workspace_id=workspace.id %}" class="flex flex-wrap items-end gap-2">{% csrf_token %}
+                        <div class="field flex-1 min-w-[10rem]"><label class="label" for="invite-contact">Invite</label><select id="invite-contact" name="contact" class="select">{% for c in uninvited %}<option value="{{ c.id }}">{{ c.name }}</option>{% endfor %}</select></div>
+                        <div class="field"><label class="label" for="invite-role">As</label><select id="invite-role" name="preset" class="select"><option>Client reviewer</option><option>Client admin</option><option>Client billing contact</option></select></div>
+                        <button type="submit" class="btn btn-secondary btn-sm">Invite</button>
+                    </form>
+                    {% endif %}
+                    <form method="post" action="{% url 'client_onboarding:remind' workspace_id=workspace.id %}">{% csrf_token %}<button type="submit" class="btn btn-quiet btn-sm">Send everyone a fresh link now</button></form>
+                </div>
+                {% endif %}
+            </section>
+
+            {% if run.is_open %}
+            <section class="panel panel-body" aria-labelledby="reminders-title">
+                <h2 id="reminders-title" class="section-title mb-2">Reminders</h2>
+                <p class="text-14">{% if run.next_reminder_at %}Next on {{ run.next_reminder_at|date:"D j M" }}, to anyone with steps left.{% else %}No more reminders scheduled.{% endif %} <span class="meta">{{ run.reminders_sent }} sent so far.</span></p>
+                {% if can_manage %}
+                <form method="post" action="{% url 'client_onboarding:reminders' workspace_id=workspace.id %}" class="mt-3 flex items-end gap-2">{% csrf_token %}
+                    <div class="field flex-1"><label class="label" for="{{ reminder_form.reminder_days.id_for_label }}">{{ reminder_form.reminder_days.label }}</label>{{ reminder_form.reminder_days }}</div>
+                    <button type="submit" class="btn btn-secondary btn-sm">Save</button>
+                </form>
+                {% endif %}
+            </section>
+
+            <section class="panel panel-body" aria-labelledby="kickoff-title">
+                <h2 id="kickoff-title" class="section-title mb-2">Kickoff</h2>
+                {% if run.kickoff_at %}<p class="text-14"><span class="font-medium">{{ run.kickoff_at|date:"l j F, H:i" }}</span>, booked by {{ run.kickoff_booked_by.name|default:run.kickoff_booked_by.email }}</p>
+                {% elif slots %}<p class="text-14">Offered: {% for s in slots %}{{ s|date:"D j M H:i" }}{% if not forloop.last %}, {% endif %}{% endfor %}</p>
+                {% elif run.kickoff_url %}<p class="text-14">Booked through <a href="{{ run.kickoff_url }}" class="link" rel="noopener">your booking page</a>.</p>
+                {% else %}<p class="text-14 text-ink-muted">No times offered yet.</p>{% endif %}
+                {% if can_manage and not run.kickoff_at %}
+                <form method="post" action="{% url 'client_onboarding:kickoff' workspace_id=workspace.id %}" class="mt-3 space-y-2">{% csrf_token %}
+                    <div class="field"><label class="label" for="slots">Times to offer, one per line ({{ workspace.effective_timezone|default:"studio time" }})</label><textarea id="slots" name="slots" rows="3" class="textarea" placeholder="2026-12-03 10:30">{% for s in slots %}{{ s|date:"Y-m-d H:i" }}
+{% endfor %}</textarea></div>
+                    <div class="field"><label class="label" for="kickoff-url">Or a booking page</label><input id="kickoff-url" name="kickoff_url" type="url" class="input" value="{{ run.kickoff_url }}" placeholder="https://"></div>
+                    <button type="submit" class="btn btn-secondary btn-sm">Save</button>
+                </form>
+                {% endif %}
+            </section>
+
+            {% if can_manage %}
+            <section class="panel panel-body space-y-2" aria-labelledby="finish-title">
+                <h2 id="finish-title" class="section-title">Finish</h2>
+                <p class="text-14 text-ink-muted">Onboarding completes by itself when every step is done or skipped. Completing it creates the brand profile, the projects with their starter tasks and the first content plan cycle, and moves the client to Active.</p>
+                <form method="post" action="{% url 'client_onboarding:complete' workspace_id=workspace.id %}" x-data @submit="if (!confirm('Skip the remaining steps and complete onboarding now?')) $event.preventDefault()">{% csrf_token %}<button type="submit" class="btn btn-secondary btn-sm">Complete now</button></form>
+                <form method="post" action="{% url 'client_onboarding:cancel' workspace_id=workspace.id %}" x-data @submit="if (!confirm('Cancel onboarding? Reminders stop and the client no longer sees it.')) $event.preventDefault()">{% csrf_token %}<button type="submit" class="btn btn-danger-quiet btn-sm">Cancel onboarding</button></form>
+            </section>
+            {% endif %}
+            {% endif %}
+        </aside>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

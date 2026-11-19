@@ -72,6 +72,7 @@ urlpatterns = [
     # Client Portal (Stream F)
     # Brown Creative Studio (CHANGES.md): the fork's portal sections, before the portal's catch-all token URL.
     path("portal/brand/", include("apps.brand.urls_portal")),
+    path("portal/onboarding/", include("apps.client_onboarding.urls_portal")),
     path("portal/", include("apps.client_portal.urls")),
     path("notifications/", include("apps.notifications.urls")),
     path("onboarding/", include("apps.onboarding.urls")),
@@ -82,6 +83,7 @@ urlpatterns = [
     path("clients/", include("apps.clients.urls")),
     path("projects/", include("apps.projects.urls")),
     path("brand/", include("apps.brand.urls")),
+    path("client-onboarding/", include("apps.client_onboarding.urls")),
     path("", include("apps.studio.urls")),
     path("", include("apps.accounts.urls_root")),
 ]

@@ -52,8 +52,10 @@ class ProfileForm(forms.ModelForm):
             "legal_name",
             "industry",
             "website",
+            "address",
             "city",
             "country",
+            "tax_id",
             "portal_language",
             "currency",
             "lead_source",
@@ -62,6 +64,7 @@ class ProfileForm(forms.ModelForm):
         labels = {
             "portal_language": "Portal language",
             "country": "Country code",
+            "tax_id": "Tax ID",
             "internal_notes": "Internal notes (never shown to the client)",
         }
         help_texts = {"country": "Two letters, for example BZ for Belize or GT for Guatemala."}

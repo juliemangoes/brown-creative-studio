@@ -1,0 +1,137 @@
+{% extends "client_portal/portal_base.html" %}
+{% load i18n %}
+{% block title %}{{ step.get_key_display }} · {{ workspace.name }}{% endblock %}
+{% block content %}
+<div class="space-y-6">
+    <p><a href="{% url 'onboarding_portal:overview' %}" class="link">← {% translate "All steps" %}</a></p>
+    <header>
+        <p class="meta">{% blocktranslate with n=step.position|add:1 total=steps|length %}Step {{ n }} of {{ total }}{% endblocktranslate %}</p>
+        <h1 class="display-title">{{ step.get_key_display }}</h1>
+        {% if step.is_finished %}<p class="mt-2"><span class="status status-success">{% if step.status == "skipped" %}{% translate "Skipped" %}{% else %}{% translate "Done" %}{% endif %}</span></p>{% endif %}
+    </header>
+
+    {% if step.key == "welcome" %}
+    <div class="panel panel-body space-y-4">
+        <p class="whitespace-pre-line">{{ run.welcome_message }}</p>
+        {% if run.timeline %}<ol class="divide-y divide-hairline border border-hairline rounded-panel">{% for item in run.timeline %}<li class="flex items-center justify-between gap-3 px-4 py-3"><span>{{ item.label }}</span><span class="meta">{{ item.when }}</span></li>{% endfor %}</ol>{% endif %}
+        {% if run.is_open and not step.is_finished %}<form method="post">{% csrf_token %}<button type="submit" class="btn btn-primary">{% translate "Let's start" %}</button></form>{% endif %}
+    </div>
+
+    {% elif step.is_studio_step %}
+    <div class="panel panel-body space-y-3">
+        {% if step.key == "proposal" %}<p>{% translate "The studio sends your proposal separately. Once you've accepted it, they'll mark this step done." %}</p>
+        {% elif step.key == "contract" %}<p>{% translate "Your contract comes from the studio for signature. This step is marked done once it's signed." %}</p>
+        {% else %}<p>{% translate "The studio sends the deposit or first invoice separately, with bank transfer details. This step is marked done once the payment arrives." %}</p>{% endif %}
+        {% if step.client_note %}<p class="text-ink-muted">{{ step.client_note }}</p>{% endif %}
+        <p class="meta">{% translate "Nothing to do here for now." %}</p>
+    </div>
+
+    {% elif step.key == "details" %}
+    <form method="post" class="panel panel-body space-y-5" x-data="{ people: [] }" @submit="$refs.people.value = JSON.stringify(people)">
+        {% csrf_token %}
+        <p class="text-ink-muted">{% translate "These go on invoices and contracts. We only ask once." %}</p>
+        <div class="grid sm:grid-cols-2 gap-4">
+            {% for field in form %}<div class="field{% if field.name == 'address' %} sm:col-span-2{% endif %}"><label class="label" for="{{ field.id_for_label }}">{{ field.label }}</label>{{ field }}{% if field.help_text %}<p class="meta mt-1">{{ field.help_text }}</p>{% endif %}{% for e in field.errors %}<p class="field-error">{{ e }}</p>{% endfor %}</div>{% endfor %}
+        </div>
+        <fieldset>
+            <legend class="label">{% translate "Anyone else we'll work with?" %}</legend>
+            {% if people %}<ul class="text-14 text-ink-muted mt-1 mb-2">{% for p in people %}<li>{{ p.name }}{% if p.email %} · {{ p.email }}{% endif %}</li>{% endfor %}</ul>{% endif %}
+            <template x-for="(person, i) in people" :key="i">
+                <div class="grid sm:grid-cols-3 gap-2 mt-2">
+                    <div class="field"><label class="label" :for="'p-name-' + i">{% translate "Name" %}</label><input :id="'p-name-' + i" class="input" x-model="person.name"></div>
+                    <div class="field"><label class="label" :for="'p-email-' + i">{% translate "Email" %}</label><input :id="'p-email-' + i" type="email" class="input" x-model="person.email"></div>
+                    <div class="field"><label class="label" :for="'p-title-' + i">{% translate "Role" %}</label><input :id="'p-title-' + i" class="input" x-model="person.title"></div>
+                    <label class="flex items-center gap-2 text-14 sm:col-span-3" :for="'p-ap-' + i"><input :id="'p-ap-' + i" type="checkbox" class="checkbox" x-model="person.is_approver"> {% translate "Approves our work" %}</label>
+                </div>
+            </template>
+            <button type="button" class="btn btn-secondary btn-sm mt-2" @click="people.push({ name: '', email: '', title: '', is_approver: false })">{% translate "Add a person" %}</button>
+            <input type="hidden" name="people_json" x-ref="people">
+        </fieldset>
+        {% if run.is_open %}<button type="submit" class="btn btn-primary">{% translate "Save details" %}</button>{% endif %}
+    </form>
+
+    {% elif step.key == "questionnaire" %}
+    <form method="post" class="space-y-5">
+        {% csrf_token %}
+        <p class="text-ink-muted">{% translate "Answer in your own words; short is fine. Everything saves, and anyone on your team can add to it." %}</p>
+        {% for question, answer in questions %}
+        <div class="panel panel-body field">
+            <label class="label text-16" for="q-{{ question.key }}">{{ question.label }}{% if question.required %} <span class="text-danger">*</span><span class="sr-only"> ({% translate "required" %})</span>{% endif %}</label>
+            {% if question.help %}<p class="meta mb-1">{{ question.help }}</p>{% endif %}
+            {% if question.kind == "choice" %}
+            <select id="q-{{ question.key }}" name="q_{{ question.key }}" class="select"><option value="">{% translate "Choose one" %}</option>{% for c in question.choices %}<option{% if answer.value == c %} selected{% endif %}>{{ c }}</option>{% endfor %}</select>
+            {% elif question.kind == "text" %}
+            <input id="q-{{ question.key }}" name="q_{{ question.key }}" class="input" value="{{ answer.value|default:'' }}">
+            {% else %}
+            <textarea id="q-{{ question.key }}" name="q_{{ question.key }}" class="textarea" rows="{% if question.kind == 'list' %}5{% else %}4{% endif %}">{{ answer.value|default:"" }}</textarea>
+            {% endif %}
+            {% if answer.by_name %}<p class="meta mt-1">{% blocktranslate with name=answer.by_name %}Last answered by {{ name }}{% endblocktranslate %}</p>{% endif %}
+        </div>
+        {% endfor %}
+        {% if run.is_open %}
+        <div class="flex flex-wrap gap-2">
+            <button type="submit" name="submit" value="1" class="btn btn-primary">{% translate "Send answers" %}</button>
+            <button type="submit" name="submit" value="0" class="btn btn-secondary">{% translate "Save and finish later" %}</button>
+        </div>
+        {% endif %}
+    </form>
+
+    {% elif step.key == "uploads" %}
+    <div class="space-y-4">
+        <p class="text-ink-muted">{% translate "Send us what you have: logos in any format, font files, photos of your products, place and team, and anything you've used before. Files are private and checked for viruses." %}</p>
+        {% for key, label in categories %}
+        <form method="post" action="{% url 'onboarding_portal:upload' category=key %}" enctype="multipart/form-data" class="panel panel-body flex flex-wrap items-end justify-between gap-3">
+            {% csrf_token %}
+            <div class="field"><label class="label text-16" for="up-{{ key }}">{{ label }}</label><input id="up-{{ key }}" type="file" name="files" multiple class="block text-14" required{% if key == "photos" %} accept="image/jpeg,image/png,image/webp"{% endif %}></div>
+            <button type="submit" class="btn btn-secondary">{% translate "Upload" %}</button>
+        </form>
+        {% endfor %}
+        {% if uploaded %}
+        <div class="panel"><h2 class="section-title px-5 pt-4">{% translate "Received" %}</h2><ul class="divide-y divide-hairline">{% for f in uploaded %}<li class="px-5 py-2 text-14">{{ f.original_name }} <span class="meta">· {{ f.size_label }}</span></li>{% endfor %}</ul></div>
+        {% endif %}
+        {% if run.is_open and not step.is_finished %}
+        <form method="post" class="flex flex-wrap gap-2">{% csrf_token %}
+            <button type="submit" class="btn btn-primary">{% translate "That's everything" %}</button>
+            <button type="submit" name="none" value="1" class="btn btn-quiet">{% translate "We don't have any of these yet" %}</button>
+        </form>
+        {% endif %}
+    </div>
+
+    {% elif step.key == "accounts" %}
+    <div class="space-y-4">
+        <p>{% translate "Connect the accounts we'll post to. You sign in on each platform's own page; we never see your password, and you can remove access at any time." %}</p>
+        <ul class="panel divide-y divide-hairline">
+            {% for name, help in platform_help %}<li class="px-5 py-3"><p class="font-medium">{{ name }}</p><p class="text-14 text-ink-muted mt-0.5">{{ help }}</p></li>{% endfor %}
+        </ul>
+        {% if run.is_open %}<a href="{{ connect_url }}" class="btn btn-primary">{% translate "Connect accounts" %}</a>{% endif %}
+        {% if accounts %}
+        <div class="panel panel-body"><h2 class="section-title mb-2">{% translate "Connected" %}</h2><ul class="space-y-1">{% for a in accounts %}<li>{{ a.account_name }} <span class="meta">· {{ a.get_platform_display }}</span></li>{% endfor %}</ul></div>
+        {% endif %}
+        {% if run.is_open and not step.is_finished %}
+        <form method="post">{% csrf_token %}<button type="submit" class="btn btn-secondary">{% if accounts %}{% translate "Done connecting" %}{% else %}{% translate "We'll do this later" %}{% endif %}</button></form>
+        {% endif %}
+    </div>
+
+    {% elif step.key == "kickoff" %}
+    <div class="panel panel-body space-y-4">
+        {% if run.kickoff_at %}
+        <p>{% blocktranslate with when=run.kickoff_at|date:"l j F, H:i" %}Your kickoff is booked for {{ when }}.{% endblocktranslate %}</p>
+        {% elif slots %}
+        <p>{% translate "Choose a time for our kickoff call (about an hour):" %}</p>
+        <form method="post" class="space-y-3">{% csrf_token %}
+            <fieldset class="space-y-2"><legend class="sr-only">{% translate "Available times" %}</legend>
+                {% for s in slots %}<label class="flex items-center gap-3 p-3 border border-hairline rounded-control" for="slot-{{ forloop.counter }}"><input id="slot-{{ forloop.counter }}" type="radio" name="slot" value="{{ s.isoformat }}" required> {{ s|date:"l j F, H:i" }}</label>{% endfor %}
+            </fieldset>
+            <button type="submit" class="btn btn-primary">{% translate "Book this time" %}</button>
+        </form>
+        {% elif run.kickoff_url %}
+        <p>{% translate "Pick a time that suits you on our booking page, then come back and tell us it's done." %}</p>
+        <a href="{{ run.kickoff_url }}" class="btn btn-secondary" target="_blank" rel="noopener">{% translate "Open the booking page" %}</a>
+        <form method="post">{% csrf_token %}<input type="hidden" name="external" value="1"><button type="submit" class="btn btn-primary">{% translate "I've booked it" %}</button></form>
+        {% else %}
+        <p>{% translate "The studio will offer times for the kickoff call here shortly." %}</p>
+        {% endif %}
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

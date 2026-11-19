@@ -16,6 +16,7 @@
     </div>
     <nav class="tabs mt-6" aria-label="Client">
         <a href="{% url 'clients:detail' workspace_id=workspace.id %}" class="tab"{% if tab == "overview" %} aria-current="page"{% endif %}>Overview</a>
+        <a href="{% url 'client_onboarding:run' workspace_id=workspace.id %}" class="tab"{% if tab == "onboarding" %} aria-current="page"{% endif %}>Onboarding</a>
         <a href="{% url 'clients:contacts' workspace_id=workspace.id %}" class="tab"{% if tab == "contacts" %} aria-current="page"{% endif %}>Contacts</a>
         <a href="{% url 'clients:services' workspace_id=workspace.id %}" class="tab"{% if tab == "services" %} aria-current="page"{% endif %}>Services and retainer</a>
         <a href="{% url 'brand:profile' workspace_id=workspace.id %}" class="tab"{% if tab == "brand" %} aria-current="page"{% endif %}>Brand</a>

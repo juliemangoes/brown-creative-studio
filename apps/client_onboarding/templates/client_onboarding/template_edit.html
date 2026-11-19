@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+{% block title %}{{ template.name }} · Onboarding templates · {{ SITE_NAME }}{% endblock %}
+{% block content %}
+<div class="w-full max-w-5xl mx-auto">
+    <p class="meta mb-1"><a href="{% url 'client_onboarding:templates' %}" class="link">← Onboarding templates</a></p>
+    <h1 class="page-title mb-6">{{ template.name }}</h1>
+    {% if errors %}<div class="state state-error mb-6" role="alert"><p class="state-title">Check the template</p><p class="state-body">{{ errors|join:" " }}</p></div>{% endif %}
+    {{ questions|json_script:"onboarding-questions" }}
+    <form method="post" class="space-y-6" x-data="questionEditor()" @submit="$refs.out.value = JSON.stringify(questions)">
+        {% csrf_token %}
+        <div class="panel panel-body grid md:grid-cols-2 gap-4">
+            <div class="field"><label class="label" for="t-name">Name</label><input id="t-name" name="name" class="input" value="{{ template.name }}" maxlength="120"></div>
+            {% if not template.service_kind %}
+            <div class="field"><label class="label" for="t-rem">Reminders after (days)</label><input id="t-rem" name="reminder_days" class="input" value="{{ template.reminder_days|join:', ' }}"></div>
+            <div class="field md:col-span-2"><label class="label" for="t-welcome">Welcome message</label><textarea id="t-welcome" name="welcome_message" rows="4" class="textarea">{{ template.welcome_message }}</textarea></div>
+            {% else %}<input type="hidden" name="reminder_days" value="{{ template.reminder_days|join:', ' }}"><input type="hidden" name="welcome_message" value="{{ template.welcome_message }}">{% endif %}
+            <div class="field md:col-span-2"><label class="label" for="t-timeline">Timeline, one line each: what | when</label><textarea id="t-timeline" name="timeline" rows="4" class="textarea">{% for item in template.timeline %}{{ item.label }} | {{ item.when }}
+{% endfor %}</textarea></div>
+            <fieldset class="field md:col-span-2"><legend class="label">Steps this template adds</legend>
+                <div class="grid sm:grid-cols-3 gap-2 mt-1">{% for key, label in step_choices %}<label class="flex items-center gap-2 text-14" for="s-{{ key }}"><input id="s-{{ key }}" type="checkbox" name="steps" value="{{ key }}" class="checkbox"{% if key in template.steps %} checked{% endif %}> {{ label }}</label>{% endfor %}</div>
+            </fieldset>
+        </div>
+        <section class="panel" aria-labelledby="q-title">
+            <div class="panel-header"><h2 id="q-title" class="section-title">Questions</h2><span class="meta">“Fills” sends the answer into the brand profile.</span></div>
+            <ul class="divide-y divide-hairline">
+                <template x-for="(q, i) in questions" :key="i">
+                    <li class="panel-body grid md:grid-cols-6 gap-3 items-end">
+                        <div class="field md:col-span-3"><label class="label" :for="'q-label-' + i">Question</label><input :id="'q-label-' + i" class="input" x-model="q.label" maxlength="300"></div>
+                        <div class="field"><label class="label" :for="'q-kind-' + i">Answer</label><select :id="'q-kind-' + i" class="select" x-model="q.kind"><option value="long">Paragraph</option><option value="text">Short</option><option value="list">List</option><option value="choice">Choice</option></select></div>
+                        <div class="field"><label class="label" :for="'q-map-' + i">Fills</label><select :id="'q-map-' + i" class="select" x-model="q.maps_to"><option value="">Nothing</option><option value="purpose">Purpose</option><option value="positioning">Positioning</option><option value="audiences">Audiences</option><option value="values">Values</option><option value="personality">Personality</option><option value="voice">Voice</option><option value="competitors">Competitors</option><option value="content_likes">Content they like</option><option value="content_avoid">Content to avoid</option><option value="key_messages">Key messages</option></select></div>
+                        <div class="flex items-center gap-3 pb-2"><label class="flex items-center gap-2 text-14" :for="'q-req-' + i"><input :id="'q-req-' + i" type="checkbox" class="checkbox" x-model="q.required"> Required</label><button type="button" class="btn-icon btn-icon-sm" @click="questions.splice(i, 1)" :aria-label="'Remove question ' + (i + 1)">✕</button></div>
+                        <div class="field md:col-span-3"><label class="label" :for="'q-help-' + i">Hint</label><input :id="'q-help-' + i" class="input" x-model="q.help" maxlength="300"></div>
+                        <div class="field md:col-span-3" x-show="q.kind === 'choice'"><label class="label" :for="'q-choices-' + i">Choices, one per line</label><textarea :id="'q-choices-' + i" class="textarea" rows="3" :value="(q.choices || []).join('\n')" @input="q.choices = $event.target.value.split('\n').filter(l => l.trim())"></textarea></div>
+                    </li>
+                </template>
+            </ul>
+            <div class="panel-body border-t border-hairline"><button type="button" class="btn btn-secondary btn-sm" @click="questions.push({ key: '', label: '', kind: 'long', help: '', required: false, choices: [], maps_to: '' })">Add question</button></div>
+        </section>
+        <input type="hidden" name="questions_json" x-ref="out">
+        <div class="flex justify-end gap-2"><a href="{% url 'client_onboarding:templates' %}" class="btn btn-quiet">Cancel</a><button type="submit" class="btn btn-primary">Save template</button></div>
+    </form>
+</div>
+{% endblock %}
+{% block extra_js %}
+<script nonce="{{ request.csp_nonce }}">
+function questionEditor() {
+  var raw = JSON.parse(document.getElementById('onboarding-questions').textContent || '[]');
+  return { questions: raw.map(function (q) { return Object.assign({ key: '', label: '', kind: 'long', help: '', required: false, choices: [], maps_to: '' }, q); }) };
+}
+</script>
+{% endblock %}

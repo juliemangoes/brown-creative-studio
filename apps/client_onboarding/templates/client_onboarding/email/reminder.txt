@@ -1,0 +1,9 @@
+Hello {{ user.name|default:"there" }},
+
+A quick reminder from {{ site_name }}: {{ workspace.name }}'s onboarding still has {{ left|length }} step{{ left|length|pluralize }} to go:
+{% for step in left %}- {{ step.get_key_display }}
+{% endfor %}
+Pick up where you left off (this link signs you in):
+{{ portal_url }}
+
+{{ site_name }}

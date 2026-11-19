@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% block title %}Onboarding templates · {{ SITE_NAME }}{% endblock %}
+{% block content %}
+<div class="w-full max-w-6xl mx-auto">
+    {% include "ds/_page_header.html" with title="Onboarding templates" description="What onboarding asks for each service. A client with several services gets one flow: the “Every client” welcome, timeline and reminders, plus each service's steps and questions." %}
+    <ul class="grid sm:grid-cols-2 gap-4">
+        {% for template in templates %}
+        <li class="panel panel-body flex flex-col">
+            <p class="meta">{% if template.service_kind %}{% for k, v in service_names.items %}{% if k == template.service_kind %}{{ v }}{% endif %}{% endfor %}{% else %}Every client{% endif %}</p>
+            <h2 class="text-16 font-semibold mt-1">{{ template.name }}</h2>
+            <p class="meta mt-2 tabular-nums">{{ template.questions|length }} questions{% if template.steps %} · {{ template.steps|length }} steps{% endif %}{% if template.reminder_days %} · reminders after {{ template.reminder_days|join:", " }} days{% endif %}</p>
+            {% if can_edit %}<a href="{% url 'client_onboarding:template_edit' template_id=template.id %}" class="btn btn-secondary btn-sm mt-3 self-start">Edit<span class="sr-only"> {{ template.name }}</span></a>{% endif %}
+        </li>
+        {% endfor %}
+    </ul>
+    {% if not can_edit %}<p class="meta mt-4">Only people allowed to manage templates can change them.</p>{% endif %}
+</div>
+{% endblock %}
