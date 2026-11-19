@@ -1,0 +1,23 @@
+{# Task filters (GET). Context: params, view, status_filters, due_filters, kinds, people, clients (optional), show_client, base_url #}
+<form method="get" action="{{ base_url }}" class="flex flex-wrap items-end gap-3" aria-label="Filter tasks">
+    <input type="hidden" name="view" value="{{ view }}">
+    <div class="field"><label class="label" for="f-status">Status</label>
+        <select id="f-status" name="status" class="select">{% for key, label in status_filters %}<option value="{{ key }}"{% if params.status == key or not params.status and key == "open" %} selected{% endif %}>{{ label }}</option>{% endfor %}</select></div>
+    <div class="field"><label class="label" for="f-assignee">Assigned to</label>
+        <select id="f-assignee" name="assignee" class="select">
+            <option value="">Anyone</option>
+            <option value="me"{% if params.assignee == "me" %} selected{% endif %}>Me</option>
+            <option value="none"{% if params.assignee == "none" %} selected{% endif %}>Nobody yet</option>
+            {% for person in people %}<option value="{{ person.id }}"{% if params.assignee == person.id|stringformat:"s" %} selected{% endif %}>{{ person.name|default:person.email }}</option>{% endfor %}
+        </select></div>
+    {% if show_client %}
+    <div class="field"><label class="label" for="f-client">Client</label>
+        <select id="f-client" name="client" class="select"><option value="">All clients</option>{% for ws in clients %}<option value="{{ ws.id }}"{% if params.client == ws.id|stringformat:"s" %} selected{% endif %}>{{ ws.name }}</option>{% endfor %}</select></div>
+    <div class="field"><label class="label" for="f-kind">Project type</label>
+        <select id="f-kind" name="kind" class="select"><option value="">Any type</option>{% for key, label in kinds %}<option value="{{ key }}"{% if params.kind == key %} selected{% endif %}>{{ label }}</option>{% endfor %}</select></div>
+    {% endif %}
+    <div class="field"><label class="label" for="f-due">Due</label>
+        <select id="f-due" name="due" class="select">{% for key, label in due_filters %}<option value="{{ key }}"{% if params.due == key %} selected{% endif %}>{{ label }}</option>{% endfor %}</select></div>
+    <label class="flex items-center gap-2 text-14 pb-2" for="f-milestones"><input id="f-milestones" type="checkbox" name="milestones" value="1" class="checkbox"{% if params.milestones == "1" %} checked{% endif %}> Milestones only</label>
+    <div class="flex gap-2 pb-0.5"><button type="submit" class="btn btn-secondary btn-sm">Apply</button><a href="{{ base_url }}?view={{ view }}" class="btn btn-quiet btn-sm">Clear</a></div>
+</form>

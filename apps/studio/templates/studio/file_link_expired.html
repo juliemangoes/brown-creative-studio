@@ -1,0 +1,5 @@
+{% extends "about/base_public.html" %}
+{% block title %}Link expired · {{ SITE_NAME }}{% endblock %}
+{% block content %}
+{% include "ds/_state.html" with kind="error" title="This download link has expired" body="Download links work for a few minutes so files stay private. Go back to the page you came from and click the file again." %}
+{% endblock %}

@@ -428,3 +428,42 @@
   /* Comfortable touch targets: clients approve from their phones. */
   .portal .btn { min-height: 2.75rem; padding-left: 1rem; padding-right: 1rem; font-size: 1rem; }
 }
+
+/* Phase 3: progress, task board, timeline, month grid, swatches. */
+@layer components {
+  /* A progress meter. The number is always written beside it: the bar is never the only signal. */
+  .meter { height: 0.375rem; border-radius: 9999px; background: var(--sunken); overflow: hidden; }
+  .meter > span { display: block; height: 100%; background: var(--accent); border-radius: inherit; }
+  .meter[data-tone="success"] > span { background: var(--success); }
+  .meter[data-tone="warning"] > span { background: var(--warning); }
+
+  /* Task board: one column per status, scrolls sideways on small screens. */
+  .board { display: grid; grid-auto-flow: column; grid-auto-columns: minmax(15rem, 1fr); gap: 0.75rem; overflow-x: auto; padding-bottom: 0.25rem; }
+  .board-column { display: flex; flex-direction: column; gap: 0.5rem; min-height: 12rem; padding: 0.625rem; border-radius: var(--radius-panel); background: var(--sunken); }
+  .board-column-title { display: flex; align-items: center; justify-content: space-between; padding: 0.125rem 0.25rem 0.25rem; font-size: 0.8125rem; font-weight: 600; color: var(--text-secondary); }
+  .task-card { display: block; padding: 0.625rem 0.75rem; border: 1px solid var(--hairline); border-radius: var(--radius-control); background: var(--surface); }
+  .task-card:hover { border-color: var(--control-border); }
+  .task-card.sortable-ghost { opacity: 0.4; }
+  .task-card[draggable="true"] { cursor: grab; }
+
+  /* Timeline: a label column, then one grid column per day. */
+  .timeline { overflow-x: auto; }
+  .timeline-grid { display: grid; grid-template-columns: minmax(9rem, 13rem) repeat(var(--days), minmax(0.875rem, 1fr)); min-width: 48rem; }
+  .timeline-week { grid-column: span 7; padding: 0.375rem 0.5rem; border-left: 1px solid var(--hairline); font-size: 0.75rem; color: var(--text-secondary); }
+  .timeline-label { grid-column: 1; padding: 0.375rem 0.75rem 0.375rem 0; font-size: 0.8125rem; color: var(--text-primary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .timeline-bar { align-self: center; height: 1.375rem; padding: 0 0.375rem; border-radius: var(--radius-control); border: 1px solid var(--accent-line); background: var(--accent-soft); color: var(--text-primary); font-size: 0.75rem; line-height: 1.25rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .timeline-bar[data-state="done"] { border-color: var(--hairline); background: var(--sunken); color: var(--text-secondary); text-decoration: line-through; }
+  .timeline-bar[data-state="overdue"] { border-color: var(--danger); background: var(--danger-soft); }
+  .timeline-bar[data-milestone="true"] { border-width: 2px; font-weight: 600; }
+  .timeline-today { grid-row: 1 / -1; width: 2px; justify-self: center; background: var(--accent); opacity: 0.5; pointer-events: none; }
+
+  /* Month grid for tasks by due date. */
+  .month-grid { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); border-top: 1px solid var(--hairline); border-left: 1px solid var(--hairline); }
+  .month-cell { min-height: 6.5rem; padding: 0.375rem; border-right: 1px solid var(--hairline); border-bottom: 1px solid var(--hairline); font-size: 0.75rem; }
+  .month-cell[data-other="true"] { background: var(--sunken); }
+  .month-cell[data-today="true"] .month-day { color: var(--on-accent); background: var(--accent); }
+  .month-day { display: inline-flex; min-width: 1.375rem; height: 1.375rem; align-items: center; justify-content: center; border-radius: 9999px; font-variant-numeric: tabular-nums; color: var(--text-secondary); }
+
+  /* A brand colour: the swatch is the client's colour, the label stays in ink. */
+  .swatch { width: 100%; aspect-ratio: 4 / 3; border-radius: var(--radius-control); border: 1px solid var(--hairline); }
+}

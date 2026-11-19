@@ -82,6 +82,7 @@ LOCAL_APPS = [
     "apps.studio",
     "apps.audit",
     "apps.clients",
+    "apps.projects",
     "theme",
 ]
 

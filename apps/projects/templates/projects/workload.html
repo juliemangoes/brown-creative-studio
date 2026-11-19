@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% block title %}Workload · Projects · {{ SITE_NAME }}{% endblock %}
+{% block content %}
+<div class="w-full max-w-6xl mx-auto">
+    {% include "ds/_page_header.html" with title="Projects" description="Open tasks by person and week, by due date, for the clients you manage." %}
+    {% include "projects/_subnav.html" with subnav="workload" can_manage_any=True %}
+    <div class="panel overflow-x-auto">
+        <table class="table">
+            <caption class="sr-only">Open tasks by person and week</caption>
+            <thead><tr><th scope="col">Person</th><th scope="col" class="num">Overdue</th>{% for week in workload.columns %}<th scope="col" class="num">{% if forloop.first %}This week{% else %}{{ week|date:"j M" }}{% endif %}</th>{% endfor %}<th scope="col" class="num">No date</th><th scope="col" class="num">Total</th></tr></thead>
+            <tbody>
+                {% for row in workload.rows %}
+                <tr>
+                    <th scope="row" class="font-medium text-14">{% if row.person %}{{ row.person.name|default:row.person.email }}{% else %}<span class="text-ink-muted">Not assigned</span>{% endif %}</th>
+                    <td class="num">{% if row.overdue %}<a href="{% url 'projects:all' %}?assignee={% if row.person %}{{ row.person.id }}{% else %}none{% endif %}&amp;due=overdue" class="text-danger font-medium">{{ row.overdue }}</a>{% else %}<span class="text-ink-muted">0</span>{% endif %}</td>
+                    {% for cell in row.cells %}
+                    <td class="num">{% if cell.n %}<a href="{% url 'projects:all' %}?status=open&amp;assignee={% if row.person %}{{ row.person.id }}{% else %}none{% endif %}&amp;week={{ cell.start|date:'Y-m-d' }}" class="link{% if cell.n >= 8 %} font-semibold{% endif %}">{{ cell.n }}</a>{% if cell.n >= 8 %}<span class="sr-only"> (heavy week)</span>{% endif %}{% else %}<span class="text-ink-muted">0</span>{% endif %}</td>
+                    {% endfor %}
+                    <td class="num">{{ row.undated }}</td>
+                    <td class="num font-medium">{{ row.total }}</td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="10">{% include "ds/_state.html" with kind="empty" title="Nobody has open tasks" body="Tasks assigned to people show here, week by week." %}</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    <p class="meta mt-3">Counts open tasks by due date. Bold marks a week with 8 or more. Click a number to see those tasks.</p>
+</div>
+{% endblock %}

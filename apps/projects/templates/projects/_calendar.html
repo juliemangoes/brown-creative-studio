@@ -1,0 +1,21 @@
+<div class="flex items-center justify-between mb-3">
+    <a href="{{ base_url }}?{{ current_query }}&amp;month={{ month_prev }}" class="btn btn-quiet btn-sm">← Previous</a>
+    <h3 class="section-title">{{ month_first|date:"F Y" }}</h3>
+    <a href="{{ base_url }}?{{ current_query }}&amp;month={{ month_next }}" class="btn btn-quiet btn-sm">Next →</a>
+</div>
+<div class="panel overflow-x-auto">
+    <div class="month-grid min-w-[44rem]" role="grid" aria-label="Tasks by due date, {{ month_first|date:'F Y' }}">
+        <div class="month-cell meta font-medium" role="columnheader" style="min-height:auto">Mon</div><div class="month-cell meta font-medium" role="columnheader" style="min-height:auto">Tue</div><div class="month-cell meta font-medium" role="columnheader" style="min-height:auto">Wed</div><div class="month-cell meta font-medium" role="columnheader" style="min-height:auto">Thu</div><div class="month-cell meta font-medium" role="columnheader" style="min-height:auto">Fri</div><div class="month-cell meta font-medium" role="columnheader" style="min-height:auto">Sat</div><div class="month-cell meta font-medium" role="columnheader" style="min-height:auto">Sun</div>
+        {% for week in month_weeks %}{% for day, day_tasks in week %}
+        <div class="month-cell" role="gridcell" data-other="{% if day.month != month_first.month %}true{% else %}false{% endif %}" data-today="{% if day == today %}true{% else %}false{% endif %}">
+            <span class="month-day">{{ day.day }}</span>
+            <ul class="mt-1 space-y-1">
+                {% for task in day_tasks|slice:":4" %}
+                <li class="truncate"><a href="{% url 'projects:task' workspace_id=task.workspace_id task_id=task.id %}" class="hover:underline {% if task.is_done %}text-ink-muted line-through{% elif task.is_overdue %}text-danger{% else %}text-ink{% endif %}" title="{% if show_client %}{{ task.workspace.name }}: {% endif %}{{ task.title }}">{% if task.is_milestone %}◆ {% endif %}{{ task.title }}</a></li>
+                {% endfor %}
+                {% if day_tasks|length > 4 %}<li class="meta">+{{ day_tasks|length|add:"-4" }} more</li>{% endif %}
+            </ul>
+        </div>
+        {% endfor %}{% endfor %}
+    </div>
+</div>

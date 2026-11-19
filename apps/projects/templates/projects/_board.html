@@ -1,0 +1,28 @@
+{% load ds %}
+<div class="board" data-board>
+    {% for status, label, cards in columns %}
+    <section class="board-column" aria-labelledby="col-{{ status }}" data-status="{{ status }}">
+        <h3 id="col-{{ status }}" class="board-column-title"><span>{{ label }}</span><span class="tabular-nums">{{ cards|length }}</span></h3>
+        <div class="flex flex-col gap-2 flex-1" data-board-list data-status="{{ status }}">
+            {% for task in cards %}
+            <article class="task-card" data-task-url="{% url 'projects:task_status' workspace_id=task.workspace_id task_id=task.id %}"{% if task.workspace_id in scope.can_manage or task.assignee_id == request.user.id %} draggable="true" data-movable{% endif %}>
+                {% if show_client %}<p class="meta">{{ task.workspace.name }}</p>{% endif %}
+                <p class="text-14">{% include "projects/_task_title.html" %}</p>
+                <p class="meta mt-1">{% if task.due_on %}{% if task.is_overdue %}<span class="text-danger font-medium">Overdue · {{ task.due_on|date:"j M" }}</span>{% else %}Due {{ task.due_on|date:"j M" }}{% endif %}{% else %}No date{% endif %}{% if task.assignee %} · {{ task.assignee.name|default:task.assignee.email }}{% endif %}{% if task.checklist_total %} · {{ task.checklist_done }}/{{ task.checklist_total }}{% endif %}</p>
+                {% if task.workspace_id in scope.can_manage or task.assignee_id == request.user.id %}
+                <form method="post" action="{% url 'projects:task_status' workspace_id=task.workspace_id task_id=task.id %}" class="mt-2 flex items-center gap-2" data-board-fallback>
+                    {% csrf_token %}<input type="hidden" name="next" value="{{ request.get_full_path }}">
+                    <label class="sr-only" for="move-{{ task.id }}">Move “{{ task.title }}” to</label>
+                    <select id="move-{{ task.id }}" name="status" class="select text-13 py-1">{% for s, l, _ in columns %}<option value="{{ s }}"{% if s == task.status %} selected{% endif %}>{{ l }}</option>{% endfor %}</select>
+                    <button type="submit" class="btn btn-quiet btn-sm">Move</button>
+                </form>
+                {% endif %}
+            </article>
+            {% empty %}
+            <p class="meta px-1" data-empty>Nothing here.</p>
+            {% endfor %}
+        </div>
+    </section>
+    {% endfor %}
+</div>
+<p class="meta mt-2">Drag a card to another column, or use its Move menu. Done shows the last 14 days.</p>

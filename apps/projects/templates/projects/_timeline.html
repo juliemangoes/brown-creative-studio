@@ -1,0 +1,24 @@
+{% if timeline_rows %}
+<div class="flex items-center justify-between mb-2">
+    <a href="{{ base_url }}?{{ current_query }}&amp;from={{ timeline_prev }}" class="btn btn-quiet btn-sm">← Earlier</a>
+    <a href="{{ base_url }}?{{ current_query }}&amp;from={{ timeline_next }}" class="btn btn-quiet btn-sm">Later →</a>
+</div>
+<div class="panel timeline">
+    <div class="timeline-grid" style="--days: {{ timeline_days }};">
+        <div class="timeline-label meta">Project and task</div>
+        {% for week in timeline_weeks %}<div class="timeline-week">{{ week|date:"j M" }}</div>{% endfor %}
+        {% for project, bars in timeline_rows %}
+        <div class="timeline-label font-semibold" style="grid-column: 1 / -1; border-top: 1px solid var(--hairline);">{% if show_client %}{{ project.workspace.name }} · {% endif %}{{ project.name }}</div>
+        {% for bar in bars %}
+        <a href="{% url 'projects:task' workspace_id=bar.task.workspace_id task_id=bar.task.id %}" class="timeline-label hover:underline" title="{{ bar.task.title }}">{{ bar.task.title }}</a>
+        <a href="{% url 'projects:task' workspace_id=bar.task.workspace_id task_id=bar.task.id %}" class="timeline-bar" style="grid-column: {{ bar.col|add:1 }} / span {{ bar.span }};"
+           data-state="{% if bar.task.is_done %}done{% elif bar.task.is_overdue %}overdue{% endif %}" data-milestone="{{ bar.task.is_milestone|yesno:'true,false' }}"
+           aria-label="{{ bar.task.title }}: {{ bar.task.starts_on|date:'j M'|default:'' }} to {{ bar.task.due_on|date:'j M' }}, {{ bar.task.get_status_display|lower }}{% if bar.task.is_overdue %}, overdue{% endif %}">{% if bar.task.is_milestone %}◆ {% endif %}{{ bar.task.due_on|date:"j M" }}</a>
+        {% endfor %}
+        {% endfor %}
+    </div>
+</div>
+<p class="meta mt-2">Bars run from each task's start to its due date. ◆ marks a milestone the client sees.</p>
+{% else %}
+{% include "ds/_state.html" with kind="empty" title="Nothing dated in these weeks" body="Tasks with start or due dates appear here as bars. Try earlier or later weeks, or change the filters." %}
+{% endif %}

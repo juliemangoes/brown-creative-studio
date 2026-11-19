@@ -48,6 +48,36 @@ STATUS_TONES: dict[str, dict[str, tuple[str, str]]] = {
         "paused": ("Paused", "warning"),
         "former": ("Former", "neutral"),
     },
+    # Tasks and projects (apps.projects, Phase 3)
+    "task": {
+        "todo": ("To do", "neutral"),
+        "in_progress": ("In progress", "info"),
+        "waiting_client": ("Waiting on client", "warning"),
+        "done": ("Done", "success"),
+    },
+    "project": {
+        "planned": ("Planned", "neutral"),
+        "active": ("In progress", "info"),
+        "on_hold": ("On hold", "warning"),
+        "done": ("Done", "success"),
+        "cancelled": ("Cancelled", "neutral"),
+    },
+    # Brand stages (apps.brand) and onboarding steps (apps.client_onboarding), Phase 3
+    "brand_stage": {
+        "not_started": ("Not started", "neutral"),
+        "in_progress": ("In progress", "info"),
+        "awaiting_signoff": ("Waiting for sign-off", "warning"),
+        "changes_requested": ("Changes requested", "warning"),
+        "signed_off": ("Signed off", "success"),
+    },
+    "onboarding": {
+        "todo": ("To do", "neutral"),
+        "in_progress": ("In progress", "info"),
+        "waiting_studio": ("With the studio", "accent"),
+        "done": ("Done", "success"),
+        "skipped": ("Skipped", "neutral"),
+        "blocked": ("Blocked", "danger"),
+    },
 }
 
 

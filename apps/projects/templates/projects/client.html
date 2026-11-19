@@ -1,0 +1,98 @@
+{% extends "base.html" %}
+{% load ds %}
+{% block title %}Projects · {{ workspace.name }} · {{ SITE_NAME }}{% endblock %}
+{% block content %}
+<div class="w-full max-w-6xl mx-auto" x-data="{ panel: null }">
+    <header class="flex flex-wrap items-end justify-between gap-4 mb-6">
+        <div class="min-w-0">
+            <p class="meta mb-1"><a href="{% url 'clients:detail' workspace_id=workspace.id %}" class="link">{{ workspace.name }}</a></p>
+            <h1 class="page-title">Projects</h1>
+            <p class="text-14 text-ink-muted mt-1">{% if assigned_only %}The projects you have tasks in for this client.{% else %}Everything the studio is running for {{ workspace.name }}, and how the retainer is being delivered.{% endif %}</p>
+        </div>
+        {% if can_manage %}<button type="button" class="btn btn-primary" @click="panel = 'new'">New project</button>{% endif %}
+    </header>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div class="lg:col-span-2 space-y-6 min-w-0">
+            <section class="panel" aria-labelledby="open-title">
+                <div class="panel-header"><h2 id="open-title" class="section-title">Open projects</h2><a href="{% url 'projects:all' %}?client={{ workspace.id }}" class="link text-13">All tasks for this client</a></div>
+                {% if open_projects %}
+                <ul class="divide-y divide-hairline">
+                    {% for project in open_projects %}
+                    <li class="px-5 py-4">
+                        <div class="flex flex-wrap items-start justify-between gap-3">
+                            <div class="min-w-0">
+                                <a href="{% url 'projects:project' workspace_id=workspace.id project_id=project.id %}" class="text-14 font-medium text-ink hover:underline">{{ project.name }}</a>
+                                <p class="meta">{{ project.get_kind_display }}{% if project.due_on %} · due {{ project.due_on|date:"j M Y" }}{% endif %}{% if project.owner %} · {{ project.owner.name|default:project.owner.email }}{% endif %}</p>
+                            </div>
+                            {% status "project" project.status %}
+                        </div>
+                        <div class="mt-3 flex items-center gap-3"><div class="meter flex-1" aria-hidden="true"><span style="width: {% widthratio project.done project.total|default:1 100 %}%"></span></div><span class="meta tabular-nums">{{ project.done }} of {{ project.total }} tasks done</span></div>
+                    </li>
+                    {% endfor %}
+                </ul>
+                {% else %}
+                <div class="panel-body">{% if can_manage %}{% include "ds/_state.html" with kind="empty" title="No open projects" body="Start one from a template: a monthly retainer, a shoot, a campaign or a brand project." %}{% else %}{% include "ds/_state.html" with kind="empty" title="No open projects" body="Nothing assigned to you here yet." %}{% endif %}</div>
+                {% endif %}
+            </section>
+            {% if closed_projects %}
+            <section class="panel" aria-labelledby="closed-title">
+                <div class="panel-header"><h2 id="closed-title" class="section-title">Finished and cancelled</h2></div>
+                <ul class="divide-y divide-hairline">
+                    {% for project in closed_projects %}
+                    <li class="flex items-center justify-between gap-3 px-5 py-3"><a href="{% url 'projects:project' workspace_id=workspace.id project_id=project.id %}" class="text-14 text-ink hover:underline">{{ project.name }}</a>{% status "project" project.status %}</li>
+                    {% endfor %}
+                </ul>
+            </section>
+            {% endif %}
+        </div>
+
+        <aside class="space-y-6 min-w-0">
+            <section class="panel" aria-labelledby="delivery-title">
+                <div class="panel-header"><h2 id="delivery-title" class="section-title">Retainer delivery</h2></div>
+                {% if delivery.retainer %}
+                <ul class="divide-y divide-hairline">
+                    {% for month in delivery.months %}
+                    <li class="px-5 py-3">
+                        <div class="flex items-baseline justify-between gap-3">
+                            <span class="text-14 font-medium">{{ month.label }}</span>
+                            <span class="text-14 tabular-nums">{{ month.published }} <span class="text-ink-muted">of {{ month.planned }} posts</span></span>
+                        </div>
+                        <div class="meter mt-2" aria-hidden="true"{% if month.percent >= 100 %} data-tone="success"{% elif not month.is_current and month.percent < 100 %} data-tone="warning"{% endif %}><span style="width: {{ month.percent }}%"></span></div>
+                        <p class="meta mt-1">{% if month.is_current %}{{ month.scheduled }} more scheduled this month{% elif month.percent >= 100 %}Delivered in full{% else %}{{ month.published }} of {{ month.planned }} delivered{% endif %}</p>
+                    </li>
+                    {% endfor %}
+                </ul>
+                <div class="panel-body border-t border-hairline">
+                    <dl class="grid grid-cols-3 gap-3 text-13">
+                        <div><dt class="text-ink-muted">Reels</dt><dd class="tabular-nums">{{ delivery.retainer.reels_per_month }} a month</dd></div>
+                        <div><dt class="text-ink-muted">Stories</dt><dd class="tabular-nums">{{ delivery.retainer.stories_per_month }} a month</dd></div>
+                        <div><dt class="text-ink-muted">Shoot days</dt><dd class="tabular-nums">{{ delivery.retainer.shoot_days_per_month }} a month</dd></div>
+                    </dl>
+                    <p class="meta mt-3">Posts count once however many platforms they went to. Reels, stories and shoot days are counted once post formats and shoots are recorded; until then only the plan is shown.</p>
+                </div>
+                {% else %}
+                <div class="panel-body text-14 text-ink-muted">No retainer set. <a href="{% url 'clients:services' workspace_id=workspace.id %}" class="link">Add one</a> to track delivery month by month.</div>
+                {% endif %}
+            </section>
+        </aside>
+    </div>
+
+    {% if can_manage %}
+    <template x-teleport="body">
+        <div x-show="panel !== null" x-cloak @keydown.escape.window="panel = null">
+            <div class="dialog-backdrop" @click="panel = null"></div>
+            <form method="post" action="{% url 'projects:create' workspace_id=workspace.id %}" class="side-panel" role="dialog" aria-modal="true" aria-labelledby="new-project-title">
+                {% csrf_token %}
+                <div class="side-panel-header"><div><p class="meta">{{ workspace.name }}</p><h2 id="new-project-title" class="text-20 font-semibold">New project</h2></div>{% include "projects/_side_close.html" %}</div>
+                <div class="side-panel-body space-y-4">
+                    <p class="text-14 text-ink-muted">Tasks, milestones and dates come from the template; change anything after. <a href="{% url 'projects:templates' %}" class="link">See the templates</a>.</p>
+                    {% include "projects/_fields.html" with form=new_form %}
+                </div>
+                <div class="side-panel-footer"><button type="button" class="btn btn-quiet" @click="panel = null">Cancel</button><button type="submit" class="btn btn-primary">Create project</button></div>
+            </form>
+        </div>
+    </template>
+    {% endif %}
+</div>
+{% endblock %}
