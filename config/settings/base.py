@@ -78,6 +78,8 @@ LOCAL_APPS = [
     "apps.analytics",
     # Brown Creative Studio (see CHANGES.md)
     "apps.about",
+    "apps.design_system",
+    "apps.studio",
     "theme",
 ]
 
@@ -119,6 +121,7 @@ TEMPLATES = [
                 "apps.onboarding.context_processors.onboarding_checklist",
                 "apps.intelligence.context_processors.intelligence_flag",
                 "apps.about.context_processors.site_identity",
+                "apps.studio.context_processors.shell",
             ],
         },
     },
@@ -411,11 +414,12 @@ TAILWIND_APP_NAME = "theme"
 # CSP - Alpine.js standard build requires unsafe-eval for inline expression
 # evaluation. Styles use unsafe-inline because Tailwind utility classes are inline.
 CSP_DEFAULT_SRC = ("'self'",)
-CSP_SCRIPT_SRC = ("'self'", "'unsafe-eval'", "https://cdn.jsdelivr.net")
-CSP_STYLE_SRC = ("'self'", "'unsafe-inline'", "https://cdn.jsdelivr.net")
+# Brown Creative Studio: flatpickr, Chart.js and SortableJS are vendored, so no CDN.
+CSP_SCRIPT_SRC = ("'self'", "'unsafe-eval'")
+CSP_STYLE_SRC = ("'self'", "'unsafe-inline'")
 CSP_IMG_SRC = ("'self'", "data:", "blob:", "https:")
 CSP_FONT_SRC = ("'self'",)
-CSP_CONNECT_SRC = ("'self'", "https://cdn.jsdelivr.net")
+CSP_CONNECT_SRC = ("'self'",)
 CSP_MEDIA_SRC = ("'self'", "blob:", "https:")
 CSP_FORM_ACTION = (
     "'self'",
@@ -688,7 +692,7 @@ MCP_PUBLIC_BASE_URL = env("MCP_PUBLIC_BASE_URL", default=APP_URL).rstrip("/")
 MCP_OAUTH_ISSUER_URL = env("MCP_OAUTH_ISSUER_URL", default=APP_URL).rstrip("/")
 
 OAUTH2_PROVIDER = {
-    "SCOPES": {"mcp": "Call BrightBean Studio MCP tools on your behalf"},
+    "SCOPES": {"mcp": f"Call {env('SITE_NAME', default='Brown Creative Studio')} tools on your behalf"},
     "DEFAULT_SCOPES": ["mcp"],
     "PKCE_REQUIRED": True,
     # Restrict ``code_challenge_method`` to ``S256``. django-oauth-toolkit

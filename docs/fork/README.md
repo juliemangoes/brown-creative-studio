@@ -10,6 +10,7 @@ django-background-tasks) and under its license (AGPL-3.0).
 | [`CHANGES.md`](../../CHANGES.md) | Every change to an upstream file, with date and reason |
 | [`baseline.md`](baseline.md) | Phase 0 baseline: test results, and where the build brief no longer matches the code |
 | [`deployment.md`](deployment.md) | Production on a VPS with Docker Compose, S3 storage, email, monitoring, backups |
+| [`design-system.md`](design-system.md) | Tokens, components, the shell registry and how to check a change |
 
 ## Rules that keep upstream merges cheap
 
@@ -51,10 +52,12 @@ Then:
 
 1. Resolve conflicts. Each conflicting upstream file should already be listed in
    `CHANGES.md`; re-apply the recorded change on top of upstream's new version.
-2. Run the whole suite as CI does (ruff, ruff format, mypy, `makemigrations --check`, pytest).
-3. Read upstream's new migrations and settings for anything that touches the fork
+2. Run `python manage.py apply_design_tokens` to bring new or changed upstream
+   templates onto the design tokens, and review its report.
+3. Run the whole suite as CI does (ruff, ruff format, mypy, `makemigrations --check`, pytest).
+4. Read upstream's new migrations and settings for anything that touches the fork
    (new defaults, renamed settings, new templates with their own `<html>` shell; the
    source-link test catches the last one).
-4. Add a `CHANGES.md` entry for the merge: upstream commit range, conflicts, and any
+5. Add a `CHANGES.md` entry for the merge: upstream commit range, conflicts, and any
    test expectation that changed and why.
-5. Open a pull request into `main`; merge after CI passes.
+6. Open a pull request into `main`; merge after CI passes.

@@ -102,7 +102,7 @@ class ContentCategoryForm(forms.ModelForm):
             "color": forms.TextInput(
                 attrs={
                     "type": "color",
-                    "class": "w-10 h-10 rounded-lg border border-stone-200 cursor-pointer p-0.5",
+                    "class": "w-10 h-10 rounded-control border border-hairline cursor-pointer p-0.5",
                 }
             ),
         }
@@ -141,7 +141,7 @@ class PlatformOverrideForm(forms.Form):
             attrs={
                 "rows": 4,
                 "placeholder": "Custom caption for this platform (leave empty to use shared caption)...",
-                "class": "form-input w-full text-sm",
+                "class": "form-input w-full text-14",
             }
         ),
     )
@@ -151,7 +151,7 @@ class PlatformOverrideForm(forms.Form):
             attrs={
                 "rows": 2,
                 "placeholder": "Custom first comment...",
-                "class": "form-input w-full text-sm",
+                "class": "form-input w-full text-14",
             }
         ),
     )

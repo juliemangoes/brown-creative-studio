@@ -3,13 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Join {{ invitation.organization.name }} - Brightbean</title>
+    <title>Join {{ invitation.organization.name }} · {{ SITE_NAME }}</title>
     <style>
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
         body {
             font-family: system-ui, -apple-system, sans-serif;
-            background: #FAFAF9;
-            color: #1C1917;
+            background: var(--canvas);
+            color: var(--text-primary);
             min-height: 100vh;
             display: flex;
             align-items: center;
@@ -17,38 +17,38 @@
             padding: 24px;
         }
         .card {
-            background: #FFFFFF;
-            border: 1px solid #E7E5E4;
-            border-radius: 16px;
+            background: var(--surface);
+            border: 1px solid var(--hairline);
+            border-radius: var(--radius-panel);
             padding: 40px;
             max-width: 440px;
             width: 100%;
             box-shadow: 0 1px 3px rgba(0,0,0,0.04);
         }
-        .logo { font-size: 18px; font-weight: 800; color: #F97316; margin-bottom: 24px; letter-spacing: -0.02em; }
-        h1 { font-size: 20px; font-weight: 700; margin-bottom: 8px; color: #1C1917; }
-        .subtitle { font-size: 15px; color: #78716C; line-height: 1.6; margin-bottom: 24px; }
+        .logo { font-size: 1rem; font-weight: 800; color: var(--accent); margin-bottom: 24px; letter-spacing: -0.02em; }
+        h1 { font-size: 1.25rem; font-weight: 700; margin-bottom: 8px; color: var(--text-primary); }
+        .subtitle { font-size: 0.875rem; color: var(--text-secondary); line-height: 1.6; margin-bottom: 24px; }
         .info-box {
-            background: #FAFAF9;
-            border: 1px solid #E7E5E4;
-            border-radius: 10px;
+            background: var(--canvas);
+            border: 1px solid var(--hairline);
+            border-radius: var(--radius-panel);
             padding: 16px;
             margin-bottom: 24px;
         }
-        .info-label { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: #A8A29E; margin-bottom: 8px; }
-        .info-value { font-size: 14px; color: #1C1917; }
+        .info-label { font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-secondary); margin-bottom: 8px; }
+        .info-value { font-size: 0.875rem; color: var(--text-primary); }
         .workspace-list { list-style: none; }
         .workspace-list li {
-            font-size: 14px;
-            color: #44403C;
+            font-size: 0.875rem;
+            color: var(--text-primary);
             padding: 4px 0;
             display: flex;
             justify-content: space-between;
         }
         .workspace-list li .role {
-            font-size: 12px;
-            background: #F5F5F4;
-            color: #78716C;
+            font-size: 0.75rem;
+            background: var(--sunken);
+            color: var(--text-secondary);
             padding: 2px 8px;
             border-radius: 9999px;
         }
@@ -56,7 +56,7 @@
             display: inline-block;
             width: 100%;
             padding: 12px 24px;
-            font-size: 14px;
+            font-size: 0.875rem;
             font-weight: 600;
             text-align: center;
             border-radius: 9999px;
@@ -66,24 +66,24 @@
             transition: opacity 0.15s;
         }
         .btn:hover { opacity: 0.9; }
-        .btn-primary { background: #F97316; color: #FFFFFF; }
-        .btn-secondary { background: #F5F5F4; color: #1C1917; margin-top: 8px; }
-        .error { color: #DC2626; font-size: 14px; margin-bottom: 16px; }
+        .btn-primary { background: var(--accent); color: var(--on-accent); }
+        .btn-secondary { background: var(--sunken); color: var(--text-primary); margin-top: 8px; }
+        .error { color: var(--danger); font-size: 0.875rem; margin-bottom: 16px; }
         .or-divider {
             text-align: center;
-            font-size: 13px;
-            color: #A8A29E;
+            font-size: 0.8125rem;
+            color: var(--text-secondary);
             margin: 12px 0;
         }
     </style>
 </head>
 <body>
     <div class="card">
-        <div class="logo">Brightbean</div>
+        <div class="logo">{{ SITE_NAME }}</div>
 
         <h1>Join {{ invitation.organization.name }}</h1>
         <p class="subtitle">
-            {{ invitation.invited_by.display_name }} invited you to join their team on Brightbean.
+            {{ invitation.invited_by.display_name }} invited you to join their team on {{ SITE_NAME }}.
         </p>
 
         {% if error %}

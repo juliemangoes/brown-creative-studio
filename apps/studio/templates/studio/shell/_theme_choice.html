@@ -1,0 +1,14 @@
+{# Light, dark or follow the system. Stored per browser; applied before first paint by studio/_theme_init.html. #}
+<div class="px-4 py-3 border-t border-hairline"
+     x-data="{ theme: window.studioTheme ? window.studioTheme.get() : 'system' }"
+     @studio:themechange.document="theme = $event.detail.theme">
+    <p class="text-13 text-ink-muted mb-2" id="studio-theme-label">Theme</p>
+    <div class="grid grid-cols-3 gap-1 p-0.5 rounded-control bg-sunken" role="group" aria-labelledby="studio-theme-label">
+        <button type="button" @click="studioTheme.set('system')" :aria-pressed="theme === 'system' ? 'true' : 'false'"
+                class="h-7 rounded-control text-13 transition-colors" :class="theme === 'system' ? 'bg-surface text-ink font-medium' : 'text-ink-muted hover:text-ink'">System</button>
+        <button type="button" @click="studioTheme.set('light')" :aria-pressed="theme === 'light' ? 'true' : 'false'"
+                class="h-7 rounded-control text-13 transition-colors" :class="theme === 'light' ? 'bg-surface text-ink font-medium' : 'text-ink-muted hover:text-ink'">Light</button>
+        <button type="button" @click="studioTheme.set('dark')" :aria-pressed="theme === 'dark' ? 'true' : 'false'"
+                class="h-7 rounded-control text-13 transition-colors" :class="theme === 'dark' ? 'bg-surface text-ink font-medium' : 'text-ink-muted hover:text-ink'">Dark</button>
+    </div>
+</div>

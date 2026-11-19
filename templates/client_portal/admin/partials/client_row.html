@@ -1,27 +1,27 @@
 <div class="px-6 py-4 flex items-center gap-4" id="client-{{ client.membership.id }}"
      style="border-bottom: 1px solid var(--border);">
     <!-- Avatar -->
-    <div class="w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0 text-sm font-semibold"
+    <div class="w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0 text-14 font-semibold"
          style="background: var(--neutral-200); color: var(--text-secondary);">
         {{ client.user.display_name|first|upper }}
     </div>
 
     <!-- Name & Email -->
     <div class="flex-1 min-w-0">
-        <div class="text-sm font-medium truncate" style="color: var(--text-primary);">
+        <div class="text-14 font-medium truncate" style="color: var(--text-primary);">
             {{ client.user.display_name }}
         </div>
-        <div class="text-xs truncate" style="color: var(--text-tertiary);">{{ client.user.email }}</div>
+        <div class="text-12 truncate" style="color: var(--text-tertiary);">{{ client.user.email }}</div>
     </div>
 
     <!-- Portal Link Status -->
     <div class="flex-shrink-0">
         {% if client.token %}
-        <span class="text-xs font-medium px-2.5 py-1 rounded-full" style="background: #DCFCE7; color: #166534;">
+        <span class="text-12 font-medium px-2.5 py-1 rounded-control" style="background: var(--success-soft); color: var(--success);">
             Link active
         </span>
         {% else %}
-        <span class="text-xs font-medium px-2.5 py-1 rounded-full" style="background: var(--neutral-100); color: var(--text-tertiary);">
+        <span class="text-12 font-medium px-2.5 py-1 rounded-control" style="background: var(--neutral-100); color: var(--text-tertiary);">
             No link sent
         </span>
         {% endif %}
@@ -35,7 +35,7 @@
               hx-swap="outerHTML">
             {% csrf_token %}
             <button type="submit"
-                    class="btn-neutral-surface text-xs px-3 py-1.5 rounded-full font-medium cursor-pointer transition-colors"
+                    class="btn-neutral-surface text-12 px-3 py-1.5 rounded-control font-medium cursor-pointer transition-colors"
                     style="border: 1px solid var(--border); color: var(--text-primary); background: var(--surface-0);">
                 {% if client.token %}Resend Link{% else %}Send Portal Link{% endif %}
             </button>
@@ -48,8 +48,8 @@
               hx-confirm="Remove {{ client.user.display_name }} from this workspace? Their portal access will be revoked.">
             {% csrf_token %}
             <button type="submit"
-                    class="btn-danger-soft-bg text-xs px-3 py-1.5 rounded-full font-medium cursor-pointer transition-colors"
-                    style="color: #DC2626; background: transparent;">
+                    class="btn-danger-soft-bg text-12 px-3 py-1.5 rounded-control font-medium cursor-pointer transition-colors"
+                    style="color: var(--danger); background: transparent;">
                 Remove
             </button>
         </form>

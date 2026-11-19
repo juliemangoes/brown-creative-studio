@@ -1,7 +1,7 @@
 {# Studio sidebar: a quiet, always-present Source code link. Text when expanded, a labelled glyph when collapsed. #}
 <div class="sidebar-source-link px-3 pb-2">
     <a href="{% url 'about:source' %}"
-       class="flex items-center gap-2 px-2 py-1 rounded-md text-[0.75rem] hover:bg-black/[0.04] transition-colors"
+       class="flex items-center gap-2 px-2 py-1 rounded-control text-12 hover:bg-scrim/[0.04] transition-colors"
        style="color: var(--text-secondary);"
        :class="sidebarCollapsed ? 'justify-center' : ''"
        title="Source code{% if SOURCE.short_commit %} · version {{ SOURCE.short_commit }}{% endif %}"

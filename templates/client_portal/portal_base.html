@@ -4,7 +4,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}Client Portal{% endblock %}</title>
+    <title>{% block title %}{{ workspace.name }} · {{ SITE_NAME }}{% endblock %}</title>
+    {% include "studio/_theme_init.html" %}
     <link rel="icon" href="{% static 'favicon/favicon.ico' %}" sizes="any">
     <link rel="icon" type="image/svg+xml" href="{% static 'favicon/favicon.svg' %}">
     <link rel="icon" type="image/png" sizes="96x96" href="{% static 'favicon/favicon-96x96.png' %}">
@@ -13,7 +14,7 @@
     <link rel="stylesheet" href="{% static 'css/dist/styles.css' %}">
     {% block extra_head %}{% endblock %}
 </head>
-<body class="min-h-screen" style="background: var(--surface-1); font-family: var(--font-body); color: var(--text-primary);">
+<body class="portal min-h-screen flex flex-col bg-canvas text-ink">
     {% csrf_token %}
     <script nonce="{{ request.csp_nonce }}">
         document.body.addEventListener('htmx:configRequest', function(event) {
@@ -21,82 +22,34 @@
         });
     </script>
 
-    <!-- Top bar -->
-    <header class="sticky top-0 z-30 border-b" style="background: var(--surface-0); border-color: var(--border);">
-        <div class="max-w-5xl mx-auto px-4 sm:px-6">
-            <div class="flex items-center justify-between h-14">
-                <!-- Left: Logo + workspace -->
-                <div class="flex items-center gap-3">
-                    {% if request.org and request.org.logo_url %}
-                    <img src="{{ request.org.logo_url }}" alt="" class="h-7 w-auto">
+    <!-- Top bar: the client's identity, with a discreet studio mark. The client's colour is a detail only. -->
+    <header class="sticky top-0 z-30 bg-surface border-b border-hairline"{% if workspace.primary_color %} style="box-shadow: inset 0 3px 0 {{ workspace.primary_color }};"{% endif %}>
+        <div class="max-w-3xl mx-auto px-4 sm:px-6">
+            <div class="flex items-center justify-between gap-4 pt-5 pb-3">
+                <div class="flex items-center gap-3 min-w-0">
+                    {% if workspace.icon %}
+                    <img src="{{ workspace.icon.url }}" alt="" class="w-10 h-10 rounded-control object-cover flex-shrink-0">
                     {% else %}
-                    <div class="w-7 h-7 rounded-md flex items-center justify-center text-white text-[11px] font-bold" style="background: var(--primary);">
-                        {{ workspace.name|make_list|first|upper }}
-                    </div>
+                    <span class="client-mark w-10 h-10 text-16" aria-hidden="true">{{ workspace.name|make_list|first|upper }}</span>
                     {% endif %}
-                    <span class="font-bold text-[0.9375rem] tracking-tight" style="color: var(--text-primary);">{{ workspace.name }}</span>
+                    <span class="client-name truncate">{{ workspace.name }}</span>
                 </div>
-
-                <!-- Right: Nav + logout -->
-                <div class="flex items-center gap-1">
-                    <nav class="hidden sm:flex items-center gap-0.5 mr-3">
-                        <a href="{% url 'client_portal:dashboard' %}"
-                           class="px-3 py-1.5 text-[0.8125rem] font-medium rounded-full transition-colors {% if request.resolver_match.url_name == 'dashboard' %}text-white{% else %}hover:bg-black/[0.04]{% endif %}"
-                           {% if request.resolver_match.url_name == 'dashboard' %}style="background: var(--primary); color: white;"{% else %}style="color: var(--text-secondary);"{% endif %}>
-                            Home
-                        </a>
-                        <a href="{% url 'client_portal:approval_queue' %}"
-                           class="px-3 py-1.5 text-[0.8125rem] font-medium rounded-full transition-colors {% if request.resolver_match.url_name == 'approval_queue' %}text-white{% else %}hover:bg-black/[0.04]{% endif %}"
-                           {% if request.resolver_match.url_name == 'approval_queue' %}style="background: var(--primary); color: white;"{% else %}style="color: var(--text-secondary);"{% endif %}>
-                            Approvals
-                        </a>
-                        <a href="{% url 'client_portal:published' %}"
-                           class="px-3 py-1.5 text-[0.8125rem] font-medium rounded-full transition-colors {% if request.resolver_match.url_name == 'published' %}text-white{% else %}hover:bg-black/[0.04]{% endif %}"
-                           {% if request.resolver_match.url_name == 'published' %}style="background: var(--primary); color: white;"{% else %}style="color: var(--text-secondary);"{% endif %}>
-                            Published
-                        </a>
-                        <a href="{% url 'client_portal:activity' %}"
-                           class="px-3 py-1.5 text-[0.8125rem] font-medium rounded-full transition-colors {% if request.resolver_match.url_name == 'activity' %}text-white{% else %}hover:bg-black/[0.04]{% endif %}"
-                           {% if request.resolver_match.url_name == 'activity' %}style="background: var(--primary); color: white;"{% else %}style="color: var(--text-secondary);"{% endif %}>
-                            Activity
-                        </a>
-                    </nav>
-                    <a href="{% url 'accounts:logout' %}"
-                       class="px-3 py-1.5 text-[0.8125rem] font-medium rounded-full transition-colors hover:bg-black/[0.04]"
-                       style="color: var(--text-tertiary);">
-                        Log out
-                    </a>
+                <div class="flex items-center gap-4 flex-shrink-0">
+                    <span class="hidden sm:inline text-13 text-ink-muted">with <span class="font-display text-16 text-ink">{{ SITE_NAME }}</span></span>
+                    <a href="{% url 'accounts:logout' %}" class="text-14 text-ink-muted underline underline-offset-2 hover:text-ink">Log out</a>
                 </div>
             </div>
-
-            <!-- Mobile nav -->
-            <nav class="flex sm:hidden items-center gap-1 pb-2 -mx-1 overflow-x-auto">
-                <a href="{% url 'client_portal:dashboard' %}"
-                   class="px-3 py-1.5 text-[0.8125rem] font-medium rounded-full flex-shrink-0 transition-colors {% if request.resolver_match.url_name == 'dashboard' %}text-white{% else %}hover:bg-black/[0.04]{% endif %}"
-                   {% if request.resolver_match.url_name == 'dashboard' %}style="background: var(--primary);"{% else %}style="color: var(--text-secondary);"{% endif %}>
-                    Home
-                </a>
-                <a href="{% url 'client_portal:approval_queue' %}"
-                   class="px-3 py-1.5 text-[0.8125rem] font-medium rounded-full flex-shrink-0 transition-colors {% if request.resolver_match.url_name == 'approval_queue' %}text-white{% else %}hover:bg-black/[0.04]{% endif %}"
-                   {% if request.resolver_match.url_name == 'approval_queue' %}style="background: var(--primary);"{% else %}style="color: var(--text-secondary);"{% endif %}>
-                    Approvals
-                </a>
-                <a href="{% url 'client_portal:published' %}"
-                   class="px-3 py-1.5 text-[0.8125rem] font-medium rounded-full flex-shrink-0 transition-colors {% if request.resolver_match.url_name == 'published' %}text-white{% else %}hover:bg-black/[0.04]{% endif %}"
-                   {% if request.resolver_match.url_name == 'published' %}style="background: var(--primary);"{% else %}style="color: var(--text-secondary);"{% endif %}>
-                    Published
-                </a>
-                <a href="{% url 'client_portal:activity' %}"
-                   class="px-3 py-1.5 text-[0.8125rem] font-medium rounded-full flex-shrink-0 transition-colors {% if request.resolver_match.url_name == 'activity' %}text-white{% else %}hover:bg-black/[0.04]{% endif %}"
-                   {% if request.resolver_match.url_name == 'activity' %}style="background: var(--primary);"{% else %}style="color: var(--text-secondary);"{% endif %}>
-                    Activity
-                </a>
+            <nav class="tabs border-b-0 -mb-px" aria-label="Portal">
+            <a href="{% url 'client_portal:dashboard' %}" class="tab flex-shrink-0"{% if request.resolver_match.url_name == 'dashboard' %} aria-current="page"{% endif %}>Home</a>
+            <a href="{% url 'client_portal:approval_queue' %}" class="tab flex-shrink-0"{% if request.resolver_match.url_name == 'approval_queue' %} aria-current="page"{% endif %}>Approvals</a>
+            <a href="{% url 'client_portal:published' %}" class="tab flex-shrink-0"{% if request.resolver_match.url_name == 'published' %} aria-current="page"{% endif %}>Published</a>
+            <a href="{% url 'client_portal:activity' %}" class="tab flex-shrink-0"{% if request.resolver_match.url_name == 'activity' %} aria-current="page"{% endif %}>Activity</a>
             </nav>
         </div>
     </header>
 
     <!-- Main content -->
-    <main class="max-w-5xl mx-auto px-4 sm:px-6 py-6">
+    <main id="main" class="w-full max-w-3xl mx-auto px-4 sm:px-6 py-8 flex-1">
         {% block content %}{% endblock %}
     </main>
 

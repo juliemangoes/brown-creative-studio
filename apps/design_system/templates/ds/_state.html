@@ -1,0 +1,23 @@
+{% comment %}
+The four designed screen states. Every empty state says what to do next.
+  kind: empty | loading | error | forbidden
+  {% include "ds/_state.html" with kind="empty" title="No posts planned yet" body="Plan the first week…" action_url=… action_label="Plan a post" %}
+{% endcomment %}
+{% if kind == "loading" %}
+<div class="state" role="status" aria-live="polite" aria-busy="true">
+    <span class="sr-only">{{ title|default:"Loading" }}</span>
+    <div class="w-full max-w-md space-y-3" aria-hidden="true">
+        <div class="skeleton h-4 w-2/3"></div>
+        <div class="skeleton h-4 w-full"></div>
+        <div class="skeleton h-4 w-5/6"></div>
+    </div>
+</div>
+{% else %}
+<div class="state{% if kind == 'error' %} state-error{% endif %}"{% if kind == "error" %} role="alert"{% endif %}>
+    <p class="state-title">{% if title %}{{ title }}{% elif kind == "forbidden" %}You don't have access to this{% elif kind == "error" %}This didn't load{% else %}Nothing here yet{% endif %}</p>
+    <p class="state-body">{% if body %}{{ body }}{% elif kind == "forbidden" %}Ask the studio owner to give your role access, or go back to a page you can use.{% elif kind == "error" %}Try again. If it keeps happening, the studio team has been notified.{% endif %}</p>
+    {% if action_url and action_label %}
+    <div class="state-actions"><a href="{{ action_url }}" class="btn {% if kind == 'empty' %}btn-primary{% else %}btn-secondary{% endif %}">{{ action_label }}</a></div>
+    {% endif %}
+</div>
+{% endif %}

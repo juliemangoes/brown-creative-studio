@@ -1,0 +1,6 @@
+{% extends "about/base_public.html" %}
+{% block title %}No access · {{ SITE_NAME }}{% endblock %}
+{% block content %}
+{% url 'dashboard' as home_url %}
+{% include "ds/_state.html" with kind="forbidden" action_url=home_url action_label="Go to your home page" %}
+{% endblock %}

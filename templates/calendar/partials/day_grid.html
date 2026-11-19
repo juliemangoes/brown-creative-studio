@@ -3,12 +3,12 @@ Day view - single-day timeline with hourly divisions.
 Context: day_slots, target_date, workspace.
 {% endcomment %}
 
-<div class="bg-white mx-auto" style="animation: slideUp 200ms cubic-bezier(0.16,1,0.3,1) both; max-height: calc(100vh - 200px); overflow-y: auto;">
+<div class="bg-surface mx-auto" style="animation: slideUp 200ms cubic-bezier(0.16,1,0.3,1) both; max-height: calc(100vh - 200px); overflow-y: auto;">
 {% for cell in day_slots %}
-    <div class="flex border-b border-stone-100 min-h-[64px] cal-add-cell {% if cell.posts or cell.slots %}has-posts{% endif %} {% if is_today and cell.hour == current_hour %}bg-orange-50/50{% endif %}">
+    <div class="flex border-b border-hairline min-h-[64px] cal-add-cell {% if cell.posts or cell.slots %}has-posts{% endif %} {% if is_today and cell.hour == current_hour %}bg-accent-soft/50{% endif %}">
         <!-- Time label -->
-        <div class="w-20 flex-shrink-0 border-r border-stone-200 px-3 py-2 text-right">
-            <span class="text-xs font-medium tabular-nums {% if is_today and cell.hour == current_hour %}text-orange-600 font-semibold{% else %}text-stone-400{% endif %}">
+        <div class="w-20 flex-shrink-0 border-r border-hairline px-3 py-2 text-right">
+            <span class="text-12 font-medium tabular-nums {% if is_today and cell.hour == current_hour %}text-accent font-semibold{% else %}text-ink-muted{% endif %}">
                 {% if cell.hour < 10 %}0{% endif %}{{ cell.hour }}:00
             </span>
         </div>
@@ -29,7 +29,7 @@ Context: day_slots, target_date, workspace.
                         {% include "social_accounts/partials/_platform_icon.html" with platform=slot.account.platform size="3" %}
                     </span>
                     <span class="truncate">{{ slot.account.account_name|default:slot.account.account_handle }}</span>
-                    <span class="tabular-nums text-stone-500">{{ slot.time_label }}</span>
+                    <span class="tabular-nums text-ink-muted">{{ slot.time_label }}</span>
                     {% if not slot.is_past %}
                     <a href="{% url 'composer:compose' workspace_id=workspace.id %}?account={{ slot.account.id }}&scheduled_date={{ slot.compose_date }}&scheduled_time={{ slot.compose_time }}"
                        class="calendar-slot-add"
@@ -49,16 +49,16 @@ Context: day_slots, target_date, workspace.
                title="{% if pp.is_reschedulable %}Move or open{% else %}Open{% endif %}"
                {% if pp.is_reschedulable %}draggable="true" data-platform-post-id="{{ pp.id }}"{% else %}draggable="false"{% endif %}>
                 {% if pp.is_bulk_selectable %}{% include "calendar/partials/_select_checkbox.html" with pp_id=pp.id %}{% endif %}
-                <span class="w-4 h-4 rounded flex items-center justify-center pi-{{ pp.social_account.platform }} flex-shrink-0 text-white">
+                <span class="w-4 h-4 rounded-control flex items-center justify-center pi-{{ pp.social_account.platform }} flex-shrink-0 text-on-scrim">
                     {% include "social_accounts/partials/_platform_icon.html" with platform=pp.social_account.platform size="3" %}
                 </span>
                 {% with first_media=pp.post.media_attachments.all.0 %}
                 {% if first_media and first_media.media_asset.thumbnail %}
-                <img src="{{ first_media.media_asset.thumbnail.url }}" alt="" class="w-5 h-5 rounded object-cover flex-shrink-0">
+                <img src="{{ first_media.media_asset.thumbnail.url }}" alt="" class="w-5 h-5 rounded-control object-cover flex-shrink-0">
                 {% elif first_media and not first_media.media_asset.is_video %}
-                <img src="{{ first_media.media_asset.file.url }}" alt="" class="w-5 h-5 rounded object-cover flex-shrink-0">
+                <img src="{{ first_media.media_asset.file.url }}" alt="" class="w-5 h-5 rounded-control object-cover flex-shrink-0">
                 {% elif first_media and first_media.media_asset.is_video %}
-                <video src="{{ first_media.media_asset.file.url }}#t=0.5" class="w-5 h-5 rounded object-cover flex-shrink-0" muted preload="metadata"></video>
+                <video src="{{ first_media.media_asset.file.url }}#t=0.5" class="w-5 h-5 rounded-control object-cover flex-shrink-0" muted preload="metadata"></video>
                 {% endif %}
                 {% endwith %}
                 <span class="truncate">{{ pp.post.title|default:pp.post.caption_snippet|truncatechars:28 }}</span>

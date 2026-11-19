@@ -1,0 +1,25 @@
+{# Studio top bar: navigation toggle (phones), client switcher, command menu, notifications. #}
+<header class="flex items-center gap-2 h-14 px-3 lg:px-6 border-b border-hairline bg-surface flex-shrink-0">
+    <button type="button" class="btn-icon lg:hidden -ml-1" @click="mobileMenuOpen = !mobileMenuOpen"
+            :aria-expanded="mobileMenuOpen" aria-label="Open navigation">
+        {% include "studio/shell/_icon.html" with name="menu" %}
+    </button>
+    {% include "studio/shell/_client_switcher.html" %}
+    <div class="flex-1"></div>
+    <button type="button" x-data="{ mac: /Mac|iPhone|iPad/.test(navigator.platform) }"
+            @click="$dispatch('studio:command-open')"
+            class="hidden sm:flex items-center gap-2 h-9 w-64 px-3 rounded-control border border-control bg-surface text-14 text-ink-muted whitespace-nowrap hover:bg-sunken transition-colors"
+            aria-label="Search or jump to (Control K)" :aria-label="mac ? 'Search or jump to (Command K)' : 'Search or jump to (Control K)'">
+        {% include "studio/shell/_icon.html" with name="search" %}
+        <span class="flex-1 text-left">Search or jump to</span>
+        <span class="kbd" x-text="mac ? '⌘K' : 'Ctrl K'" aria-hidden="true">Ctrl K</span>
+    </button>
+    <button type="button" class="btn-icon sm:hidden" @click="$dispatch('studio:command-open')" aria-label="Search or jump to">
+        {% include "studio/shell/_icon.html" with name="search" %}
+    </button>
+    <a href="{% url 'notifications:list' %}" class="btn-icon relative"
+       aria-label="Notifications{% if unread_notification_count %}, {{ unread_notification_count }} unread{% endif %}">
+        {% include "studio/shell/_icon.html" with name="bell" %}
+        {% if unread_notification_count %}<span class="absolute top-1 right-1 min-w-4 h-4 px-1 rounded-full bg-accent text-on-accent text-12 leading-4 text-center tabular-nums" aria-hidden="true">{{ unread_notification_count }}</span>{% endif %}
+    </a>
+</header>

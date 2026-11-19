@@ -1,0 +1,15 @@
+{% if item.url %}
+<a href="{{ item.url }}" aria-label="{{ item.label }}"
+   class="sidebar-nav-item mb-0.5{% if item.active %} active{% endif %}"{% if item.active %} aria-current="page"{% endif %}
+   :title="sidebarCollapsed ? '{{ item.label|escapejs }}' : null">
+    {% include "studio/shell/_icon.html" with name=item.icon %}
+    <span class="sidebar-nav-label">{{ item.label }}</span>
+    {% if item.key == "inbox" and sidebar_unread_inbox_count %}<span class="sidebar-badge" aria-label="{{ sidebar_unread_inbox_count }} unread">{{ sidebar_unread_inbox_count }}</span>{% endif %}
+</a>
+{% else %}
+<span class="sidebar-nav-item mb-0.5 opacity-60 cursor-not-allowed" aria-disabled="true"
+      title="Choose a client to open {{ item.label|lower }}">
+    {% include "studio/shell/_icon.html" with name=item.icon %}
+    <span class="sidebar-nav-label">{{ item.label }}</span>
+</span>
+{% endif %}

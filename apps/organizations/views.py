@@ -47,6 +47,10 @@ COMMON_TIMEZONES = [
     "Pacific/Auckland",
 ]
 
+# Brown Creative Studio (CHANGES.md): colours for clients without a brand colour,
+# a colour-blind-checked categorical palette in fixed order.
+CLIENT_FALLBACK_COLORS = ("#2A78D6", "#EB6834", "#1BAF7A", "#EDA100", "#E87BA4", "#008300", "#6250D6", "#E34948")
+
 
 @login_required
 @require_org_role(OrgMembership.OrgRole.ADMIN)
@@ -291,9 +295,11 @@ def cross_workspace_calendar(request):
         base_pps = base_pps.filter(status=status)
 
     # Workspace colors for legend
+    # Brown Creative Studio (CHANGES.md): a client without a brand colour gets
+    # the next slot of a colour-blind-checked categorical palette, not orange.
     workspace_colors = {}
-    for ws in workspaces:
-        workspace_colors[str(ws.id)] = ws.primary_color or "#F97316"
+    for index, ws in enumerate(workspaces):
+        workspace_colors[str(ws.id)] = ws.primary_color or CLIENT_FALLBACK_COLORS[index % len(CLIENT_FALLBACK_COLORS)]
 
     today = date.today()
 
