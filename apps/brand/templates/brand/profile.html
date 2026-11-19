@@ -1,0 +1,98 @@
+{% extends "base.html" %}
+{% block title %}Brand · {{ workspace.name }} · {{ SITE_NAME }}{% endblock %}
+{% block content %}
+<div class="w-full max-w-6xl mx-auto" x-data="{ editing: {% if editing %}true{% else %}false{% endif %} }">
+    {% include "clients/_header.html" %}
+    {% include "brand/_tabs.html" %}
+
+    <div class="flex flex-wrap items-center justify-between gap-3 mb-6">
+        <p class="text-14 text-ink-muted max-w-2xl">The brand in one place. Onboarding answers fill it; content planning and drafting read from it{% if brand.is_published %}; the client sees it in their Brand Hub{% endif %}.</p>
+        {% if can_manage_brand %}
+        <div class="flex items-center gap-2">
+            <form method="post" action="{% url 'brand:publish' workspace_id=workspace.id %}">{% csrf_token %}
+                {% if brand.is_published %}<input type="hidden" name="publish" value="0"><button type="submit" class="btn btn-quiet">Hide from client</button>
+                {% else %}<input type="hidden" name="publish" value="1"><button type="submit" class="btn btn-secondary">Share in Brand Hub</button>{% endif %}
+            </form>
+            <button type="button" class="btn btn-primary" x-show="!editing" @click="editing = true">Edit profile</button>
+        </div>
+        {% endif %}
+    </div>
+    {% if brand.is_published %}<p class="mb-6"><span class="status status-success">In the client's Brand Hub</span> <span class="meta">since {{ brand.published_at|date:"j M Y" }}</span></p>{% else %}<p class="mb-6"><span class="status status-neutral">Not shared with the client</span></p>{% endif %}
+
+    <div x-show="!editing" class="space-y-6">
+        <section class="panel panel-body" aria-labelledby="strategy-title">
+            <h2 id="strategy-title" class="section-title mb-4">Strategy</h2>
+            <div class="grid md:grid-cols-2 gap-6">
+                <div><h3 class="text-13 font-medium text-ink-muted mb-1">Purpose</h3><p class="text-14 whitespace-pre-line">{{ brand.purpose|default:"Not written yet." }}</p></div>
+                <div><h3 class="text-13 font-medium text-ink-muted mb-1">Positioning</h3><p class="text-14 whitespace-pre-line">{{ brand.positioning|default:"Not written yet." }}</p></div>
+                <div><h3 class="text-13 font-medium text-ink-muted mb-1">Values</h3>{% include "brand/_list.html" with items=brand.values %}</div>
+                <div><h3 class="text-13 font-medium text-ink-muted mb-1">Personality</h3>{% include "brand/_list.html" with items=brand.personality %}</div>
+                <div><h3 class="text-13 font-medium text-ink-muted mb-1">Audiences</h3>{% include "brand/_list.html" with items=brand.audiences %}</div>
+                <div><h3 class="text-13 font-medium text-ink-muted mb-1">Competitors</h3>{% include "brand/_list.html" with items=brand.competitors empty="None listed." %}</div>
+            </div>
+        </section>
+        <section class="panel panel-body" aria-labelledby="identity-title">
+            <h2 id="identity-title" class="section-title mb-4">Visual identity</h2>
+            {% include "brand/_colors.html" %}
+            <h3 class="text-13 font-medium text-ink-muted mt-6 mb-1">Fonts</h3>{% include "brand/_list.html" with items=brand.fonts %}
+            <p class="meta mt-4">Logos and font files are in <a href="{% url 'brand:files' workspace_id=workspace.id %}" class="link">Files</a>.</p>
+        </section>
+        <section class="panel panel-body" aria-labelledby="voice-title">
+            <h2 id="voice-title" class="section-title mb-4">Voice and messaging</h2>
+            <div class="grid md:grid-cols-2 gap-6">
+                <div class="md:col-span-2"><h3 class="text-13 font-medium text-ink-muted mb-1">Voice and tone</h3><p class="text-14 whitespace-pre-line">{{ brand.voice|default:"Not written yet." }}</p></div>
+                <div><h3 class="text-13 font-medium text-ink-muted mb-1">We say</h3>{% include "brand/_list.html" with items=brand.voice_do %}</div>
+                <div><h3 class="text-13 font-medium text-ink-muted mb-1">We don't say</h3>{% include "brand/_list.html" with items=brand.voice_dont %}</div>
+                <div><h3 class="text-13 font-medium text-ink-muted mb-1">Tagline</h3><p class="text-16 font-display">{{ brand.tagline|default:"—" }}</p></div>
+                <div><h3 class="text-13 font-medium text-ink-muted mb-1">Key messages</h3>{% include "brand/_list.html" with items=brand.key_messages %}</div>
+                <div class="md:col-span-2"><h3 class="text-13 font-medium text-ink-muted mb-1">Elevator pitch</h3><p class="text-14 whitespace-pre-line">{{ brand.elevator_pitch|default:"Not written yet." }}</p></div>
+            </div>
+        </section>
+        <section class="panel panel-body" aria-labelledby="content-title">
+            <h2 id="content-title" class="section-title mb-4">Content</h2>
+            <div class="grid md:grid-cols-2 gap-6">
+                <div><h3 class="text-13 font-medium text-ink-muted mb-1">What they like</h3><p class="text-14 whitespace-pre-line">{{ brand.content_likes|default:"—" }}</p></div>
+                <div><h3 class="text-13 font-medium text-ink-muted mb-1">What to avoid</h3><p class="text-14 whitespace-pre-line">{{ brand.content_avoid|default:"—" }}</p></div>
+                {% if brand.internal_notes %}<div class="md:col-span-2"><h3 class="text-13 font-medium text-ink-muted mb-1">Internal notes <span class="status status-neutral">Internal</span></h3><p class="text-14 whitespace-pre-line">{{ brand.internal_notes }}</p></div>{% endif %}
+            </div>
+        </section>
+    </div>
+
+    {% if form %}
+    {{ form.colors_json.value|json_script:"brand-colors" }}
+    <form method="post" action="{% url 'brand:profile_save' workspace_id=workspace.id %}" x-show="editing" x-cloak class="space-y-6"
+          x-data="{ colors: JSON.parse(JSON.parse(document.getElementById('brand-colors').textContent || '"[]"') || '[]') }"
+          @submit="$refs.colorsOut.value = JSON.stringify(colors)">
+        {% csrf_token %}
+        {% if form.errors %}<div class="state state-error" role="alert"><p class="state-title">Check the profile</p><p class="state-body">{% for field, errors in form.errors.items %}{{ errors|join:" " }} {% endfor %}</p></div>{% endif %}
+        {% for title, fields in form.sections %}
+        <fieldset class="panel panel-body">
+            <legend class="section-title px-1">{{ title }}</legend>
+            <div class="grid md:grid-cols-2 gap-4 mt-2">
+                {% for field in fields %}<div class="field{% if field.name == 'internal_notes' %} md:col-span-2{% endif %}"><label class="label" for="{{ field.id_for_label }}">{{ field.label }}</label>{{ field }}{% for e in field.errors %}<p class="field-error">{{ e }}</p>{% endfor %}</div>{% endfor %}
+            </div>
+            {% if title == "Visual identity" %}
+            <div class="mt-4">
+                <p class="label">Colours</p>
+                <ul class="space-y-2 mt-1">
+                    <template x-for="(color, i) in colors" :key="i">
+                        <li class="flex flex-wrap items-end gap-2">
+                            <div class="field"><label class="label" :for="'c-name-' + i">Name</label><input :id="'c-name-' + i" class="input" x-model="color.name" maxlength="60"></div>
+                            <div class="field"><label class="label" :for="'c-pick-' + i">Colour</label><input :id="'c-pick-' + i" type="color" class="h-10 w-14 rounded-control border border-hairline bg-surface" :value="color.hex || '#000000'" @input="color.hex = $event.target.value.toUpperCase()"></div>
+                            <div class="field"><label class="label" :for="'c-hex-' + i">HEX</label><input :id="'c-hex-' + i" class="input w-28 tabular-nums" x-model="color.hex" maxlength="7" placeholder="#6B4F3A"></div>
+                            <div class="field flex-1 min-w-[10rem]"><label class="label" :for="'c-role-' + i">Used for</label><input :id="'c-role-' + i" class="input" x-model="color.role" maxlength="80" placeholder="Primary, accents, backgrounds…"></div>
+                            <button type="button" class="btn btn-quiet btn-sm" @click="colors.splice(i, 1)" :aria-label="'Remove colour ' + (color.name || (i + 1))">Remove</button>
+                        </li>
+                    </template>
+                </ul>
+                <button type="button" class="btn btn-secondary btn-sm mt-2" @click="colors.push({ name: '', hex: '', role: '' })">Add colour</button>
+                <input type="hidden" name="colors_json" x-ref="colorsOut">
+            </div>
+            {% endif %}
+        </fieldset>
+        {% endfor %}
+        <div class="flex justify-end gap-2"><button type="button" class="btn btn-quiet" @click="editing = false">Cancel</button><button type="submit" class="btn btn-primary">Save profile</button></div>
+    </form>
+    {% endif %}
+</div>
+{% endblock %}

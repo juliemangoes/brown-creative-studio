@@ -1,0 +1,12 @@
+Hello {{ user.name|default:"there" }},
+
+{{ site_name }} has finished the {{ stage.get_key_display|lower }} stage of the {{ workspace.name }} brand and needs your sign-off.
+
+{{ stage.client_summary }}
+
+Review it and sign off, or ask for changes, here:
+{{ portal_url }}
+
+This link signs you in once and expires; you can always ask the studio for a new one.
+
+{{ site_name }}

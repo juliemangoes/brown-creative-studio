@@ -43,13 +43,24 @@
             <a href="{% url 'client_portal:dashboard' %}" class="tab flex-shrink-0"{% if request.resolver_match.url_name == 'dashboard' %} aria-current="page"{% endif %}>Home</a>
             <a href="{% url 'client_portal:approval_queue' %}" class="tab flex-shrink-0"{% if request.resolver_match.url_name == 'approval_queue' %} aria-current="page"{% endif %}>Approvals</a>
             <a href="{% url 'client_portal:published' %}" class="tab flex-shrink-0"{% if request.resolver_match.url_name == 'published' %} aria-current="page"{% endif %}>Published</a>
-            <a href="{% url 'client_portal:activity' %}" class="tab flex-shrink-0"{% if request.resolver_match.url_name == 'activity' %} aria-current="page"{% endif %}>Activity</a>
+            <a href="{% url 'client_portal:activity' %}" class="tab flex-shrink-0"{% if request.resolver_match.url_name == 'activity' and request.resolver_match.namespace == 'client_portal' %} aria-current="page"{% endif %}>Activity</a>
+            {# Brown Creative Studio (CHANGES.md): sections from the fork's apps (apps.studio.portal). #}
+            {% for section in portal_sections %}<a href="{{ section.url }}" class="tab flex-shrink-0"{% if section.active %} aria-current="page"{% endif %}>{{ section.label }}</a>{% endfor %}
             </nav>
         </div>
     </header>
 
     <!-- Main content -->
     <main id="main" class="w-full max-w-3xl mx-auto px-4 sm:px-6 py-8 flex-1">
+        {% if messages %}
+        <ul class="mb-6 space-y-2" aria-live="polite">{% for message in messages %}<li class="panel panel-body text-16{% if message.tags == 'error' %} state-error{% endif %}" role="{% if message.tags == 'error' %}alert{% else %}status{% endif %}">{{ message }}</li>{% endfor %}</ul>
+        {% endif %}
+        {% for notice in portal_notices %}
+        <div class="panel panel-body mb-6 flex flex-wrap items-center justify-between gap-3" role="status">
+            <p class="text-16">{{ notice.text }}</p>
+            <a href="{{ notice.url }}" class="btn btn-primary">{{ notice.action }}</a>
+        </div>
+        {% endfor %}
         {% block content %}{% endblock %}
     </main>
 

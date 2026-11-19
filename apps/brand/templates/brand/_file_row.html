@@ -1,0 +1,15 @@
+<tr>
+    <td><a href="{% url 'brand:file' workspace_id=workspace.id asset_id=asset.id %}" class="link">{{ asset.title }}{% if asset.variant %} · {{ asset.variant }}{% endif %}</a><span class="block meta">{{ asset.original_name }} · {{ asset.size_label }}</span></td>
+    <td class="text-14">{{ asset.get_kind_display }} <span class="text-ink-muted uppercase">{{ asset.file_format }}</span>{% if asset.stage %}<span class="block meta">For {{ asset.stage.get_key_display }}</span>{% endif %}</td>
+    <td class="text-14">{% if asset.source == "client" %}Client{% else %}Studio{% endif %}<span class="block meta">{{ asset.created_at|date:"j M Y" }}</span></td>
+    <td>{% if asset.scan_status == "clean" %}<span class="status status-success">Clean</span>{% else %}<span class="status status-neutral">Not scanned</span>{% endif %}</td>
+    <td>{% if asset.client_can_see %}<span class="status status-info">Yes</span>{% else %}<span class="text-14 text-ink-muted">No</span>{% endif %}</td>
+    {% if can_manage_brand %}
+    <td class="text-right whitespace-nowrap">
+        {% if asset.source != "client" %}
+        <form method="post" action="{% url 'brand:file_visibility' workspace_id=workspace.id asset_id=asset.id %}" class="inline">{% csrf_token %}<input type="hidden" name="visible" value="{% if asset.client_visible %}0{% else %}1{% endif %}"><button type="submit" class="btn btn-quiet btn-sm">{% if asset.client_visible %}Hide from client{% else %}Share with client{% endif %}<span class="sr-only"> {{ asset.title }}</span></button></form>
+        {% endif %}
+        <form method="post" action="{% url 'brand:file_delete' workspace_id=workspace.id asset_id=asset.id %}" class="inline" x-data @submit="if (!confirm('Delete {{ asset.original_name|escapejs }}?')) $event.preventDefault()">{% csrf_token %}<button type="submit" class="btn btn-danger-quiet btn-sm">Delete<span class="sr-only"> {{ asset.title }}</span></button></form>
+    </td>
+    {% endif %}
+</tr>

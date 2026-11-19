@@ -345,6 +345,11 @@ def project_create(request, workspace_id):
         owner=data["owner"],
         created_by=request.user,
     )
+    if project.kind in (ProjectKind.BRAND, ProjectKind.STRATEGY):
+        # Brand work is signed off stage by stage in the portal (apps.brand).
+        from apps.brand.services import link_brand_project
+
+        link_brand_project(project)
     messages.success(request, f"{project.name} created with {project.tasks.count()} tasks.")
     return redirect("projects:project", workspace_id=ws.id, project_id=project.id)
 
