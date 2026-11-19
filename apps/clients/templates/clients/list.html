@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+{% block title %}Clients · {{ SITE_NAME }}{% endblock %}
+{% block content %}
+<div class="w-full max-w-6xl mx-auto">
+    {% url 'clients:create' as new_url %}
+    {% if can_add %}
+    {% include "ds/_page_header.html" with title="Clients" description="Every client, where they are in the pipeline, and what needs attention." action_url=new_url action_label="Add client" %}
+    {% else %}
+    {% include "ds/_page_header.html" with title="Clients" description="Every client, where they are in the pipeline, and what needs attention." %}
+    {% endif %}
+
+    <nav class="flex flex-wrap gap-2 mb-4" aria-label="Saved views">
+        {% for key, label, count in saved_views %}
+        <a href="?view={{ key }}" class="btn btn-sm {% if key == view_key %}btn-secondary{% else %}btn-quiet{% endif %}"{% if key == view_key %} aria-current="page"{% endif %}>
+            {{ label }} <span class="tabular-nums text-ink-muted">{{ count }}</span>
+        </a>
+        {% endfor %}
+    </nav>
+
+    {% if rows %}
+    <div class="panel overflow-x-auto">
+        <table class="table">
+            <caption class="sr-only">{{ view_label }}</caption>
+            <thead>
+                <tr>
+                    <th scope="col">Client</th>
+                    <th scope="col">Stage</th>
+                    <th scope="col">Services</th>
+                    <th scope="col">Health</th>
+                    <th scope="col" class="num">Planned, next 30 days</th>
+                    <th scope="col" class="num">Retainer</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for row in rows %}
+                <tr>
+                    <td>
+                        <a href="{% url 'clients:detail' workspace_id=row.workspace.id %}" class="flex items-center gap-3 min-w-0 group">
+                            {% if row.workspace.icon %}<img src="{{ row.workspace.icon.url }}" alt="" class="client-mark">{% else %}<span class="client-mark" aria-hidden="true">{{ row.workspace.name|make_list|first|upper }}</span>{% endif %}
+                            <span class="min-w-0">
+                                <span class="block font-medium text-ink group-hover:underline truncate">{{ row.workspace.name }}</span>
+                                {% if row.profile.industry %}<span class="block text-13 text-ink-muted truncate">{{ row.profile.industry }}</span>{% endif %}
+                            </span>
+                        </a>
+                    </td>
+                    <td><span class="status status-{{ row.stage_tone }}">{{ row.profile.get_stage_display }}</span></td>
+                    <td class="text-13 text-ink-muted">{% for s in row.services %}{{ s.get_kind_display }}{% if not forloop.last %}, {% endif %}{% empty %}None yet{% endfor %}</td>
+                    <td>
+                        <span class="status status-{{ row.health.tone }}">{{ row.health.label }}</span>
+                    </td>
+                    <td class="num">{{ row.planned }}{% if row.retainer.posts_per_month %} <span class="text-ink-muted">of {{ row.retainer.posts_per_month }}</span>{% endif %}</td>
+                    <td class="num whitespace-nowrap">{% if row.retainer %}{{ row.retainer.currency }} {{ row.retainer.monthly_fee|floatformat:"2g" }}{% else %}<span class="text-ink-muted">None</span>{% endif %}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+        {% if view_key == "active" and can_add %}
+        {% include "ds/_state.html" with kind="empty" title="No active clients yet" body="Add a client to start their onboarding, plan content and invite them to the portal. Leads and proposals live in their own view." action_url=new_url action_label="Add client" %}
+        {% else %}
+        {% include "ds/_state.html" with kind="empty" title="No clients in this view" body="Try another saved view above, or add a client." %}
+        {% endif %}
+    {% endif %}
+</div>
+{% endblock %}

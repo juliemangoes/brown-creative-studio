@@ -32,8 +32,16 @@ def _app(*names: str) -> Callable[[str, str, str], bool]:
 
 
 PRIMARY: tuple[Section, ...] = (
-    Section("today", "Today", "today", all_url="studio:today", match=_app("studio")),
-    Section("clients", "Clients", "clients", all_url="clients:list", match=_app("clients")),
+    Section("today", "Today", "today", client_url="studio:today_client", all_url="studio:today", match=_app("studio")),
+    Section(
+        "clients",
+        "Clients",
+        "clients",
+        client_url="clients:detail",
+        all_url="clients:list",
+        permission="view_client_profile",
+        match=_app("clients"),
+    ),
     Section(
         "projects", "Projects", "projects", client_url="projects:list", all_url="projects:all", match=_app("projects")
     ),

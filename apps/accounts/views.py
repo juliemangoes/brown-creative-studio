@@ -16,8 +16,13 @@ def health_check(request):
 def dashboard(request):
     """Main dashboard - redirects to last used workspace or shows org overview."""
     from apps.members.models import WorkspaceMembership
+    from apps.studio.permissions import is_studio_staff
 
     user = request.user
+
+    # Brown Creative Studio (CHANGES.md): studio staff start on Today.
+    if getattr(request, "org", None) is not None and is_studio_staff(user, request.org):
+        return redirect("studio:today")
 
     # Only trust last_workspace_id if the user still has an active membership
     # in that workspace. Otherwise the org may have been deleted out from under

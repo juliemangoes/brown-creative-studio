@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% block title %}Add client · {{ SITE_NAME }}{% endblock %}
+{% block content %}
+<div class="w-full max-w-2xl mx-auto">
+    {% include "ds/_page_header.html" with eyebrow="Clients" title="Add client" description="Creates the client's workspace with the studio's approval rule: internal review, then one client approval, before anything is scheduled." %}
+    <form method="post" class="panel panel-body space-y-5" novalidate>
+        {% csrf_token %}
+        {% for field in form %}
+        {% if field.name == "services" %}
+        <fieldset class="field">
+            <legend class="label mb-1">{{ field.label }}</legend>
+            {% for choice in field %}<label class="flex items-center gap-2 text-14">{{ choice.tag }} {{ choice.choice_label }}</label>{% endfor %}
+        </fieldset>
+        {% else %}
+        <div class="field">
+            <label class="label" for="{{ field.id_for_label }}">{{ field.label }}</label>
+            {{ field }}
+            {% for error in field.errors %}<p class="field-error">{{ error }}</p>{% endfor %}
+        </div>
+        {% endif %}
+        {% endfor %}
+        <div class="flex justify-end gap-2 pt-2">
+            <a href="{% url 'clients:list' %}" class="btn btn-quiet">Cancel</a>
+            <button type="submit" class="btn btn-primary">Add client</button>
+        </div>
+    </form>
+</div>
+{% endblock %}

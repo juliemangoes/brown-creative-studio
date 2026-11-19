@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+{% block title %}Contacts · {{ workspace.name }} · {{ SITE_NAME }}{% endblock %}
+{% block content %}
+<div class="w-full max-w-6xl mx-auto" x-data="{ panel: null }">
+    {% include "clients/_header.html" %}
+
+    <section class="panel" aria-labelledby="contacts-title">
+        <div class="panel-header">
+            <h2 id="contacts-title" class="section-title">Contacts</h2>
+            {% if can_edit %}<button type="button" class="btn btn-primary btn-sm" @click="panel = 'new'">Add contact</button>{% endif %}
+        </div>
+        {% if rows %}
+        <div class="overflow-x-auto">
+            <table class="table">
+                <thead><tr><th scope="col">Name</th><th scope="col">Email and phone</th><th scope="col">Role</th><th scope="col">Portal</th>{% if can_edit %}<th scope="col"><span class="sr-only">Actions</span></th>{% endif %}</tr></thead>
+                <tbody>
+                    {% for contact, form in rows %}
+                    <tr>
+                        <td><span class="font-medium">{{ contact.name }}</span>{% if contact.title %}<span class="block meta">{{ contact.title }}</span>{% endif %}</td>
+                        <td class="text-14">{% if contact.email %}<a href="mailto:{{ contact.email }}" class="link">{{ contact.email }}</a>{% endif %}{% if contact.phone %}<span class="block meta">{{ contact.phone }}</span>{% endif %}</td>
+                        <td>
+                            <div class="flex flex-wrap gap-1">
+                                {% if contact.is_primary %}<span class="status status-accent">Main contact</span>{% endif %}
+                                {% if contact.is_approver %}<span class="status status-info">Approves content</span>{% endif %}
+                                {% if contact.is_billing %}<span class="status status-neutral">Receives invoices</span>{% endif %}
+                            </div>
+                        </td>
+                        <td class="text-14">{% if contact.user_id %}<span class="status status-success">Has access</span>{% else %}<span class="text-ink-muted">Not invited</span>{% endif %}</td>
+                        {% if can_edit %}<td class="text-right"><button type="button" class="btn btn-quiet btn-sm" @click="panel = '{{ contact.pk }}'">Edit<span class="sr-only"> {{ contact.name }}</span></button></td>{% endif %}
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="panel-body">{% include "ds/_state.html" with kind="empty" title="No contacts yet" body="Add the people you work with at this client: who approves content and who receives invoices." %}</div>
+        {% endif %}
+    </section>
+    <p class="meta mt-3">Portal access is managed in <a href="{% url 'workspaces:settings' workspace_id=workspace.id %}" class="link">client settings</a>. Contact details here are for the studio only.</p>
+
+    {% if can_edit %}
+    <template x-teleport="body">
+        <div x-show="panel !== null" x-cloak @keydown.escape.window="panel = null">
+            <div class="dialog-backdrop" @click="panel = null"></div>
+            <form x-show="panel === 'new'" method="post" action="{% url 'clients:contact_add' workspace_id=workspace.id %}" class="side-panel" role="dialog" aria-modal="true" aria-labelledby="new-contact-title">
+                {% csrf_token %}
+                <div class="side-panel-header"><div><p class="meta">{{ workspace.name }}</p><h2 id="new-contact-title" class="text-20 font-semibold">New contact</h2></div>
+                    <button type="button" class="btn-icon" @click="panel = null" aria-label="Close"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" aria-hidden="true"><path d="M18 6L6 18M6 6l12 12"/></svg></button></div>
+                <div class="side-panel-body space-y-4">{% include "clients/_contact_fields.html" %}</div>
+                <div class="side-panel-footer"><button type="button" class="btn btn-quiet" @click="panel = null">Cancel</button><button type="submit" class="btn btn-primary">Add contact</button></div>
+            </form>
+            {% for contact, contact_form in rows %}
+            <div x-show="panel === '{{ contact.pk }}'" class="side-panel" role="dialog" aria-modal="true" aria-labelledby="contact-{{ contact.pk }}-title">
+                <form method="post" action="{% url 'clients:contact_edit' workspace_id=workspace.id contact_id=contact.pk %}" class="contents">
+                    {% csrf_token %}
+                    <div class="side-panel-header"><div><p class="meta">{{ workspace.name }}</p><h2 id="contact-{{ contact.pk }}-title" class="text-20 font-semibold">{{ contact.name }}</h2></div>
+                        <button type="button" class="btn-icon" @click="panel = null" aria-label="Close"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" aria-hidden="true"><path d="M18 6L6 18M6 6l12 12"/></svg></button></div>
+                    <div class="side-panel-body space-y-4">{% include "clients/_contact_fields.html" with form=contact_form %}</div>
+                    <div class="side-panel-footer">
+                        <button type="submit" form="delete-{{ contact.pk }}" class="btn btn-danger-quiet mr-auto">Remove</button>
+                        <button type="button" class="btn btn-quiet" @click="panel = null">Cancel</button><button type="submit" class="btn btn-primary">Save</button>
+                    </div>
+                </form>
+                <form id="delete-{{ contact.pk }}" method="post" action="{% url 'clients:contact_delete' workspace_id=workspace.id contact_id=contact.pk %}" onsubmit="return confirm('Remove {{ contact.name|escapejs }} from this client\'s contacts?')">{% csrf_token %}</form>
+            </div>
+            {% endfor %}
+        </div>
+    </template>
+    {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,141 @@
+{% extends "base.html" %}
+{% load ds %}
+{% block title %}{{ workspace.name }} · Clients · {{ SITE_NAME }}{% endblock %}
+{% block content %}
+<div class="w-full max-w-6xl mx-auto" x-data="{ editing: {% if profile_form.errors %}true{% else %}false{% endif %} }">
+    {% include "clients/_header.html" %}
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div class="lg:col-span-2 space-y-6 min-w-0">
+            <section class="panel" aria-labelledby="health-title">
+                <div class="panel-header"><h2 id="health-title" class="section-title">Health</h2><span class="status status-{{ health.tone }}">{{ health.label }}</span></div>
+                <ul class="divide-y divide-hairline">
+                    {% for signal in health.signals %}
+                    <li class="flex items-start justify-between gap-4 px-5 py-4">
+                        <div class="min-w-0">
+                            <p class="text-14 font-medium text-ink">{{ signal.label }}</p>
+                            <p class="text-14 text-ink-muted mt-0.5">{{ signal.detail }}</p>
+                        </div>
+                        <div class="flex items-center gap-3 flex-shrink-0">
+                            <span class="status status-{{ signal.tone }}">{% if signal.tone == "danger" %}Act now{% elif signal.tone == "warning" %}Soon{% elif signal.tone == "neutral" %}Not tracked{% else %}Fine{% endif %}</span>
+                            {% if signal.url %}<a href="{{ signal.url }}" class="link text-13">Open<span class="sr-only"> {{ signal.label|lower }}</span></a>{% endif %}
+                        </div>
+                    </li>
+                    {% endfor %}
+                </ul>
+            </section>
+
+            <section class="panel" aria-labelledby="upcoming-title">
+                <div class="panel-header"><h2 id="upcoming-title" class="section-title">Going out next <span class="meta font-normal">· {{ workspace.effective_timezone|default:"studio time" }}</span></h2><a href="{% url 'calendar:calendar' workspace_id=workspace.id %}" class="link text-13">Calendar</a></div>
+                {% if upcoming %}
+                <ul class="divide-y divide-hairline">
+                    {% for item in upcoming %}
+                    <li class="flex items-center justify-between gap-4 px-5 py-3">
+                        <div class="min-w-0">
+                            <a href="{{ item.edit_url }}" class="text-14 font-medium text-ink hover:underline truncate block">{{ item.post.title|default:item.post.caption|default:"Untitled post"|truncatechars:70 }}</a>
+                            <p class="meta">{{ item.platforms|join:", " }} · {{ item.due|date:"D j M, H:i" }}</p>
+                        </div>
+                        {% status "post" item.status %}
+                    </li>
+                    {% endfor %}
+                </ul>
+                {% else %}
+                <div class="panel-body">{% url 'composer:compose' workspace_id=workspace.id as compose_url %}{% include "ds/_state.html" with kind="empty" title="Nothing scheduled yet" body="Plan this client's next posts; scheduled posts show here with their status." action_url=compose_url action_label="New post" %}</div>
+                {% endif %}
+            </section>
+
+            <section class="panel" aria-labelledby="accounts-title">
+                <div class="panel-header"><h2 id="accounts-title" class="section-title">Connected accounts</h2><a href="{% url 'social_accounts:list' workspace_id=workspace.id %}" class="link text-13">Manage</a></div>
+                {% if accounts %}
+                <ul class="divide-y divide-hairline">
+                    {% for account in accounts %}
+                    <li class="flex items-center justify-between gap-4 px-5 py-3">
+                        <span class="text-14"><span class="font-medium">{{ account.account_name }}</span> <span class="text-ink-muted">· {{ account.get_platform_display }}</span></span>
+                        {% if account.connection_status == "connected" %}<span class="status status-success">Connected</span>{% else %}<span class="status status-danger">Reconnect needed</span>{% endif %}
+                    </li>
+                    {% endfor %}
+                </ul>
+                {% else %}
+                <div class="panel-body text-14 text-ink-muted">No accounts connected. The client connects them through each platform's own sign-in during onboarding.</div>
+                {% endif %}
+            </section>
+        </div>
+
+        <aside class="space-y-6 min-w-0">
+            <section class="panel panel-body" aria-labelledby="retainer-title">
+                <h2 id="retainer-title" class="section-title mb-3">This month</h2>
+                {% if retainer %}
+                <p class="text-32 font-semibold tabular-nums">{{ delivered_posts }} <span class="text-16 font-normal text-ink-muted">of {{ retainer.posts_per_month }} posts</span></p>
+                <p class="meta mt-1">Published since the 1st, against {{ retainer.name|lower }}.</p>
+                <dl class="mt-4 grid grid-cols-2 gap-3 text-13">
+                    <div><dt class="text-ink-muted">Reels</dt><dd class="tabular-nums">{{ retainer.reels_per_month }} a month</dd></div>
+                    <div><dt class="text-ink-muted">Shoot days</dt><dd class="tabular-nums">{{ retainer.shoot_days_per_month }} a month</dd></div>
+                    <div><dt class="text-ink-muted">Fee</dt><dd class="tabular-nums">{{ retainer.currency }} {{ retainer.monthly_fee|floatformat:"2g" }}</dd></div>
+                    <div><dt class="text-ink-muted">Revisions</dt><dd class="tabular-nums">{{ retainer.revision_rounds }} rounds</dd></div>
+                </dl>
+                {% else %}
+                <p class="text-14 text-ink-muted">No retainer yet. <a href="{% url 'clients:services' workspace_id=workspace.id %}" class="link">Set one up</a> to compare what's delivered with what the plan includes.</p>
+                {% endif %}
+            </section>
+
+            <section class="panel panel-body" aria-labelledby="services-title">
+                <h2 id="services-title" class="section-title mb-3">Services</h2>
+                <ul class="space-y-2">
+                    {% for service in services %}
+                    <li class="flex items-center justify-between gap-3 text-14"><span>{{ service.get_kind_display }}</span><span class="status {% if service.status == 'active' %}status-success{% elif service.status == 'paused' %}status-warning{% else %}status-neutral{% endif %}">{{ service.get_status_display }}</span></li>
+                    {% empty %}
+                    <li class="text-14 text-ink-muted">None yet.</li>
+                    {% endfor %}
+                </ul>
+            </section>
+
+            <section class="panel panel-body" aria-labelledby="contacts-title">
+                <div class="flex items-center justify-between mb-3"><h2 id="contacts-title" class="section-title">Contacts</h2><a href="{% url 'clients:contacts' workspace_id=workspace.id %}" class="link text-13">All</a></div>
+                <ul class="space-y-3">
+                    {% for contact in contacts %}
+                    <li class="text-14"><span class="font-medium">{{ contact.name }}</span>{% if contact.title %} <span class="text-ink-muted">· {{ contact.title }}</span>{% endif %}
+                        <span class="block text-13 text-ink-muted">{% if contact.is_primary %}Main contact{% endif %}{% if contact.is_approver %}{% if contact.is_primary %} · {% endif %}Approves content{% endif %}{% if contact.is_billing %} · Invoices{% endif %}</span>
+                    </li>
+                    {% empty %}
+                    <li class="text-14 text-ink-muted">No contacts yet.</li>
+                    {% endfor %}
+                </ul>
+            </section>
+
+            <section class="panel panel-body" aria-labelledby="details-title">
+                <div class="flex items-center justify-between mb-3"><h2 id="details-title" class="section-title">Details</h2>{% if can_edit %}<button type="button" class="btn btn-quiet btn-sm" @click="editing = true">Edit</button>{% endif %}</div>
+                <dl class="space-y-2 text-14">
+                    {% if profile.legal_name %}<div><dt class="text-13 text-ink-muted">Legal name</dt><dd>{{ profile.legal_name }}</dd></div>{% endif %}
+                    {% if profile.website %}<div><dt class="text-13 text-ink-muted">Website</dt><dd><a href="{{ profile.website }}" class="link" rel="noopener">{{ profile.website }}</a></dd></div>{% endif %}
+                    <div><dt class="text-13 text-ink-muted">Time zone</dt><dd>{{ workspace.effective_timezone|default:"Not set" }}</dd></div>
+                    <div><dt class="text-13 text-ink-muted">Portal language</dt><dd>{{ profile.get_portal_language_display }}</dd></div>
+                    <div><dt class="text-13 text-ink-muted">Billing currency</dt><dd>{{ profile.currency }}</dd></div>
+                    {% if profile.started_on %}<div><dt class="text-13 text-ink-muted">Client since</dt><dd>{{ profile.started_on|date:"j M Y" }}</dd></div>{% endif %}
+                    {% if profile.internal_notes %}<div><dt class="text-13 text-ink-muted">Internal notes <span class="status status-neutral">Internal</span></dt><dd class="whitespace-pre-line">{{ profile.internal_notes }}</dd></div>{% endif %}
+                </dl>
+            </section>
+        </aside>
+    </div>
+
+    {% if can_edit %}
+    <template x-teleport="body">
+        <div x-show="editing" x-cloak @keydown.escape.window="editing = false">
+            <div class="dialog-backdrop" @click="editing = false"></div>
+            <form method="post" action="{% url 'clients:profile_update' workspace_id=workspace.id %}" class="side-panel" role="dialog" aria-modal="true" aria-labelledby="edit-title">
+                {% csrf_token %}
+                <div class="side-panel-header">
+                    <div><p class="meta">{{ workspace.name }}</p><h2 id="edit-title" class="text-20 font-semibold">Client details</h2></div>
+                    <button type="button" class="btn-icon" @click="editing = false" aria-label="Close"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" aria-hidden="true"><path d="M18 6L6 18M6 6l12 12"/></svg></button>
+                </div>
+                <div class="side-panel-body space-y-4">
+                    {% for field in profile_form %}
+                    <div class="field"><label class="label" for="{{ field.id_for_label }}">{{ field.label }}</label>{{ field }}{% if field.help_text %}<p class="meta mt-1">{{ field.help_text }}</p>{% endif %}{% for error in field.errors %}<p class="field-error">{{ error }}</p>{% endfor %}</div>
+                    {% endfor %}
+                </div>
+                <div class="side-panel-footer"><button type="button" class="btn btn-quiet" @click="editing = false">Cancel</button><button type="submit" class="btn btn-primary">Save details</button></div>
+            </form>
+        </div>
+    </template>
+    {% endif %}
+</div>
+{% endblock %}
