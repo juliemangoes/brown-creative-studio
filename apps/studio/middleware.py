@@ -42,16 +42,23 @@ def _view_name(match) -> str:
 
 
 def is_client_only(request) -> bool:
-    """The user has client memberships and nothing that makes them studio staff (cached per request)."""
+    """In every studio where the user holds a client role, they have no staff role (cached per request).
+
+    Judged per organization: BrightBean gives every new account a personal
+    "My Organization", so owning *an* organization says nothing about this one.
+    """
     cached = getattr(request, "_studio_client_only", None)
     if cached is not None:
         return cached
     from apps.members.models import WorkspaceMembership
 
     user = request.user
-    result = WorkspaceMembership.objects.filter(user=user, workspace_role="client").exists() and not is_studio_staff(
-        user
+    client_org_ids = set(
+        WorkspaceMembership.objects.filter(user=user, workspace_role="client").values_list(
+            "workspace__organization_id", flat=True
+        )
     )
+    result = bool(client_org_ids) and not any(is_studio_staff(user, org_id) for org_id in client_org_ids)
     request._studio_client_only = result
     return result
 

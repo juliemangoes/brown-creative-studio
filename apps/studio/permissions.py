@@ -164,8 +164,8 @@ def is_studio_staff(user, organization=None) -> bool:
     from apps.members.models import OrgMembership, WorkspaceMembership
 
     org_memberships = OrgMembership.objects.filter(user=user)
-    if organization is not None:
-        org_memberships = org_memberships.filter(organization=organization)
+    if organization is not None:  # an Organization or its id
+        org_memberships = org_memberships.filter(organization_id=getattr(organization, "pk", organization))
     if org_memberships.filter(org_role__in=["owner", "admin"]).exists():
         return True
     org_ids = list(org_memberships.values_list("organization_id", flat=True))
