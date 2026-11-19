@@ -1,0 +1,15 @@
+{% comment %}
+Page header: optional eyebrow (usually the client), the title in the display face, a line of
+description, and at most one primary action. Secondary actions go in the page body.
+  {% include "ds/_page_header.html" with eyebrow=workspace.name title="Calendar" description="…" action_url=… action_label="New post" %}
+{% endcomment %}
+<header class="flex flex-wrap items-end justify-between gap-4 mb-6">
+    <div class="min-w-0">
+        {% if eyebrow %}<p class="meta mb-1">{{ eyebrow }}</p>{% endif %}
+        <h1 class="page-title">{{ title }}</h1>
+        {% if description %}<p class="text-14 text-ink-muted mt-1 max-w-2xl">{{ description }}</p>{% endif %}
+    </div>
+    {% if action_url and action_label %}
+    <a href="{{ action_url }}" class="btn btn-primary">{{ action_label }}</a>
+    {% endif %}
+</header>

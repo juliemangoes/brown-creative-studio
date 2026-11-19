@@ -1,16 +1,16 @@
 {% extends "base.html" %}
 {% load static %}
 
-{% block title %}Publish - {{ workspace.name }} · {{ SITE_NAME }}{% endblock %}
+{% block title %}Calendar · {{ workspace.name }} · {{ SITE_NAME }}{% endblock %}
 
 {% block page_header %}
-<div class="flex flex-wrap items-center justify-between gap-3 mb-4 lg:mb-[25px]">
-    <h1 class="text-20 sm:text-24 font-semibold text-ink" style="letter-spacing: -0.01em;">Publish</h1>
+<div class="flex flex-wrap items-center justify-between gap-3 mb-5">
+    <h1 class="page-title">Calendar</h1>
 
     <div class="flex items-center gap-3">
         <!-- List / Calendar toggle -->
-        <div class="flex items-center bg-canvas rounded-full p-0.5" x-data="{ activeMode: '{{ mode|default:'calendar' }}' }">
-            <button class="view-btn{% if mode == 'list' %} active{% endif %}" :class="{ active: activeMode === 'list' }"
+        <div class="flex items-center bg-sunken rounded-control p-0.5" role="group" aria-label="View" x-data="{ activeMode: '{{ mode|default:'calendar' }}' }">
+            <button class="view-btn{% if mode == 'list' %} active{% endif %}" :class="{ active: activeMode === 'list' }" :aria-pressed="activeMode === 'list' ? 'true' : 'false'"
                     @click="activeMode = 'list'"
                     hx-get="{% url 'calendar:calendar' workspace_id=workspace.id %}?mode=list&tab={{ active_tab|default:'queue' }}&_switch_mode=1"
                     hx-target="#publish-body"
@@ -19,7 +19,7 @@
                 <svg class="w-3.5 h-3.5 inline -mt-px mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 10h16M4 14h16M4 18h16"/></svg>
                 List
             </button>
-            <button class="view-btn{% if mode == 'calendar' %} active{% endif %}" :class="{ active: activeMode === 'calendar' }"
+            <button class="view-btn{% if mode == 'calendar' %} active{% endif %}" :class="{ active: activeMode === 'calendar' }" :aria-pressed="activeMode === 'calendar' ? 'true' : 'false'"
                     @click="activeMode = 'calendar'"
                     hx-get="{% url 'calendar:calendar' workspace_id=workspace.id %}?mode=calendar&view={{ view_type|default:'month' }}&_switch_mode=1"
                     hx-target="#publish-body"
@@ -29,7 +29,7 @@
                 Calendar
             </button>
         </div>
-
+        <a href="{% url 'composer:compose' workspace_id=workspace.id %}" class="btn btn-primary">New post</a>
     </div>
 </div>
 {% endblock %}
@@ -57,7 +57,7 @@
     .cal-day.today { background: var(--accent-soft); }
     .cal-day.other-month { opacity: 0.4; }
     .cal-day .day-num {
-        font-size: 13px; font-weight: 600;
+        font-size: 0.8125rem; font-weight: 600;
         width: 28px; height: 28px; border-radius: 50%;
         display: flex; align-items: center; justify-content: center;
         margin-bottom: 4px;
@@ -70,8 +70,8 @@
 
     .post-chip {
         display: flex; align-items: center; gap: 4px;
-        padding: 3px 6px; border-radius: 6px;
-        font-size: 11px; font-weight: 500;
+        padding: 3px 6px; border-radius: var(--radius-control);
+        font-size: 0.75rem; font-weight: 500;
         margin-bottom: 2px; cursor: pointer;
         transition: all 150ms ease;
         text-decoration: none;
@@ -106,19 +106,19 @@
 
     /* View switcher */
     .view-btn {
-        padding: 6px 14px; border-radius: 9999px;
-        font-size: 12px; font-weight: 600;
+        padding: 6px 12px; border-radius: var(--radius-control);
+        font-size: 0.75rem; font-weight: 600;
         color: var(--text-secondary); border: none; background: transparent;
         cursor: pointer; transition: all 150ms ease;
     }
     .view-btn:hover { color: var(--text-primary); background: var(--sunken); }
-    .view-btn.active { color: var(--accent); background: var(--accent-soft); border: 1px solid var(--accent-line); box-shadow: 0 1px 2px rgba(194, 65, 12, 0.08); }
+    .view-btn.active { color: var(--text-primary); background: var(--surface); box-shadow: inset 0 0 0 1px var(--hairline); }
 
     /* Filter chips */
     .filter-chip {
         display: inline-flex; align-items: center; gap: 4px;
         padding: 4px 10px; border-radius: 9999px;
-        font-size: 11px; font-weight: 600;
+        font-size: 0.75rem; font-weight: 600;
         background: var(--accent-soft); color: var(--accent);
         border: 1px solid var(--accent-line);
     }
@@ -126,14 +126,14 @@
         width: 14px; height: 14px; border-radius: 50%;
         display: flex; align-items: center; justify-content: center;
         background: transparent; border: none; cursor: pointer;
-        color: var(--accent); font-size: 10px;
+        color: var(--accent); font-size: 0.75rem;
     }
     .filter-chip button:hover { background: var(--accent-soft); }
 
     /* Publish tab styles */
     .publish-tab {
         padding: 10px 16px; border-radius: 0;
-        font-size: 13px; font-weight: 600;
+        font-size: 0.8125rem; font-weight: 600;
         color: var(--text-secondary); background: transparent;
         border: none; cursor: pointer;
         transition: all 150ms ease;
@@ -150,8 +150,8 @@
     /* Filter dropdowns (shared by list and calendar modes) */
     .publish-filter-select,
     .cal-filter-select {
-        padding: 6px 28px 6px 10px; border-radius: 8px;
-        font-size: 12px; font-weight: 600;
+        padding: 6px 28px 6px 10px; border-radius: var(--radius-control);
+        font-size: 0.75rem; font-weight: 600;
         color: var(--text-secondary); background: var(--surface);
         border: 1px solid var(--hairline);
         cursor: pointer; transition: all 150ms ease;
@@ -181,7 +181,7 @@
     .pi-linkedin_personal { background: #0A66C2; }
     .pi-linkedin_company  { background: #0A66C2; }
     .pi-tiktok     { background: var(--scrim); }
-    .pi-youtube { background: transparent !important; width: auto !important; min-width: 45px; color: var(--text-secondary); font-size: 10px; }
+    .pi-youtube { background: transparent !important; width: auto !important; min-width: 45px; color: var(--text-secondary); font-size: 0.75rem; }
     .pi-pinterest  { background: #E60023; }
     .pi-threads    { background: var(--scrim); }
     .pi-bluesky    { background: #0085FF; }
@@ -195,7 +195,7 @@
         width: 22px; height: 22px; border-radius: 50%;
         background: var(--accent); color: var(--on-accent); border: none;
         align-items: center; justify-content: center;
-        cursor: pointer; font-size: 14px; line-height: 1;
+        cursor: pointer; font-size: 0.875rem; line-height: 1;
         box-shadow: 0 2px 6px color-mix(in srgb, var(--accent) 35%, transparent);
         transition: transform 100ms ease, background 100ms ease;
         z-index: 5;
@@ -244,8 +244,8 @@
         max-width: 100%;
         min-height: 24px;
         padding: 3px 5px;
-        border-radius: 6px;
-        font-size: 11px;
+        border-radius: var(--radius-control);
+        font-size: 0.75rem;
         font-weight: 600;
         border: 1px dashed var(--hairline);
         background: var(--surface);
@@ -253,7 +253,7 @@
     }
     .calendar-channel-slot--week {
         width: 100%;
-        font-size: 10px;
+        font-size: 0.75rem;
         gap: 4px;
     }
     .calendar-channel-slot.is-past-open {
@@ -317,7 +317,7 @@
        shown once checked or when a selection is active. */
     .cal-select-box {
         width: 15px; height: 15px; flex-shrink: 0; border: 1.5px solid var(--control-border);
-        border-radius: 4px; background: var(--surface); cursor: pointer; color: var(--on-accent);
+        border-radius: var(--radius-control); background: var(--surface); cursor: pointer; color: var(--on-accent);
         display: inline-flex; align-items: center; justify-content: center;
         opacity: 0; transition: opacity 120ms ease, background 120ms ease;
     }
@@ -365,7 +365,7 @@ ticked (see the `sel` Alpine store).{% endcomment %}
         <span class="text-14 font-medium whitespace-nowrap" x-text="$store.sel.count + ' selected'"></span>
         <span class="w-px h-5 bg-surface/20 mx-1.5"></span>
         <button @click="ask('draft')" :disabled="busy" class="px-3 py-1.5 text-12 font-semibold rounded-control hover:bg-surface/10 transition-colors disabled:opacity-50">Draft</button>
-        <button @click="ask('publish')" :disabled="busy" class="px-3 py-1.5 text-12 font-semibold rounded-control bg-success hover:bg-success transition-colors disabled:opacity-50">Publish</button>
+        <button @click="ask('publish')" :disabled="busy" class="btn btn-primary btn-sm">Publish</button>
         <button @click="ask('delete')" :disabled="busy" class="px-3 py-1.5 text-12 font-semibold rounded-control text-danger hover:bg-danger/20 transition-colors disabled:opacity-50">Delete</button>
         <button @click="$store.sel.clear()" class="w-7 h-7 rounded-full hover:bg-surface/10 flex items-center justify-center transition-colors" title="Clear selection">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
@@ -388,10 +388,10 @@ ticked (see the `sel` Alpine store).{% endcomment %}
                    ? ('Permanently delete ' + $store.sel.count + ' selected post' + ($store.sel.count === 1 ? '' : 's') + '. This can\'t be undone.')
                    : ('Publish ' + $store.sel.count + ' selected post' + ($store.sel.count === 1 ? '' : 's') + ' now — they go out on their platforms shortly.')"></p>
             <div class="flex gap-2 mt-5">
-                <button @click="confirmAction = null" class="flex-1 px-4 py-2 text-14 font-semibold rounded-control border border-hairline text-ink-muted hover:bg-sunken transition-colors">Cancel</button>
+                <button @click="confirmAction = null" class="btn btn-secondary flex-1">Cancel</button>
                 <button @click="exec(confirmAction)" :disabled="busy"
-                        :class="confirmAction === 'delete' ? 'bg-danger hover:bg-danger' : 'bg-success hover:bg-success'"
-                        class="flex-1 px-4 py-2 text-14 font-semibold rounded-control text-on-accent transition-colors disabled:opacity-50"
+                        :class="confirmAction === 'delete' ? 'btn-danger' : 'btn-primary'"
+                        class="btn flex-1"
                         x-text="confirmAction === 'delete' ? 'Delete' : 'Publish'"></button>
             </div>
         </div>

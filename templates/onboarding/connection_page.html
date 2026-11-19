@@ -29,7 +29,7 @@
             margin-bottom: 8px;
         ">Connect your social accounts</h1>
         <p style="
-            font-size: 0.9375rem;
+            font-size: 0.875rem;
             color: var(--text-secondary);
             line-height: 1.6;
         ">to <strong style="color: var(--text-primary); font-weight: 600;">{{ workspace.name }}</strong> on {{ org.name }}</p>
@@ -163,7 +163,7 @@
                         box-shadow: var(--shadow-xl);
                     ">
                         {% csrf_token %}
-                        <h3 style="font-size: 0.9375rem; font-weight: 600; color: var(--text-primary); margin-bottom: 16px;">Connect Bluesky</h3>
+                        <h3 style="font-size: 0.875rem; font-weight: 600; color: var(--text-primary); margin-bottom: 16px;">Connect Bluesky</h3>
                         <div style="margin-bottom: 12px;">
                             <label style="font-size: 0.8125rem; font-weight: 600; color: var(--text-primary); display: block; margin-bottom: 4px;">Handle</label>
                             <input type="text" name="handle" placeholder="you.bsky.social" required style="
@@ -187,7 +187,7 @@
                                 color: var(--text-primary);
                                 outline: none;
                             ">
-                            <p style="font-size: 0.6875rem; color: var(--text-tertiary); margin-top: 4px;">Generate at Settings &rarr; App Passwords on Bluesky</p>
+                            <p style="font-size: 0.75rem; color: var(--text-tertiary); margin-top: 4px;">Generate at Settings &rarr; App Passwords on Bluesky</p>
                         </div>
                         <div style="display: flex; gap: 8px; justify-content: flex-end;">
                             <button type="button" @click="showForm = false" style="
@@ -237,7 +237,7 @@
                         box-shadow: var(--shadow-xl);
                     ">
                         {% csrf_token %}
-                        <h3 style="font-size: 0.9375rem; font-weight: 600; color: var(--text-primary); margin-bottom: 16px;">Connect Mastodon</h3>
+                        <h3 style="font-size: 0.875rem; font-weight: 600; color: var(--text-primary); margin-bottom: 16px;">Connect Mastodon</h3>
                         <div style="margin-bottom: 16px;">
                             <label style="font-size: 0.8125rem; font-weight: 600; color: var(--text-primary); display: block; margin-bottom: 4px;">Instance URL</label>
                             <input type="text" name="instance_url" placeholder="mastodon.social" required style="
@@ -319,7 +319,7 @@
             width: 100%;
             display: inline-flex; align-items: center; justify-content: center; gap: 8px;
             padding: 14px 28px;
-            font-size: 0.9375rem; font-weight: 600; font-family: var(--font-body);
+            font-size: 0.875rem; font-weight: 600; font-family: var(--font-body);
             color: var(--on-accent); background: var(--primary);
             border: none; border-radius: var(--radius-full);
             cursor: pointer;
@@ -336,7 +336,7 @@
         <p style="font-size: 0.75rem; color: var(--text-ghost); line-height: 1.6;">
             Need help? Contact <strong style="color: var(--text-tertiary);">{{ org.name }}</strong>
         </p>
-        <p style="font-size: 0.6875rem; color: var(--text-ghost); margin-top: 4px;">
+        <p style="font-size: 0.75rem; color: var(--text-ghost); margin-top: 4px;">
             This link expires {{ link.expires_at|date:"M j, Y" }}
         </p>
     </div>

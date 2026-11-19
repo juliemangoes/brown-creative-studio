@@ -7,7 +7,7 @@
                 <span class="a-calc-tag">Calculated by {{ SITE_NAME }}</span>
             </div>
             <div style="display: flex; align-items: flex-end; gap: 12px;">
-                <span style="font-size: 2.5rem; font-weight: 700; letter-spacing: -0.02em; color: var(--text-primary); line-height: 0.95;">{{ engagement.rate.value|fmt_metric:"percent" }}</span>
+                <span style="font-size: 2.75rem; font-weight: 700; letter-spacing: -0.02em; color: var(--text-primary); line-height: 0.95;">{{ engagement.rate.value|fmt_metric:"percent" }}</span>
                 {% include "analytics/_delta_chip.html" with delta=engagement.rate.delta large=True %}
             </div>
         </div>
@@ -22,9 +22,9 @@
     <div style="flex: 1 1 215px; display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; align-content: center;">
         {% for p in engagement.parts %}
         <div style="padding: 11px 13px; border-radius: var(--radius-lg); background: var(--surface-1); border: 1px solid var(--border);">
-            <div style="font-size: 0.6875rem; font-weight: 600; color: var(--text-secondary); margin-bottom: 6px;">{{ p.label }}</div>
+            <div style="font-size: 0.75rem; font-weight: 600; color: var(--text-secondary); margin-bottom: 6px;">{{ p.label }}</div>
             <div style="display: flex; align-items: baseline; justify-content: space-between; gap: 6px;">
-                <span class="a-mono" style="font-size: 1.05rem; font-weight: 700; color: var(--text-primary);">{{ p.derived.value|fmt_metric:p.derived.kind }}</span>
+                <span class="a-mono" style="font-size: 1rem; font-weight: 700; color: var(--text-primary);">{{ p.derived.value|fmt_metric:p.derived.kind }}</span>
                 {% include "analytics/_delta_chip.html" with delta=p.derived.delta %}
             </div>
             {% if p.derived.estimated %}<div class="a-calc-note" style="margin-top: 4px;">Estimated by {{ SITE_NAME }}</div>{% endif %}

@@ -231,3 +231,18 @@ def test_colour_keywords_in_css():
 def test_django_filters_inside_style_attributes_are_untouched():
     html = """style="background: {{ ws.primary_color|default:'#F97316' }};\""""
     assert r(html) == html
+
+
+def test_css_font_sizes_and_radii_follow_the_scales():
+    assert r("<style>.x { font-size: 11px; border-radius: 12px; }</style>") == (
+        "<style>.x { font-size: 0.75rem; border-radius: var(--radius-panel); }</style>"
+    )
+    assert (
+        r('style="font-size: 0.9375rem; border-radius: 4px"')
+        == 'style="font-size: 0.875rem; border-radius: var(--radius-control)"'
+    )
+    assert r("<style>.dot { border-radius: 9999px; }</style>") == "<style>.dot { border-radius: 9999px; }</style>"
+    assert (
+        r("box-shadow: 0 1px 2px rgba(194, 65, 12, 0.08);")
+        == "box-shadow: 0 1px 2px color-mix(in srgb, var(--accent) 8%, transparent);"
+    )

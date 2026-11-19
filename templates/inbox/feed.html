@@ -54,7 +54,7 @@
     /* Badges */
     .badge-pill {
         display: inline-flex; align-items: center; gap: 3px;
-        font-size: 10px; font-weight: 600; padding: 2px 7px;
+        font-size: 0.75rem; font-weight: 600; padding: 2px 7px;
         border-radius: var(--radius-full); letter-spacing: 0.01em;
         white-space: nowrap;
     }
@@ -71,7 +71,7 @@
 
     /* View tabs */
     .inbox-tab {
-        font-size: 13px; font-weight: 500; padding: 6px 14px;
+        font-size: 0.8125rem; font-weight: 500; padding: 6px 14px;
         border-radius: var(--radius-full); color: var(--text-secondary);
         transition: all var(--dur-fast) ease; cursor: pointer;
         text-decoration: none; white-space: nowrap;
@@ -81,7 +81,7 @@
 
     /* Filter controls */
     .filter-select {
-        font-size: 12px; font-weight: 500; color: var(--text-secondary);
+        font-size: 0.75rem; font-weight: 500; color: var(--text-secondary);
         background: var(--surface-1); border: 1px solid var(--border);
         border-radius: var(--radius-md); padding: 4px 24px 4px 8px;
         transition: all var(--dur-fast) ease; cursor: pointer;
@@ -96,11 +96,11 @@
     .bulk-bar {
         background: var(--neutral-900); color: var(--on-accent); padding: 8px 16px;
         display: flex; align-items: center; gap: 12px;
-        font-size: 13px; font-weight: 500;
+        font-size: 0.8125rem; font-weight: 500;
         animation: slideUp 200ms var(--ease-out);
     }
     .bulk-bar button {
-        font-size: 12px; font-weight: 600; padding: 4px 12px;
+        font-size: 0.75rem; font-weight: 600; padding: 4px 12px;
         border-radius: var(--radius-full); border: 1px solid rgba(255,255,255,0.2);
         background: transparent; color: var(--on-accent); cursor: pointer;
         transition: all var(--dur-fast) ease;
@@ -109,7 +109,7 @@
     @keyframes slideUp { from { transform: translateY(100%); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
 
     /* SLA countdown */
-    .sla-countdown { font-family: var(--font-mono); font-size: 11px; font-weight: 600; }
+    .sla-countdown { font-family: var(--font-mono); font-size: 0.75rem; font-weight: 600; }
     .sla-ok { color: var(--text-tertiary); }
     .sla-warn { color: var(--warning-700); }
     .sla-overdue { color: var(--error-700); }

@@ -59,6 +59,7 @@ BRIGHTBEAN_HEX = {
     "EFF2DC",
     "DDE4B9",
 }
+BRIGHTBEAN_RGB = {tuple(int(h[i : i + 2], 16) for i in (0, 2, 4)) for h in BRIGHTBEAN_HEX}
 HEX_RE = re.compile(r"#([0-9A-Fa-f]{6})\b")
 
 
@@ -113,8 +114,9 @@ def test_no_brightbean_orange_or_green_left():
     for path in _brand_sources():
         text = path.read_text(encoding="utf-8")
         for lineno, line in enumerate(text.splitlines(), 1):
-            if "249,115,22" in line.replace(" ", ""):
-                found.append(f"{_rel(path)}:{lineno}  rgb(249, 115, 22)")
+            for rgb in re.findall(r"rgba?\(\s*(\d{1,3})\s*,\s*(\d{1,3})\s*,\s*(\d{1,3})", line):
+                if tuple(int(v) for v in rgb) in BRIGHTBEAN_RGB:
+                    found.append(f"{_rel(path)}:{lineno}  rgb{tuple(int(v) for v in rgb)}")
             for m in HEX_RE.finditer(line):
                 if m[1].upper() in BRIGHTBEAN_HEX:
                     found.append(f"{_rel(path)}:{lineno}  #{m[1]}")

@@ -10,7 +10,7 @@
         <h2 style="font-size: 1.5rem; font-weight: 700; color: var(--text-primary); margin-bottom: 8px; letter-spacing: -0.01em;">
             {{ active_account.account_name }} is connected
         </h2>
-        <p style="font-size: 0.9375rem; color: var(--text-secondary); line-height: 1.6; margin-bottom: 8px;">
+        <p style="font-size: 0.875rem; color: var(--text-secondary); line-height: 1.6; margin-bottom: 8px;">
             {% if active_account.platform == "youtube" %}YouTube has not returned analytics for this reporting period. Reports refresh daily and may arrive after a delay.{% else %}We started collecting analytics when you connected this account. Metrics for this account usually appear within <strong>24–48 hours</strong> of your first published post.{% endif %}
         </p>
         <div style="display: inline-flex; align-items: center; gap: 8px; padding: 8px 14px; background: var(--surface-1); border: 1px solid var(--border); border-radius: var(--radius-full); margin-top: 12px;">

@@ -97,6 +97,7 @@ def shell(request):
     for label, name in (
         ("Notifications", "notifications:list"),
         ("Your settings", "accounts:settings"),
+        ("Design system", "design_system:style_guide"),
         ("Source code", "about:source"),
         ("Sign out", "accounts:logout"),
     ):

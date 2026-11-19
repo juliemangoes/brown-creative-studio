@@ -643,6 +643,26 @@ def _rewrite_declarations(css: str) -> str:
             token = _hex_token(prop, h["hex"])
             return token if token else h.group(0)
 
+        lowered = prop.lower()
+        if lowered == "font-size":
+            size = re.fullmatch(r"\s*([0-9.]+)(px|rem)\s*(!important)?\s*", val)
+            if size:
+                px = nearest_size(_px(size[1], size[2]))
+                return f"{prop}: {px / 16:g}rem{' !important' if size[3] else ''}"
+        if lowered in (
+            "border-radius",
+            "border-top-left-radius",
+            "border-top-right-radius",
+            "border-bottom-left-radius",
+            "border-bottom-right-radius",
+        ):
+            radius = re.fullmatch(r"\s*([0-9.]+)(px|rem)\s*(!important)?\s*", val)
+            if radius:
+                px = _px(radius[1], radius[2])
+                if 0 < px < 100:
+                    token = "var(--radius-control)" if px <= 8 else "var(--radius-panel)"
+                    return f"{prop}: {token}{' !important' if radius[3] else ''}"
+
         def keyword(k: re.Match) -> str:
             token = _hex_token(prop, "FFFFFF" if k[1].lower() == "white" else "000000")
             return token or k.group(0)
@@ -662,8 +682,13 @@ def rewrite_css_hex(text: str) -> str:
 
 # rgb()/rgba() forms of the same palette, mostly tinted backgrounds and rings.
 _RGB_FAMILIES = {
+    (255, 247, 237): "accent-soft-bg",  # orange-50
+    (254, 215, 170): "accent-soft-bg",  # orange-200
+    (251, 146, 60): "accent",  # orange-400
     (249, 115, 22): "accent",  # orange-500
     (234, 88, 12): "accent",  # orange-600
+    (194, 65, 12): "accent",  # orange-700
+    (154, 52, 18): "accent",  # orange-800
     (99, 102, 241): "accent",  # indigo-500
     (124, 58, 237): "accent",  # violet-600
     (239, 68, 68): "danger",  # red-500
@@ -677,6 +702,10 @@ _RGB_FAMILIES = {
 _RGB_RE = re.compile(r"rgba?\(\s*(\d{1,3})\s*,\s*(\d{1,3})\s*,\s*(\d{1,3})\s*(?:,\s*([0-9.]+%?)\s*)?\)")
 
 
+def _alpha_pct(alpha: str) -> float:
+    return float(alpha[:-1]) if alpha.endswith("%") else float(alpha) * 100
+
+
 def rewrite_rgb(text: str) -> str:
     """rgba(249, 115, 22, 0.1) -> color-mix(in srgb, var(--accent) 10%, transparent), palette colours only."""
 
@@ -684,10 +713,14 @@ def rewrite_rgb(text: str) -> str:
         family = _RGB_FAMILIES.get((int(m[1]), int(m[2]), int(m[3])))
         if not family:
             return m.group(0)
-        alpha = m[4]
-        if alpha is None:
+        if family == "accent-soft-bg":
+            return (
+                "var(--accent-soft)"
+                if m[4] is None
+                else f"color-mix(in srgb, var(--accent-soft) {_alpha_pct(m[4]):g}%, transparent)"
+            )
+        if m[4] is None:
             return f"var(--{family})"
-        pct = float(alpha[:-1]) if alpha.endswith("%") else float(alpha) * 100
-        return f"color-mix(in srgb, var(--{family}) {pct:g}%, transparent)"
+        return f"color-mix(in srgb, var(--{family}) {_alpha_pct(m[4]):g}%, transparent)"
 
     return _RGB_RE.sub(sub, text)

@@ -99,7 +99,7 @@ can_approve, display_timezone, and the parent Alpine scope (selectedPosts, diffO
         {% if can_approve and post.is_actionable %}
         <div class="flex items-center gap-1.5 flex-shrink-0">
             <button hx-post="{% url 'approvals:approve' workspace_id=workspace.id post_id=post.id %}" hx-swap="none"
-                    class="px-3 py-1.5 text-13 font-semibold rounded-control bg-success hover:bg-success text-on-accent transition-colors">Approve</button>
+                    class="btn btn-secondary btn-sm">Approve</button>
             <button @click="panel = panel ? null : 'changes'"
                     class="px-3 py-1.5 text-13 font-semibold rounded-control border transition-colors"
                     :class="panel ? 'border-control bg-canvas text-ink' : 'border-hairline text-ink-muted hover:bg-sunken'">Review</button>
@@ -107,7 +107,7 @@ can_approve, display_timezone, and the parent Alpine scope (selectedPosts, diffO
         {% elif post.status == 'changes_requested' or post.status == 'rejected' or post.status == 'approved' %}
         <div class="flex items-center gap-1.5 flex-shrink-0">
             <a href="{% url 'composer:compose_edit' workspace_id=workspace.id post_id=post.id %}"
-               class="px-3.5 py-1.5 text-13 font-semibold rounded-control text-on-accent inline-flex items-center gap-1.5 transition-colors" style="background: var(--primary);">
+               class="btn btn-secondary btn-sm">
                 <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7M18.5 2.5a2.12 2.12 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg> Edit
             </a>
         </div>

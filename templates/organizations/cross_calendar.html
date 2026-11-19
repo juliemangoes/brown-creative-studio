@@ -28,7 +28,7 @@
     .cross-cal-day.past:hover { background: var(--sunken); }
     .cross-cal-day.other-month { opacity: 0.4; }
     .cross-cal-day .day-num {
-        font-size: 12px; font-weight: 600;
+        font-size: 0.75rem; font-weight: 600;
         width: 24px; height: 24px; border-radius: 50%;
         display: flex; align-items: center; justify-content: center;
         margin-bottom: 4px;
@@ -40,8 +40,8 @@
 
     .cross-post-chip {
         display: flex; align-items: center; gap: 4px;
-        padding: 2px 6px; border-radius: 6px;
-        font-size: 10px; font-weight: 500;
+        padding: 2px 6px; border-radius: var(--radius-control);
+        font-size: 0.75rem; font-weight: 500;
         margin-bottom: 2px; cursor: pointer;
         transition: all 150ms ease;
         text-decoration: none;
@@ -66,7 +66,7 @@
     .pi-linkedin_personal { background: #0A66C2; }
     .pi-linkedin_company  { background: #0A66C2; }
     .pi-tiktok     { background: var(--scrim); }
-    .pi-youtube { background: transparent !important; width: auto !important; min-width: 45px; color: var(--text-secondary); font-size: 10px; }
+    .pi-youtube { background: transparent !important; width: auto !important; min-width: 45px; color: var(--text-secondary); font-size: 0.75rem; }
     .pi-pinterest  { background: #E60023; }
     .pi-threads    { background: var(--scrim); }
     .pi-bluesky    { background: #0085FF; }
@@ -80,7 +80,7 @@
         width: 20px; height: 20px; border-radius: 50%;
         background: var(--accent); color: var(--on-accent); border: none;
         align-items: center; justify-content: center;
-        cursor: pointer; font-size: 14px; line-height: 1;
+        cursor: pointer; font-size: 0.875rem; line-height: 1;
         box-shadow: 0 2px 6px color-mix(in srgb, var(--accent) 35%, transparent);
         transition: transform 100ms ease, background 100ms ease;
         z-index: 5;
@@ -91,10 +91,10 @@
     /* Filter selects */
     .org-filter-select {
         appearance: none;
-        font-size: 11px; font-weight: 600;
+        font-size: 0.75rem; font-weight: 600;
         padding: 5px 24px 5px 8px;
         border: 1px solid var(--hairline);
-        border-radius: 6px;
+        border-radius: var(--radius-control);
         color: var(--text-secondary);
         background: var(--surface) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 24 24' fill='none' stroke='%2378716C' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E") no-repeat right 8px center;
         cursor: pointer;

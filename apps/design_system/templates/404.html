@@ -1,0 +1,6 @@
+{% extends "about/base_public.html" %}
+{% block title %}Page not found · {{ SITE_NAME }}{% endblock %}
+{% block content %}
+{% url 'dashboard' as home_url %}
+{% include "ds/_state.html" with kind="empty" title="This page doesn't exist" body="The link may be old, or the item was moved or deleted. Check the address, or start again from your home page." action_url=home_url action_label="Go to your home page" %}
+{% endblock %}

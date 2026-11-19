@@ -7,14 +7,13 @@
 <style>
   .auth-card .btn-brand {
     background-color: var(--accent);
-    box-shadow: 0 4px 14px rgba(147, 162, 64, 0.28);
   }
   .auth-card .btn-brand:hover {
-    background-color: var(--accent);
-    box-shadow: 0 6px 20px rgba(147, 162, 64, 0.35);
+    background-color: var(--accent-hover);
   }
-  .auth-card .btn-brand:focus {
-    box-shadow: 0 0 0 3px rgba(147, 162, 64, 0.35);
+  .auth-card .btn-brand:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
   }
 </style>
 <div class="w-full max-w-md px-4">

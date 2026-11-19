@@ -420,3 +420,9 @@
     white-space: nowrap;
   }
 }
+
+/* The client portal: simpler and more spacious, 16 px body. */
+@layer components {
+  .portal { font-size: 1rem; line-height: 1.5rem; }
+  .portal .tab { font-size: 1rem; padding: 0.75rem 0; }
+}

@@ -1,0 +1,203 @@
+{% extends "base.html" %}
+{% load ds approval_extras %}
+{% block title %}Design system · {{ SITE_NAME }}{% endblock %}
+
+{% block content %}
+<div class="max-w-5xl w-full mx-auto space-y-12 pb-16" x-data="{ sidePanel: false, dialog: false }">
+
+    {% include "ds/_page_header.html" with title="Design system" description="Every shared component in the current theme. Switch themes from the account menu or the command menu (Ctrl K) to check both." %}
+
+    <section aria-labelledby="sg-colour" class="space-y-4">
+        <h2 id="sg-colour" class="section-title">Colour tokens</h2>
+        <p class="meta">Templates use these through Tailwind utilities (bg-surface, text-ink, border-hairline, bg-accent, text-danger…). Text pairs meet WCAG AA on canvas, surface and sunken in both themes; apps/design_system/tests/test_tokens.py checks it.</p>
+        <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
+            {% for name, use in colour_tokens %}
+            <div class="panel overflow-hidden">
+                <div class="h-14 border-b border-hairline" style="background: var(--{{ name }});"></div>
+                <div class="p-3">
+                    <p class="text-13 font-medium text-ink"><code>--{{ name }}</code></p>
+                    <p class="text-12 text-ink-muted">{{ use }}</p>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </section>
+
+    <section aria-labelledby="sg-type" class="space-y-4">
+        <h2 id="sg-type" class="section-title">Type</h2>
+        <p class="meta">Instrument Serif only for page titles, client names and report headlines. Geist for everything else, with tabular figures in tables, metrics and invoices. Body is 14 px in the studio and 16 px in the portal.</p>
+        <div class="panel divide-y divide-hairline">
+            <div class="p-5"><p class="display-title">Casa Maya, March report</p><p class="meta mt-1">Display · 44 · report headline</p></div>
+            <div class="p-5"><p class="page-title">Calendar</p><p class="meta mt-1">Display · 32 · page title</p></div>
+            <div class="p-5"><p class="client-name">Luma Skincare</p><p class="meta mt-1">Display · 24 · client name</p></div>
+            {% for size in type_scale %}{% if size <= 20 %}
+            <div class="p-5 flex items-baseline gap-6"><span class="text-12 text-ink-muted w-10 tabular-nums">{{ size }}</span><span class="text-{{ size }}">Plan three months ahead, one approved post at a time.</span></div>
+            {% endif %}{% endfor %}
+            <div class="p-5 flex items-baseline gap-6"><span class="text-12 text-ink-muted w-10">nums</span><span class="text-16 tabular-nums">1,204.50 · 98.10 · 12,000.00</span></div>
+        </div>
+    </section>
+
+    <section aria-labelledby="sg-buttons" class="space-y-4">
+        <h2 id="sg-buttons" class="section-title">Buttons</h2>
+        <p class="meta">One primary action per screen. 6 px radius on every control.</p>
+        <div class="flex flex-wrap items-center gap-3">
+            <button type="button" class="btn btn-primary">Send for approval</button>
+            <button type="button" class="btn btn-secondary">Save draft</button>
+            <button type="button" class="btn btn-quiet">Cancel</button>
+            <button type="button" class="btn btn-danger">Delete post</button>
+            <button type="button" class="btn btn-danger-quiet">Revoke link</button>
+            <button type="button" class="btn btn-secondary btn-sm">Small</button>
+            <button type="button" class="btn btn-primary" disabled>Disabled</button>
+            <button type="button" class="btn-icon" aria-label="More actions"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" aria-hidden="true"><circle cx="5" cy="12" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/></svg></button>
+        </div>
+    </section>
+
+    <section aria-labelledby="sg-fields" class="space-y-4">
+        <h2 id="sg-fields" class="section-title">Form fields</h2>
+        <div class="panel panel-body grid sm:grid-cols-2 gap-5">
+            <div class="field"><label class="label" for="sg-name">Post title</label><input id="sg-name" class="input" placeholder="Weekend brunch launch"><p class="help">Only the studio sees the title.</p></div>
+            <div class="field"><label class="label" for="sg-error">Caption</label><input id="sg-error" class="input" aria-invalid="true" aria-describedby="sg-error-msg" value="Brunch!!!"><p id="sg-error-msg" class="field-error">Instagram captions can't be empty after the hashtags are removed.</p></div>
+            <div class="field"><label class="label" for="sg-select">Content pillar</label><select id="sg-select" class="select"><option>Behind the scenes</option><option>Menu highlights</option><option>Community</option></select></div>
+            <div class="field"><label class="label" for="sg-date">Publish date</label><input id="sg-date" type="date" class="input"></div>
+            <div class="field"><label class="label" for="sg-time">Publish time (client's time zone)</label><input id="sg-time" type="time" class="input"><p class="help">America/Guatemala · studio time shown beside it</p></div>
+            <div class="field"><label class="label" for="sg-notes">Internal note</label><textarea id="sg-notes" class="textarea" placeholder="Never shown in the portal"></textarea></div>
+            <fieldset class="field"><legend class="label mb-1">Platforms</legend>
+                <label class="flex items-center gap-2 text-14"><input type="checkbox" class="checkbox" checked> Instagram</label>
+                <label class="flex items-center gap-2 text-14"><input type="checkbox" class="checkbox"> TikTok</label>
+            </fieldset>
+            <fieldset class="field"><legend class="label mb-1">Approval</legend>
+                <label class="flex items-center gap-2 text-14"><input type="radio" name="sg-r" class="radio" checked> Internal review, then client</label>
+                <label class="flex items-center gap-2 text-14"><input type="radio" name="sg-r" class="radio"> Internal review only</label>
+            </fieldset>
+        </div>
+    </section>
+
+    <section aria-labelledby="sg-status" class="space-y-4">
+        <h2 id="sg-status" class="section-title">Status labels</h2>
+        <p class="meta">Always a word plus a colour, never colour alone. <code>{% templatetag openblock %} status "post" platform_post.status {% templatetag closeblock %}</code></p>
+        <div class="panel divide-y divide-hairline">
+            {% for kind, values in status_tones.items %}
+            <div class="p-4 flex flex-wrap items-center gap-2"><span class="text-13 text-ink-muted w-24 capitalize">{{ kind }}</span>
+                {% for value in values %}{% status kind value %}{% endfor %}
+            </div>
+            {% endfor %}
+            <div class="p-4 flex flex-wrap items-center gap-2"><span class="text-13 text-ink-muted w-24">Approval badge</span>{% status_badge "pending_client" %}{% status_badge "approved" %}{% status_badge "failed" %}</div>
+        </div>
+    </section>
+
+    <section aria-labelledby="sg-tabs" class="space-y-4">
+        <h2 id="sg-tabs" class="section-title">Tabs, saved views and tables</h2>
+        <div class="tabs" role="tablist" aria-label="Example">
+            <a href="#sg-tabs" class="tab" role="tab" aria-selected="true">Queue</a>
+            <a href="#sg-tabs" class="tab" role="tab" aria-selected="false">Drafts</a>
+            <a href="#sg-tabs" class="tab" role="tab" aria-selected="false">Approvals <span class="sidebar-badge">3</span></a>
+        </div>
+        <div class="flex flex-wrap gap-2" role="group" aria-label="Saved views">
+            <button type="button" class="btn btn-secondary btn-sm" aria-pressed="true">All posts</button>
+            <button type="button" class="btn btn-quiet btn-sm" aria-pressed="false">Due this week</button>
+            <button type="button" class="btn btn-quiet btn-sm" aria-pressed="false">Waiting on client</button>
+            <button type="button" class="btn btn-quiet btn-sm">Save this view</button>
+        </div>
+        <div class="panel overflow-x-auto">
+            <table class="table">
+                <caption class="sr-only">Upcoming posts</caption>
+                <thead><tr><th scope="col">Post</th><th scope="col">Client</th><th scope="col">Due</th><th scope="col">Status</th><th scope="col" class="num">Reach</th></tr></thead>
+                <tbody>
+                    <tr><td>Weekend brunch launch</td><td>Casa Maya</td><td>Fri 21 Nov</td><td>{% status "post" "pending_client" %}</td><td class="num">Not yet</td></tr>
+                    <tr aria-selected="true"><td>Serum routine reel</td><td>Luma Skincare</td><td>Sat 22 Nov</td><td>{% status "post" "scheduled" %}</td><td class="num">Not yet</td></tr>
+                    <tr><td>Penthouse open day</td><td>Vista Realty</td><td>Mon 17 Nov</td><td>{% status "post" "published" %}</td><td class="num">12,480</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <section aria-labelledby="sg-surfaces" class="space-y-4">
+        <h2 id="sg-surfaces" class="section-title">Panels, menus, side panel, dialog, toast</h2>
+        <p class="meta">Separate with space and hairlines; shadows only on menus and dialogs. Details open in a side panel so people keep their place.</p>
+        <div class="grid sm:grid-cols-2 gap-4">
+            <div class="panel"><div class="panel-header"><h3 class="text-14 font-semibold">Panel</h3><span class="meta">10 px radius</span></div><div class="panel-body text-14 text-ink-muted">Surface on canvas, one hairline.</div></div>
+            <div class="well text-14 text-ink-muted">A well: sunken background for grouped controls.</div>
+            <div class="menu" role="menu" aria-label="Example menu">
+                <button type="button" class="menu-item" role="menuitem">Duplicate</button>
+                <button type="button" class="menu-item" role="menuitem">Move to next week</button>
+                <div class="menu-separator" role="separator"></div>
+                <button type="button" class="menu-item text-danger" role="menuitem">Delete</button>
+            </div>
+            <div class="flex flex-wrap items-start gap-2">
+                <button type="button" class="btn btn-secondary" @click="sidePanel = true">Open side panel</button>
+                <button type="button" class="btn btn-secondary" @click="dialog = true">Open dialog</button>
+                <button type="button" class="btn btn-secondary" @click="$dispatch('showToast', { tone: 'success', title: 'Approved', body: 'Sent to the client for review.' })">Show toast</button>
+            </div>
+        </div>
+        <template x-teleport="body">
+            <div x-show="sidePanel" x-cloak @keydown.escape.window="sidePanel = false">
+                <div class="side-panel" role="dialog" aria-modal="false" aria-labelledby="sg-side-title">
+                    <div class="side-panel-header">
+                        <div><p class="meta">Casa Maya Restaurant</p><h2 id="sg-side-title" class="text-20 font-semibold">Weekend brunch launch</h2></div>
+                        <button type="button" class="btn-icon" @click="sidePanel = false" aria-label="Close details"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" aria-hidden="true"><path d="M18 6L6 18M6 6l12 12"/></svg></button>
+                    </div>
+                    <div class="side-panel-body space-y-4 text-14">{% status "post" "pending_client" %}<p>Details sit here while the calendar stays where you left it.</p></div>
+                    <div class="side-panel-footer"><button type="button" class="btn btn-quiet" @click="sidePanel = false">Close</button><button type="button" class="btn btn-primary">Approve</button></div>
+                </div>
+            </div>
+        </template>
+        <template x-teleport="body">
+            <div x-show="dialog" x-cloak @keydown.escape.window="dialog = false">
+                <div class="dialog-backdrop" @click="dialog = false"></div>
+                <div class="dialog p-6" role="dialog" aria-modal="true" aria-labelledby="sg-dialog-title">
+                    <h2 id="sg-dialog-title" class="text-20 font-semibold mb-2">Override the approval rule?</h2>
+                    <p class="text-14 text-ink-muted mb-4">Scheduling without the client's approval is logged with your name and reason.</p>
+                    <div class="field mb-5"><label class="label" for="sg-reason">Reason</label><textarea id="sg-reason" class="textarea"></textarea></div>
+                    <div class="flex justify-end gap-2"><button type="button" class="btn btn-quiet" @click="dialog = false">Cancel</button><button type="button" class="btn btn-danger">Override and schedule</button></div>
+                </div>
+            </div>
+        </template>
+    </section>
+
+    <section aria-labelledby="sg-stepper" class="space-y-4">
+        <h2 id="sg-stepper" class="section-title">Progress stepper and comment thread</h2>
+        <div class="grid sm:grid-cols-2 gap-4">
+            <div class="panel panel-body"><ol class="stepper" aria-label="Onboarding progress">
+                <li class="step" data-state="done"><span class="step-marker" aria-hidden="true">✓</span><div><p class="step-title">Proposal accepted</p><p class="step-meta">12 Nov · Ana López</p></div></li>
+                <li class="step" data-state="current" aria-current="step"><span class="step-marker" aria-hidden="true">2</span><div><p class="step-title">Contract signature</p><p class="step-meta">Waiting on the client · reminder on Friday</p></div></li>
+                <li class="step" data-state="blocked"><span class="step-marker" aria-hidden="true">3</span><div><p class="step-title">Deposit</p><p class="step-meta">Blocked until the contract is signed</p></div></li>
+                <li class="step"><span class="step-marker" aria-hidden="true">4</span><div><p class="step-title">Connect accounts</p></div></li>
+            </ol></div>
+            <div class="panel panel-body space-y-4" aria-label="Comments">
+                <div class="flex gap-3"><span class="avatar" aria-hidden="true">AL</span><div><p class="text-14"><span class="font-medium">Ana López</span> <span class="meta">· Client · 2 h ago</span></p><p class="text-14 mt-0.5">Can we use the terrace photo instead?</p></div></div>
+                <div class="flex gap-3"><span class="avatar" aria-hidden="true">JB</span><div><p class="text-14"><span class="font-medium">Julian</span> <span class="meta">· Studio · 1 h ago</span> <span class="status status-neutral">Internal</span></p><p class="text-14 mt-0.5">Terrace shot is in Thursday's shoot; swap after.</p></div></div>
+            </div>
+        </div>
+    </section>
+
+    <section aria-labelledby="sg-states" class="space-y-4">
+        <h2 id="sg-states" class="section-title">Screen states</h2>
+        <p class="meta">Every screen designs its loading, empty, error and no-permission states. Empty states explain the next action. <code>{% templatetag openblock %} include "ds/_state.html" with kind="empty" … {% templatetag closeblock %}</code></p>
+        <div class="grid sm:grid-cols-2 gap-4">
+            {% include "ds/_state.html" with kind="empty" title="No posts planned for December" body="Plan from the idea bank or start a post; the calendar warns when a week has gaps." action_url="#sg-states" action_label="Plan a post" %}
+            {% include "ds/_state.html" with kind="loading" title="Loading the calendar" %}
+            {% include "ds/_state.html" with kind="error" action_url="#sg-states" action_label="Try again" %}
+            {% include "ds/_state.html" with kind="forbidden" %}
+        </div>
+    </section>
+
+    <section aria-labelledby="sg-upload" class="space-y-4">
+        <h2 id="sg-upload" class="section-title">File uploader and metric</h2>
+        <div class="grid sm:grid-cols-2 gap-4">
+            <label class="state cursor-pointer hover:bg-sunken transition-colors" for="sg-file">
+                <span class="state-title">Drop shoot files here</span>
+                <span class="state-body">Or choose files. Large videos resume if the connection drops.</span>
+                <input id="sg-file" type="file" class="sr-only" multiple>
+            </label>
+            <div class="panel panel-body">
+                <p class="meta">Unique viewers · last 28 days</p>
+                <p class="text-32 font-semibold tabular-nums mt-1">48,210</p>
+                <p class="text-13 text-success mt-1">Up 12% on the previous 28 days</p>
+                <p class="meta mt-3">Meta's post_total_media_view_unique, summed per account. Not comparable with reach before 15 June 2026. Updated 18 Nov, 06:00.</p>
+            </div>
+        </div>
+    </section>
+
+    {% include "approvals/partials/_toasts.html" %}
+</div>
+{% endblock %}
