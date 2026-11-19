@@ -80,6 +80,7 @@ LOCAL_APPS = [
     "apps.about",
     "apps.design_system",
     "apps.studio",
+    "apps.audit",
     "theme",
 ]
 
@@ -97,6 +98,9 @@ MIDDLEWARE = [
     "apps.accounts.middleware.TosAcceptanceMiddleware",
     "django_htmx.middleware.HtmxMiddleware",
     "apps.members.middleware.RBACMiddleware",
+    # Brown Creative Studio (CHANGES.md): keep client users in the portal; audit actor context.
+    "apps.studio.middleware.ClientScopeMiddleware",
+    "apps.audit.context.AuditContextMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "csp.middleware.CSPMiddleware",
