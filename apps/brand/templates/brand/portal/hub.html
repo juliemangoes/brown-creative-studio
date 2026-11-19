@@ -36,7 +36,7 @@
     {% if stages %}
     <section aria-labelledby="progress-title">
         <h2 id="progress-title" class="section-title mb-3">{% translate "Brand project" %}</h2>
-        <ol class="stepper panel panel-body">
+        <div class="panel panel-body"><ol class="stepper">
             {% for stage in stages %}
             <li class="step" data-state="{% if stage.status == 'signed_off' %}done{% elif stage.status == 'awaiting_signoff' or stage.status == 'in_progress' or stage.status == 'changes_requested' %}current{% endif %}"{% if stage.status == 'awaiting_signoff' %} aria-current="step"{% endif %}>
                 <span class="step-marker" aria-hidden="true">{% if stage.status == 'signed_off' %}✓{% else %}{{ forloop.counter }}{% endif %}</span>
@@ -44,7 +44,7 @@
                     <p class="step-meta">{% if stage.status == 'signed_off' %}{% blocktranslate with date=stage.signed_off_at|date:"j M" %}Signed off {{ date }}{% endblocktranslate %}{% elif stage.status == 'awaiting_signoff' %}{% translate "Waiting for your sign-off" %}{% elif stage.status == 'changes_requested' %}{% translate "The studio is working on your changes" %}{% elif stage.status == 'in_progress' %}{% translate "In progress" %}{% else %}{% translate "Coming up" %}{% endif %}</p></div>
             </li>
             {% endfor %}
-        </ol>
+        </ol></div>
     </section>
     {% endif %}
 

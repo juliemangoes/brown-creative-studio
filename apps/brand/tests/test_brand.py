@@ -215,7 +215,7 @@ def test_upload_stores_privately_and_scans(client, studio):
     client.post(
         _ws("brand:files_upload", studio["restaurant"]),
         {
-            "files": [
+            "uploads": [
                 SimpleUploadedFile("logo.svg", SVG),
                 SimpleUploadedFile("logo.png", PNG),
                 SimpleUploadedFile("bad.pdf", b"%PDF-1.4 " + scanning.EICAR),

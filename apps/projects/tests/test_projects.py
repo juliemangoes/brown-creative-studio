@@ -358,3 +358,42 @@ def test_retainer_delivery_counts_posts_once_across_platforms(studio):
     data = retainer_delivery(ws)
     current = data["months"][0]
     assert current["is_current"] and current["planned"] == 4 and current["published"] == 1 and current["percent"] == 25
+
+
+# ── Portal ───────────────────────────────────────────────────────────────────
+
+
+def _portal(client, user, ws):
+    client.force_login(user)
+    session = client.session
+    session["is_portal_session"] = True
+    session["portal_workspace_id"] = str(ws.id)
+    session.save()
+
+
+def test_portal_shows_milestones_and_progress_without_internal_detail(client, studio):
+    project = studio["r_project"]
+    project.description = "Margin is thin"
+    project.client_summary = "Your November content"
+    project.save()
+    task = studio["other_task"]
+    task.description = "Use the cheap printer"
+    task.save()
+    from apps.projects.models import TaskComment
+
+    TaskComment.objects.create(task=task, author=studio["owner"], body="Client is slow to reply")
+    _portal(client, studio["restaurant_client"], studio["restaurant"])
+    body = client.get(reverse("projects_portal:list")).content.decode()
+    assert (
+        "November social" in body and "Your November content" in body and "Content plan approved by the client" in body
+    )
+    for internal in ("Margin is thin", "cheap printer", "slow to reply", "Write captions", "manager@studio.test"):
+        assert internal not in body
+    assert "Serum launch" not in body  # another client's project
+
+
+def test_portal_hides_projects_marked_internal(client, studio):
+    Project.objects.filter(pk=studio["r_project"].pk).update(show_in_portal=False)
+    _portal(client, studio["restaurant_client"], studio["restaurant"])
+    assert "November social" not in client.get(reverse("projects_portal:list")).content.decode()
+    assert "Projects" not in client.get(reverse("client_portal:dashboard")).content.decode().split("<main")[0]

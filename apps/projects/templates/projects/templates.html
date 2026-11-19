@@ -17,6 +17,6 @@
         </li>
         {% endfor %}
     </ul>
-    {% if not can_edit %}<p class="meta mt-4">Only people allowed to manage templates can change them.</p>{% endif %}
+    <p class="meta mt-4">Onboarding steps and questions have their own <a href="{% url 'client_onboarding:templates' %}" class="link">onboarding templates</a>.{% if not can_edit %} Only people allowed to manage templates can change them.{% endif %}</p>
 </div>
 {% endblock %}

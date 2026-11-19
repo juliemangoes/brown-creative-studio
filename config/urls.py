@@ -73,6 +73,7 @@ urlpatterns = [
     # Brown Creative Studio (CHANGES.md): the fork's portal sections, before the portal's catch-all token URL.
     path("portal/brand/", include("apps.brand.urls_portal")),
     path("portal/onboarding/", include("apps.client_onboarding.urls_portal")),
+    path("portal/projects/", include("apps.projects.urls_portal")),
     path("portal/", include("apps.client_portal.urls")),
     path("notifications/", include("apps.notifications.urls")),
     path("onboarding/", include("apps.onboarding.urls")),

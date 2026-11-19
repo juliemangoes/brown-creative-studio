@@ -122,7 +122,7 @@ class StageForm(forms.ModelForm):
 
 
 class AssetUploadForm(forms.Form):
-    files = MultipleFileField(label="Files")
+    uploads = MultipleFileField(label="Files")
     kind = forms.ChoiceField(choices=BrandAsset.Kind.choices, initial=BrandAsset.Kind.LOGO)
     title = forms.CharField(
         max_length=160,
@@ -137,4 +137,4 @@ class AssetUploadForm(forms.Form):
         super().__init__(*args, **kwargs)
         self.fields["stage"].queryset = BrandStage.objects.filter(workspace=workspace)
         _style(self)
-        self.fields["files"].widget.attrs["class"] = "block text-14"
+        self.fields["uploads"].widget.attrs["class"] = "block text-14"

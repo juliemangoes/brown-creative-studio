@@ -12,6 +12,7 @@ django-background-tasks) and under its license (AGPL-3.0).
 | [`deployment.md`](deployment.md) | Production on a VPS with Docker Compose, S3 storage, email, monitoring, backups |
 | [`design-system.md`](design-system.md) | Tokens, components, the shell registry and how to check a change |
 | [`clients-and-roles.md`](clients-and-roles.md) | Roles and permission keys, how client data is kept apart, audit log, Today, demo data |
+| [`client-setup.md`](client-setup.md) | Onboarding, projects and tasks, brand profile and Brand Hub, private files and malware scanning |
 
 ## Rules that keep upstream merges cheap
 

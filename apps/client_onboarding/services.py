@@ -8,6 +8,7 @@ moves the client from Onboarding to Active.
 
 from __future__ import annotations
 
+import functools
 import logging
 from datetime import datetime, timedelta
 
@@ -196,7 +197,7 @@ def start_run(
         except ValueError as exc:
             problems.append(str(exc))
             continue
-        transaction.on_commit(lambda u=user: invite(run, u, actor) or None)
+        transaction.on_commit(functools.partial(invite, run, user, actor))
         OnboardingParticipant.objects.get_or_create(run=run, user=user)
     return run, problems
 

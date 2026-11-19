@@ -63,6 +63,8 @@ BILLING_CURRENCIES = [c.strip().upper() for c in _env.list("BILLING_CURRENCIES",
 INTERFACE_LANGUAGES = [("en", "English"), ("es", "Español")]
 # Today flags a client still in Onboarding after this many days.
 STUDIO_ONBOARDING_STALL_DAYS = _env.int("STUDIO_ONBOARDING_STALL_DAYS", default=14)
+# …or when nobody on the client's side has done anything for this many days.
+STUDIO_ONBOARDING_IDLE_DAYS = _env.int("STUDIO_ONBOARDING_IDLE_DAYS", default=5)
 
 # Private client files (brand assets, onboarding uploads). On local storage they
 # live outside MEDIA_ROOT and are never served directly; on S3 they are private

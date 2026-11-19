@@ -198,7 +198,7 @@ def brand_files_upload(request, workspace_id):
         )
         return redirect("brand:files", workspace_id=workspace_id)
     data, added, refused = form.cleaned_data, 0, []
-    for upload in data["files"]:
+    for upload in data["uploads"]:
         try:
             add_asset(
                 request.workspace,

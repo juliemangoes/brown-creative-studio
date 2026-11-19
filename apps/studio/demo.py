@@ -318,6 +318,7 @@ class _Builder:
 
         self._restaurant_posts(restaurant, [cm_ig, cm_fb], owner, team, freelancer, client_users)
         self._skincare_posts(skincare, [lu_ig], lu_tt, owner, team, client_users)
+        self._client_setup(restaurant, skincare, realty, owner, team, freelancer, client_users)
         return self.result
 
     def _restaurant_posts(self, ws, accounts, owner, team, freelancer, client_users):
@@ -477,6 +478,185 @@ class _Builder:
         )
         self.approval(scheduled, client_users["lia"], ApprovalAction.ActionType.APPROVED)
         self.post(ws, accounts, "Brand refresh sneak peek", "", self.at(14, 10), "draft", author=owner)
+
+    # ── Phase 3: projects, brand work and onboarding ─────────────────────
+    def _logo(self, name, background, ink, *, png=False):
+        from django.core.files.uploadedfile import SimpleUploadedFile
+
+        if png:
+            import io
+
+            from PIL import Image, ImageDraw
+
+            image = Image.new("RGB", (480, 160), background)
+            ImageDraw.Draw(image).text((32, 64), name, fill=ink)
+            buf = io.BytesIO()
+            image.save(buf, "PNG")
+            return SimpleUploadedFile(f"{name.lower().replace(' ', '-')}.png", buf.getvalue())
+        svg = (
+            f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 80" width="240" height="80">'
+            f'<rect width="240" height="80" rx="6" fill="{background}"/>'
+            f'<text x="20" y="50" font-family="Georgia, serif" font-size="26" fill="{ink}">{name}</text></svg>'
+        )
+        return SimpleUploadedFile(f"{name.lower().replace(' ', '-')}.svg", svg.encode())
+
+    def _client_setup(self, restaurant, skincare, realty, owner, team, freelancer, client_users):
+        from datetime import timedelta as td
+
+        from apps.brand.models import BrandStage
+        from apps.brand.services import add_asset, link_brand_project, profile_for, send_for_signoff, sign_off
+        from apps.client_onboarding.models import OnboardingRun, OnboardingStep
+        from apps.client_onboarding.services import build_flow, touch
+        from apps.projects.models import Task
+        from apps.projects.services import create_from_template, ensure_builtin_templates, month_label, month_start
+
+        today = timezone.localdate()
+        templates = ensure_builtin_templates(self.org)
+
+        # Casa Maya: this month's retainer project, partly done, one task overdue, one for the freelancer.
+        social = create_from_template(
+            restaurant,
+            templates["social_retainer"],
+            name=f"{month_label(today)} social",
+            starts_on=today - td(days=12),
+            owner=team,
+            created_by=owner,
+            period_start=month_start(today),
+            client_summary="This month's plan, shoot, approvals and report.",
+        )
+        for key in ("plan", "plan_approval", "shoot_prep", "shoot"):
+            Task.objects.filter(project=social, template_key=key).update(
+                status=Task.Status.DONE, completed_at=self.now - td(days=3)
+            )
+        Task.objects.filter(project=social, template_key="edit").update(
+            assignee=freelancer, status=Task.Status.IN_PROGRESS
+        )
+        Task.objects.filter(project=social, template_key="captions").update(assignee=team, due_on=today - td(days=1))
+        brand = profile_for(restaurant)
+        brand.purpose = "Home cooking from Cayo, served like family."
+        brand.positioning = (
+            "The warmest table in San Ignacio: Belizean and Maya dishes made the way the owners' grandmother did."
+        )
+        brand.values, brand.personality = ["Generosity", "Family", "Craft"], ["Warm", "Lively", "Unpretentious"]
+        brand.audiences = [
+            {"name": "Locals", "description": "Lunch regulars and Sunday families"},
+            {"name": "Visitors", "description": "Travellers looking for real food"},
+        ]
+        brand.voice = "Warm, a little playful, never fancy. Spanish and English mixed the way people speak here."
+        brand.voice_do, brand.voice_dont = ["Name the cook", "Talk about where food comes from"], ["Exotic", "Fusion"]
+        brand.tagline = "Comida de casa"
+        brand.key_messages = ["Made from scratch every morning", "Recipes from three generations"]
+        brand.colors = [
+            {"name": "Cacao", "hex": "#6B4F3A", "role": "Primary"},
+            {"name": "Masa", "hex": "#F2E6D0", "role": "Backgrounds"},
+            {"name": "Achiote", "hex": "#B5472B", "role": "Accents"},
+        ]
+        brand.fonts = [
+            {"name": "Instrument Serif", "usage": "Headings and menus"},
+            {"name": "Geist", "usage": "Everything else"},
+        ]
+        brand.internal_notes = "Owner dislikes purple; never discount on social."
+        brand.is_published, brand.published_at = True, self.now - td(days=60)
+        brand.save()
+        for upload, variant in (
+            (self._logo("Casa Maya", "#6B4F3A", "#F2E6D0"), "Primary"),
+            (self._logo("Casa Maya", "#6B4F3A", "#F2E6D0", png=True), "Primary"),
+        ):
+            add_asset(
+                restaurant, upload, user=owner, kind="logo", title="Casa Maya", variant=variant, client_visible=True
+            )
+        OnboardingRun.objects.create(
+            workspace=restaurant,
+            status=OnboardingRun.Status.COMPLETED,
+            services=["social_media"],
+            created_by=owner,
+            started_at=self.now - td(days=220),
+            completed_at=self.now - td(days=205),
+        )
+
+        # Luma: a brand refresh in progress (discovery and research signed off, strategy waiting).
+        brand_project = create_from_template(
+            skincare,
+            templates["brand"],
+            name="Luma brand refresh",
+            starts_on=today - td(days=24),
+            owner=owner,
+            created_by=owner,
+            client_summary="Seven stages, each signed off by you in the Brand Hub.",
+        )
+        stages = {s.key: s for s in link_brand_project(brand_project)}
+        for key in ("discovery", "research"):
+            send_for_signoff(
+                stages[key], owner, f"{stages[key].get_key_display()} findings, summarised in the attached deck."
+            )
+            sign_off(stages[key], client_users["lia"])
+        Task.objects.filter(
+            project=brand_project,
+            template_key__in=["discovery_0", "discovery_1", "discovery_2", "research_0", "research_1", "research_2"],
+        ).update(status=Task.Status.DONE, completed_at=self.now - td(days=5))
+        strategy = BrandStage.objects.get(workspace=skincare, key="strategy")
+        send_for_signoff(
+            strategy,
+            owner,
+            "Positioning: clean, tropical-proof skincare made in Belize. Values, personality and two audience profiles are in the deck.",
+        )
+        luma_brand = profile_for(skincare)
+        luma_brand.positioning = "Clean skincare made for heat and humidity, made in Belize."
+        luma_brand.values = ["Honest ingredients", "Made locally", "Kind to skin"]
+        luma_brand.save()
+
+        # Vista Realty: onboarding started 20 days ago and gone quiet.
+        flow = build_flow(self.org, ["brand_strategy", "social_media"])
+        run = OnboardingRun.objects.create(
+            workspace=realty,
+            services=["brand_strategy", "social_media"],
+            welcome_message=flow["welcome_message"],
+            timeline=flow["timeline"],
+            questions=flow["questions"],
+            reminder_days=flow["reminder_days"],
+            created_by=owner,
+            started_at=self.now - td(days=20),
+            reminders_sent=3,
+            next_reminder_at=self.now + td(days=1),
+            kickoff_slots=[
+                (self.now + td(days=d)).replace(hour=15, minute=0, second=0, microsecond=0).isoformat() for d in (3, 4)
+            ],
+        )
+        done_keys = {"welcome", "proposal", "details"}
+        for position, key in enumerate(flow["steps"]):
+            OnboardingStep.objects.create(
+                run=run,
+                key=key,
+                position=position,
+                status="done"
+                if key in done_keys
+                else (
+                    "waiting_studio"
+                    if key in ("contract", "deposit")
+                    else ("in_progress" if key == "questionnaire" else "todo")
+                ),
+                completed_at=self.now - td(days=18) if key in done_keys else None,
+                blocker="Contract with their lawyer since 4 Nov" if key == "contract" else "",
+                data={
+                    "answers": {
+                        "goals": {
+                            "value": "Become the first name families think of in Belmopan.",
+                            "by_name": "Marco Ruiz",
+                            "at": (self.now - td(days=16)).isoformat(),
+                        }
+                    }
+                }
+                if key == "questionnaire"
+                else {},
+            )
+        touch(run, client_users["marco"], action=True)
+        OnboardingRun.objects.filter(pk=run.pk).update(last_client_activity_at=self.now - td(days=16))
+        run.participants.update(
+            invited_at=self.now - td(days=20),
+            last_seen_at=self.now - td(days=16),
+            last_action_at=self.now - td(days=16),
+            reminders_sent=3,
+        )
 
 
 def seed_demo(now=None) -> DemoResult:

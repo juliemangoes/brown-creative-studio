@@ -9,6 +9,8 @@
 #   - the database password comes from .env instead of the hard-coded "postgres"
 #   - Caddy receives APP_DOMAIN, so it requests a certificate for the real domain
 #   - adds a nightly database backup service
+#   - keeps private client files (local storage only) in their own volume, never served by Caddy
+#   - adds an optional ClamAV malware scanner (profile "scan"; set MALWARE_SCAN_BACKEND=clamd)
 #
 # Needs Docker Compose 2.24+ for the !reset tags.
 
@@ -27,9 +29,13 @@ services:
   app:
     build: *studio-build
     ports: !reset []
+    volumes:
+      - private_media:/app/private_media
 
   worker:
     build: *studio-build
+    volumes:
+      - private_media:/app/private_media
 
   postgres:
     ports: !reset []
@@ -62,5 +68,16 @@ services:
       start_period: 26h
     restart: unless-stopped
 
+  # Malware scanning for uploads. Needs about 1.5 GB of memory; downloads virus
+  # definitions on start and keeps them updated. Start with --profile scan.
+  clamav:
+    image: clamav/clamav:1.4
+    profiles: ["scan"]
+    volumes:
+      - clamav_db:/var/lib/clamav
+    restart: unless-stopped
+
 volumes:
   backups:
+  private_media:
+  clamav_db:

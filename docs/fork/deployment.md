@@ -46,7 +46,9 @@ Edit `.env`. The values that must change for production:
 | `SITE_NAME`, `SUPPORT_EMAIL`, `TERMS_URL`, `PRIVACY_URL` | The studio's name, support address and published policies |
 | `SOURCE_CODE_URL` | `https://github.com/juliemangoes/brown-creative-studio` (the default) |
 | `BACKUP_S3_*` | The backup bucket. Without it, backups stay on the server only. |
-| `INTELLIGENCE_*`, `STUDIO_*` | Leave blank |
+| `MALWARE_SCAN_BACKEND` | `clamd`, with the ClamAV service started (see below) |
+| `STUDIO_TIME_ZONE`, `STUDIO_COUNTRY`, `BILLING_CURRENCIES` | `America/Guatemala`, `BZ`, `BZD` (the defaults) |
+| `INTELLIGENCE_*`, `STUDIO_DEPLOYMENT_ID`, `STUDIO_SHARED_SECRET`, `STUDIO_BASE_URL` | Leave blank |
 
 Do not set `SOURCE_COMMIT` in `.env`. The deploy script bakes it into the image, and
 a value in `.env` would override it.
@@ -74,6 +76,22 @@ it replace the running containers.
 | `about.W005` | Warning | `TERMS_URL` or `PRIVACY_URL` missing |
 | `about.W006` | Warning | The Intelligence add-on is enabled |
 | `about.W007` | Warning | Email would be printed to the log, or is unconfigured |
+| `about.W008` | Warning | Uploads are not scanned for malware (`MALWARE_SCAN_BACKEND` is not `clamd`) |
+
+### Malware scanning
+
+Client uploads (brand files, onboarding materials) are scanned with ClamAV before they
+are stored. Start the scanner alongside the app; it needs about 1.5 GB of memory and
+downloads its virus definitions on first start (a few minutes):
+
+```bash
+docker compose -f docker-compose.yml -f docker-compose.prod.yml -f docker-compose.studio.yml --profile scan up -d clamav
+```
+
+Then set `MALWARE_SCAN_BACKEND=clamd` in `.env` and redeploy. If the scanner is down,
+uploads are refused with "couldn't be checked, please try again" rather than stored
+unscanned. On a VPS with too little memory, leave it off for now: the deploy check
+keeps warning, and uploads are only type-checked.
 
 ## 4. First account
 

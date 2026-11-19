@@ -106,6 +106,8 @@ class Today:
     gaps: list[dict] = field(default_factory=list)
     stalled: list[dict] = field(default_factory=list)
     accounts: list[dict] = field(default_factory=list)
+    overdue_tasks: list = field(default_factory=list)
+    brand_signoffs: list = field(default_factory=list)
 
     @property
     def attention_count(self) -> int:
@@ -115,6 +117,8 @@ class Today:
             + len(self.failed)
             + len(self.accounts)
             + len(self.stalled)
+            + len(self.overdue_tasks)
+            + sum(1 for b in self.brand_signoffs if b.status == "changes_requested")
             + sum(1 for g in self.gaps if g["signal"].tone == "danger")
         )
 
@@ -226,17 +230,81 @@ def content_gaps(workspaces, profiles, now) -> list[dict]:
     return rows
 
 
+def idle_days() -> int:
+    return int(getattr(settings, "STUDIO_ONBOARDING_IDLE_DAYS", 5))
+
+
 def stalled_onboarding(workspaces, profiles, now, can_view_profile) -> list[dict]:
-    cutoff = now - timedelta(days=stall_days())
+    """Onboarding nobody on the client side has touched for a while, or that has run too long.
+
+    Also a client sitting in the Onboarding stage with no onboarding started.
+    """
+    from apps.client_onboarding.models import OnboardingRun
+
+    too_long = now - timedelta(days=stall_days())
+    idle = now - timedelta(days=idle_days())
+    runs = {
+        r.workspace_id: r
+        for r in OnboardingRun.objects.filter(
+            workspace__in=workspaces, status=OnboardingRun.Status.IN_PROGRESS
+        ).prefetch_related("steps")
+    }
     rows = []
     for ws in workspaces:
         if not can_view_profile.get(ws.id):
             continue  # the link leads to the client record
+        run = runs.get(ws.id)
+        if run is not None:
+            last = run.last_client_activity_at or run.started_at
+            if last < idle or run.started_at < too_long:
+                done, total = run.progress()
+                waiting_client = any(not s.is_finished and not s.is_studio_step for s in run.steps.all())
+                rows.append(
+                    {
+                        "workspace": ws,
+                        "days": (now - run.started_at).days,
+                        "quiet_days": (now - last).days,
+                        "done": done,
+                        "total": total,
+                        "waiting_on": "client" if waiting_client else "studio",
+                        "has_run": True,
+                    }
+                )
+            continue
         profile = profiles[ws.id]
-        if profile.stage == ClientProfile.Stage.ONBOARDING and profile.stage_changed_at < cutoff:
-            rows.append({"workspace": ws, "profile": profile, "days": (now - profile.stage_changed_at).days})
+        if profile.stage == ClientProfile.Stage.ONBOARDING and profile.stage_changed_at < too_long:
+            rows.append({"workspace": ws, "days": (now - profile.stage_changed_at).days, "has_run": False})
     rows.sort(key=lambda r: -r["days"])
     return rows
+
+
+def overdue_tasks(user, organization, workspace_ids, today):
+    """Open tasks past their due date in the clients this person sees (freelancers: their own)."""
+    from apps.projects.models import Task
+    from apps.projects.services import studio_scope
+
+    scope = studio_scope(user, organization)
+    return list(
+        scope.tasks(user)
+        .filter(workspace_id__in=workspace_ids, due_on__lt=today)
+        .exclude(status=Task.Status.DONE)
+        .select_related("project", "workspace", "assignee")
+        .order_by("due_on")[:20]
+    )
+
+
+def brand_signoffs(workspace_ids, can_view_profile):
+    """Brand stages waiting for the client's sign-off, and ones the client sent back."""
+    from apps.brand.models import BrandStage
+
+    ids = [i for i in workspace_ids if can_view_profile.get(i)]
+    return list(
+        BrandStage.objects.filter(
+            workspace_id__in=ids, status__in=[BrandStage.Status.AWAITING_SIGNOFF, BrandStage.Status.CHANGES_REQUESTED]
+        )
+        .select_related("workspace")
+        .order_by("-status", "sent_at")
+    )
 
 
 def account_problems(workspaces, profiles) -> list[dict]:
@@ -286,4 +354,6 @@ def build_today(user, organization, selected=None, now=None) -> Today:
         gaps=content_gaps(scoped, profiles, now),
         stalled=stalled_onboarding(scoped, profiles, now, can_view_profile),
         accounts=account_problems(scoped, profiles),
+        overdue_tasks=overdue_tasks(user, organization, ids, timezone.localdate(now)),
+        brand_signoffs=brand_signoffs(ids, can_view_profile),
     )
