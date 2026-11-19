@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% block title %}Activity · {{ workspace.name }} · {{ SITE_NAME }}{% endblock %}
+{% block content %}
+<div class="w-full max-w-6xl mx-auto">
+    {% include "clients/_header.html" %}
+
+    <section class="panel" aria-labelledby="activity-title">
+        <div class="panel-header"><h2 id="activity-title" class="section-title">Activity</h2><span class="status status-neutral">Internal</span></div>
+        {% if events %}
+        <ol class="divide-y divide-hairline">
+            {% for event in events %}
+            <li class="flex items-start justify-between gap-4 px-5 py-3">
+                <div class="min-w-0">
+                    <p class="text-14">{{ event.summary }}</p>
+                    <p class="meta">{{ event.actor_label|default:"System" }} · <code class="text-12">{{ event.verb }}</code></p>
+                </div>
+                <time class="meta flex-shrink-0 tabular-nums" datetime="{{ event.created_at|date:'c' }}">{{ event.created_at|date:"j M, H:i" }}</time>
+            </li>
+            {% endfor %}
+        </ol>
+        {% else %}
+        <div class="panel-body">{% include "ds/_state.html" with kind="empty" title="No activity yet" body="Approvals, publishing, stage changes and permission changes for this client are recorded here." %}</div>
+        {% endif %}
+    </section>
+    <p class="meta mt-3">The last 100 entries. The audit log can't be edited or deleted from the app.</p>
+</div>
+{% endblock %}

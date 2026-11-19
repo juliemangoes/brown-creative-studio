@@ -45,3 +45,15 @@ SOURCE_COMMIT = _env("SOURCE_COMMIT", default="").strip()
 UPSTREAM_PROJECT_NAME = "BrightBean Studio"
 UPSTREAM_SOURCE_URL = "https://github.com/brightbeanxyz/brightbean-studio"
 SOFTWARE_LICENSE = "AGPL-3.0"
+
+# ── Studio facts (project settings) ──────────────────────────────────────────
+# The studio's own time zone: shown beside each client's time when scheduling,
+# and the default for new clients.
+STUDIO_TIME_ZONE = _env("STUDIO_TIME_ZONE", default="America/Guatemala").strip()
+# Where the studio issues invoices (ISO 3166-1 alpha-2).
+STUDIO_COUNTRY = _env("STUDIO_COUNTRY", default="BZ").strip()
+# Currencies invoices may use; the first is the default. Add USD with
+# BILLING_CURRENCIES=BZD,USD.
+BILLING_CURRENCIES = [c.strip().upper() for c in _env.list("BILLING_CURRENCIES", default=["BZD"]) if c.strip()]
+# Languages a person can choose for the interface.
+INTERFACE_LANGUAGES = [("en", "English"), ("es", "Español")]

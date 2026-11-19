@@ -77,6 +77,7 @@ urlpatterns = [
     # Brown Creative Studio: source page (AGPL-3.0) and legal pages. See CHANGES.md.
     path("", include("apps.about.urls")),
     path("", include("apps.design_system.urls")),
+    path("clients/", include("apps.clients.urls")),
     path("", include("apps.accounts.urls_root")),
 ]
 

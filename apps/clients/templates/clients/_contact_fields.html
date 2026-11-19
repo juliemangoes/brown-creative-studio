@@ -1,0 +1,12 @@
+{# Contact form fields; the checkboxes sit together under "Role". #}
+{% for field in form %}{% if field.field.widget.input_type != "checkbox" %}
+<div class="field"><label class="label" for="{{ field.id_for_label }}">{{ field.label }}</label>{{ field }}{% for error in field.errors %}<p class="field-error">{{ error }}</p>{% endfor %}</div>
+{% endif %}{% endfor %}
+<fieldset class="field">
+    <legend class="label">Role</legend>
+    <div class="space-y-2">
+        {% for field in form %}{% if field.field.widget.input_type == "checkbox" %}
+        <label class="flex items-center gap-2 text-14" for="{{ field.id_for_label }}">{{ field }} {{ field.label }}</label>
+        {% endif %}{% endfor %}
+    </div>
+</fieldset>
