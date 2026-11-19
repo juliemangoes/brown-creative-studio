@@ -1,0 +1,179 @@
+{% extends "base.html" %}
+{% load ds %}
+{% block title %}Today{% if today.selected %} · {{ today.selected.name }}{% endif %} · {{ SITE_NAME }}{% endblock %}
+{% block content %}
+<div class="w-full max-w-6xl mx-auto">
+    <header class="flex flex-wrap items-end justify-between gap-4 mb-6">
+        <div class="min-w-0">
+            <p class="meta mb-1">{{ now|date:"l j F" }}</p>
+            <h1 class="page-title">Today</h1>
+            <p class="text-14 text-ink-muted mt-1 max-w-2xl">
+                {% if today.attention_count %}{{ today.attention_count }} thing{{ today.attention_count|pluralize }} need{{ today.attention_count|pluralize:"s," }} attention{% else %}Nothing urgent{% endif %}{% if today.selected %} for {{ today.selected.name }}{% else %} across {{ today.workspaces|length }} client{{ today.workspaces|length|pluralize }}{% endif %}.
+            </p>
+        </div>
+    </header>
+
+    {% if today.workspaces|length > 1 %}
+    <nav class="flex gap-2 mb-6 overflow-x-auto pb-1" aria-label="Show Today for">
+        <a href="{% url 'studio:today' %}" class="btn btn-sm flex-shrink-0 {% if not today.selected %}btn-secondary{% else %}btn-quiet{% endif %}"{% if not today.selected %} aria-current="page"{% endif %}>All clients</a>
+        {% for ws in today.workspaces %}
+        <a href="{% url 'studio:today_client' workspace_id=ws.id %}" class="btn btn-sm flex-shrink-0 {% if today.selected.id == ws.id %}btn-secondary{% else %}btn-quiet{% endif %}"{% if today.selected.id == ws.id %} aria-current="page"{% endif %}>{{ ws.name }}</a>
+        {% endfor %}
+    </nav>
+    {% endif %}
+
+    {% if not today.workspaces %}
+    <div class="panel panel-body">
+        {% url 'clients:list' as clients_url %}
+        {% include "ds/_state.html" with kind="empty" title="No clients yet" body="Today fills up once you work on a client: approvals, what's going out, gaps in the calendar and accounts to reconnect." action_url=clients_url action_label="Go to clients" %}
+    </div>
+    {% else %}
+    <div class="grid lg:grid-cols-3 gap-6">
+        <div class="lg:col-span-2 space-y-6">
+
+            {# ── Approvals waiting ─────────────────────────────────────── #}
+            <section class="panel" aria-labelledby="approvals-title">
+                <div class="panel-header">
+                    <h2 id="approvals-title" class="section-title">Approvals waiting <span class="tabular-nums text-ink-muted font-normal">{{ today.approvals|length }}</span></h2>
+                    <span class="meta">Soonest due first</span>
+                </div>
+                {% if today.approvals %}
+                <ul class="divide-y divide-hairline">
+                    {% for item in today.approvals %}
+                    <li class="flex flex-wrap items-start justify-between gap-x-4 gap-y-2 px-5 py-3">
+                        <div class="min-w-0 flex-1">
+                            {% if not today.selected %}<p class="meta">{{ item.workspace.name }}</p>{% endif %}
+                            <a href="{{ item.edit_url }}" class="text-14 font-medium text-ink hover:underline">{{ item.post.title|default:item.post.caption|default:"Untitled post"|truncatechars:80 }}</a>
+                            <p class="meta mt-0.5">
+                                Waiting on {{ item.waiting_on|lower }}{% if item.platforms %} · {{ item.platforms|join:", " }}{% endif %}
+                                · {% if item.due %}{% if item.overdue %}<span class="text-danger font-medium">was due {{ item.due|timesince:now }} ago</span>{% else %}due {{ item.due|date:"D j M, H:i" }}{% endif %}{% else %}no date set{% endif %}
+                            </p>
+                        </div>
+                        <div class="flex items-center gap-3 flex-shrink-0">
+                            {% if item.overdue %}<span class="status status-danger">Overdue</span>{% elif item.due_soon %}<span class="status status-warning">Due within 48 h</span>{% else %}{% status "post" item.status %}{% endif %}
+                            <a href="{{ item.review_url }}" class="btn btn-secondary btn-sm">Review<span class="sr-only"> {{ item.post.title|default:"post" }}</span></a>
+                        </div>
+                    </li>
+                    {% endfor %}
+                </ul>
+                {% else %}
+                <div class="panel-body">{% include "ds/_state.html" with kind="empty" title="Nothing waiting for approval" body="Posts sent for internal review or to the client show here, soonest due first." %}</div>
+                {% endif %}
+            </section>
+
+            {# ── Failed posts ──────────────────────────────────────────── #}
+            {% if today.failed %}
+            <section class="panel" aria-labelledby="failed-title">
+                <div class="panel-header"><h2 id="failed-title" class="section-title">Failed to publish <span class="tabular-nums text-ink-muted font-normal">{{ today.failed|length }}</span></h2><span class="status status-danger">Act now</span></div>
+                <ul class="divide-y divide-hairline">
+                    {% for item in today.failed %}
+                    <li class="flex flex-wrap items-start justify-between gap-x-4 gap-y-2 px-5 py-3">
+                        <div class="min-w-0 flex-1">
+                            {% if not today.selected %}<p class="meta">{{ item.workspace.name }}</p>{% endif %}
+                            <a href="{{ item.edit_url }}" class="text-14 font-medium text-ink hover:underline">{{ item.post.title|default:item.post.caption|default:"Untitled post"|truncatechars:80 }}</a>
+                            <p class="meta mt-0.5">{{ item.platforms|join:", " }}{% if item.due %} · was due {{ item.due|date:"D j M, H:i" }}{% endif %}</p>
+                            {% if item.error %}<p class="text-13 text-danger mt-1">{{ item.error|truncatechars:160 }}</p>{% endif %}
+                        </div>
+                        <a href="{{ item.edit_url }}" class="btn btn-secondary btn-sm flex-shrink-0">Fix and retry<span class="sr-only"> {{ item.post.title|default:"post" }}</span></a>
+                    </li>
+                    {% endfor %}
+                </ul>
+            </section>
+            {% endif %}
+
+            {# ── Next 7 days ───────────────────────────────────────────── #}
+            <section class="panel" aria-labelledby="upcoming-title">
+                <div class="panel-header">
+                    <h2 id="upcoming-title" class="section-title">Next 7 days <span class="tabular-nums text-ink-muted font-normal">{{ today.upcoming_count }}</span></h2>
+                    {% if today.selected %}<a href="{% url 'calendar:calendar' workspace_id=today.selected.id %}" class="link text-13">Calendar</a>{% else %}<a href="{% url 'organizations:cross_workspace_calendar' %}" class="link text-13">All calendars</a>{% endif %}
+                </div>
+                {% if today.upcoming %}
+                <div class="divide-y divide-hairline">
+                    {% for day, items in today.upcoming.items %}
+                    <div class="px-5 py-3">
+                        <h3 class="text-13 font-medium text-ink-muted mb-2">{% if day == today_date %}Today{% else %}{{ day|date:"l j M" }}{% endif %}</h3>
+                        <ul class="space-y-2">
+                            {% for item in items %}
+                            <li class="flex items-center justify-between gap-4">
+                                <div class="min-w-0 flex items-baseline gap-3">
+                                    <time class="text-13 tabular-nums text-ink-muted w-11 flex-shrink-0" datetime="{{ item.due|date:'c' }}">{{ item.due|date:"H:i" }}</time>
+                                    <span class="min-w-0">
+                                        <a href="{{ item.edit_url }}" class="text-14 text-ink hover:underline truncate block">{{ item.post.title|default:item.post.caption|default:"Untitled post"|truncatechars:70 }}</a>
+                                        <span class="meta">{% if not today.selected %}{{ item.workspace.name }} · {% endif %}{{ item.platforms|join:", " }}</span>
+                                    </span>
+                                </div>
+                                {% status "post" item.status %}
+                            </li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div class="panel-body">{% include "ds/_state.html" with kind="empty" title="Nothing going out this week" body="Scheduled and planned posts for the next 7 days show here by day. Check the content gaps to plan more." %}</div>
+                {% endif %}
+            </section>
+        </div>
+
+        <aside class="space-y-6">
+            {# ── Content gaps ─────────────────────────────────────────── #}
+            <section class="panel" aria-labelledby="gaps-title">
+                <div class="panel-header"><h2 id="gaps-title" class="section-title">Content gaps, next 30 days</h2></div>
+                {% if today.gaps %}
+                <ul class="divide-y divide-hairline">
+                    {% for gap in today.gaps %}
+                    <li class="px-5 py-3">
+                        <div class="flex items-center justify-between gap-3">
+                            <a href="{{ gap.signal.url }}" class="text-14 font-medium text-ink hover:underline">{{ gap.workspace.name }}</a>
+                            <span class="status status-{{ gap.signal.tone }}">{% if gap.signal.tone == "danger" %}Thin{% else %}Short{% endif %}</span>
+                        </div>
+                        <p class="meta mt-0.5">{{ gap.signal.detail }}</p>
+                    </li>
+                    {% endfor %}
+                </ul>
+                {% else %}
+                <div class="panel-body text-14 text-ink-muted">Every active client has a full month planned.</div>
+                {% endif %}
+            </section>
+
+            {# ── Accounts to reconnect ───────────────────────────────── #}
+            <section class="panel" aria-labelledby="accounts-title">
+                <div class="panel-header"><h2 id="accounts-title" class="section-title">Accounts to reconnect</h2></div>
+                {% if today.accounts %}
+                <ul class="divide-y divide-hairline">
+                    {% for row in today.accounts %}
+                    <li class="flex items-center justify-between gap-3 px-5 py-3">
+                        <div class="min-w-0">
+                            <a href="{{ row.url }}" class="text-14 font-medium text-ink hover:underline">{{ row.account.account_name }}</a>
+                            <p class="meta">{% if not today.selected %}{{ row.workspace.name }} · {% endif %}{{ row.account.get_platform_display }}</p>
+                        </div>
+                        <span class="status status-{{ row.tone }}">{{ row.account.get_connection_status_display }}</span>
+                    </li>
+                    {% endfor %}
+                </ul>
+                {% else %}
+                <div class="panel-body text-14 text-ink-muted">All connected accounts are working.</div>
+                {% endif %}
+            </section>
+
+            {# ── Stalled onboarding ──────────────────────────────────── #}
+            <section class="panel" aria-labelledby="stalled-title">
+                <div class="panel-header"><h2 id="stalled-title" class="section-title">Stalled onboarding</h2></div>
+                {% if today.stalled %}
+                <ul class="divide-y divide-hairline">
+                    {% for row in today.stalled %}
+                    <li class="flex items-center justify-between gap-3 px-5 py-3">
+                        <a href="{% url 'clients:detail' workspace_id=row.workspace.id %}" class="text-14 font-medium text-ink hover:underline">{{ row.workspace.name }}</a>
+                        <span class="meta tabular-nums">{{ row.days }} days in onboarding</span>
+                    </li>
+                    {% endfor %}
+                </ul>
+                {% else %}
+                <div class="panel-body text-14 text-ink-muted">No client has been onboarding for more than {{ stall_days }} days.</div>
+                {% endif %}
+            </section>
+        </aside>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

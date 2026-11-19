@@ -57,3 +57,5 @@ STUDIO_COUNTRY = _env("STUDIO_COUNTRY", default="BZ").strip()
 BILLING_CURRENCIES = [c.strip().upper() for c in _env.list("BILLING_CURRENCIES", default=["BZD"]) if c.strip()]
 # Languages a person can choose for the interface.
 INTERFACE_LANGUAGES = [("en", "English"), ("es", "Español")]
+# Today flags a client still in Onboarding after this many days.
+STUDIO_ONBOARDING_STALL_DAYS = _env.int("STUDIO_ONBOARDING_STALL_DAYS", default=14)
