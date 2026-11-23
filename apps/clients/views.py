@@ -148,7 +148,7 @@ def _overview(request, profile_form=None, status=200):
         PlatformPost.objects.filter(post__workspace=ws, scheduled_at__gte=timezone.now())
         .exclude(status__in=["published", "failed"])
         .select_related("post__workspace", "social_account")
-        .order_by("scheduled_at")[:40]
+        .order_by("scheduled_at", "created_at")[:40]  # platforms in the order they were added
     )[:6]
     if profile_form is None and ctx["can_edit"]:
         profile_form = ProfileForm(instance=ctx["profile"])

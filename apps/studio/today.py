@@ -187,7 +187,7 @@ def upcoming(workspace_ids, now, days=7):
     qs = (
         _platform_posts(workspace_ids)
         .filter(status__in=UPCOMING_STATUSES, scheduled_at__gte=now, scheduled_at__lt=now + timedelta(days=days))
-        .order_by("scheduled_at")
+        .order_by("scheduled_at", "created_at")  # platforms in the order they were added
     )
     by_day: OrderedDict = OrderedDict()
     count = 0
