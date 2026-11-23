@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% block title %}Key dates · {{ workspace.name }} · {{ SITE_NAME }}{% endblock %}
+{% block content %}
+<div class="w-full max-w-6xl mx-auto">
+    <header class="mb-4"><p class="meta mb-1"><a href="{% url 'clients:detail' workspace_id=workspace.id %}" class="link">{{ workspace.name }}</a></p><h1 class="page-title">Key dates</h1></header>
+    {% include "planning/_nav.html" with nav="dates" %}
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <section class="panel lg:col-span-2" aria-labelledby="dates-title">
+            <div class="panel-header"><h2 id="dates-title" class="section-title">Coming up</h2></div>
+            <ul class="divide-y divide-hairline">
+                {% for d in dates %}
+                <li class="px-5 py-3 flex items-center justify-between gap-3">
+                    <div><p class="text-14"><span class="tabular-nums font-medium">{{ d.date|date:"D j M Y" }}</span> · {{ d.title }}</p><p class="meta">{% if d.workspace %}{{ d.get_kind_display }} for {{ workspace.name }}{% else %}Public holiday, every client{% endif %}</p></div>
+                    {% if can_plan and d.workspace %}<form method="post">{% csrf_token %}<input type="hidden" name="delete" value="{{ d.id }}"><button type="submit" class="btn btn-quiet btn-sm">Remove<span class="sr-only"> {{ d.title }}</span></button></form>{% endif %}
+                </li>
+                {% empty %}<li class="px-5 py-3 text-14 text-ink-muted">No key dates yet.</li>
+                {% endfor %}
+            </ul>
+        </section>
+        {% if can_plan %}
+        <aside class="space-y-6 min-w-0">
+            <form method="post" class="panel panel-body space-y-3">{% csrf_token %}
+                <h2 class="section-title">Add a date for {{ workspace.name }}</h2>
+                <div class="field"><label class="label" for="kd-date">Date</label><input id="kd-date" type="date" name="date" class="input" required></div>
+                <div class="field"><label class="label" for="kd-title">What</label><input id="kd-title" name="title" class="input" maxlength="160" required placeholder="Menu launch, anniversary, open house…"></div>
+                <div class="field"><label class="label" for="kd-kind">Type</label><select id="kd-kind" name="kind" class="select">{% for v, l in kinds %}{% if v != "holiday" %}<option value="{{ v }}">{{ l }}</option>{% endif %}{% endfor %}</select></div>
+                <button type="submit" class="btn btn-primary">Add date</button>
+            </form>
+            <form method="post" class="panel panel-body space-y-2">{% csrf_token %}<input type="hidden" name="holidays" value="1">
+                <h2 class="section-title">Public holidays</h2>
+                <p class="text-14 text-ink-muted">Add Belize's public holidays for this year and next, for every client. Some are observed on a nearby Monday; check the official list each year.</p>
+                <button type="submit" class="btn btn-secondary btn-sm">Add Belize holidays</button>
+            </form>
+        </aside>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,5 @@
+{% for field in form %}{% if field.name == "crew" %}
+<fieldset class="field"><legend class="label">Crew</legend><div class="space-y-1 mt-1">{% for c in field %}<label class="flex items-center gap-2 text-14" for="{{ c.id_for_label }}">{{ c.tag }} {{ c.choice_label }}</label>{% empty %}<p class="text-14 text-ink-muted">Nobody on this client yet.</p>{% endfor %}</div></fieldset>
+{% else %}
+<div class="field"><label class="label" for="{{ field.id_for_label }}">{{ field.label }}</label>{{ field }}{% for e in field.errors %}<p class="field-error">{{ e }}</p>{% endfor %}</div>
+{% endif %}{% endfor %}

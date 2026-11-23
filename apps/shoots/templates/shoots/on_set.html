@@ -1,0 +1,28 @@
+{% load static %}<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#2B211B">
+    <title>On set · {{ shoot.title }}</title>
+    {% include "studio/_theme_init.html" %}
+    <link rel="stylesheet" href="{% static 'css/dist/styles.css' %}">
+</head>
+<body class="bg-canvas text-ink min-h-screen">
+    <main id="onset" class="max-w-xl mx-auto px-4 py-5 space-y-4" data-csrf="{{ csrf_token }}" data-sw="{% url 'shoots:sw' %}">
+        <header>
+            <p class="meta">{{ workspace.name }} · {{ shoot.date|date:"D j M" }} · call {{ shoot.call_time|time:"H:i" }}</p>
+            <h1 class="text-24 font-semibold">{{ shoot.title }}</h1>
+            <div class="flex items-center justify-between gap-3 mt-1"><p class="text-14 tabular-nums" data-counter></p><p data-status role="status" aria-live="polite"></p></div>
+        </header>
+        <ol class="space-y-3" data-list></ol>
+        <form data-idea-form class="panel panel-body space-y-2">
+            <label class="label" for="idea">Capture an unplanned shot or idea</label>
+            <div class="flex gap-2"><input id="idea" class="input flex-1" maxlength="300" placeholder="Chef laughing at the pass"><button type="submit" class="btn btn-primary">Add</button></div>
+        </form>
+        <p class="meta">Works without signal: changes are kept on this phone and sent when the connection returns. <a href="{% url 'shoots:detail' workspace_id=workspace.id shoot_id=shoot.id %}" class="link">Back to the shoot</a></p>
+    </main>
+    {{ data|json_script:"onset-data" }}
+    <script src="{% static 'shoots/onset.js' %}"></script>
+</body>
+</html>

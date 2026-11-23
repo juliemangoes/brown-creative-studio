@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% block title %}Campaigns · {{ workspace.name }} · {{ SITE_NAME }}{% endblock %}
+{% block content %}
+<div class="w-full max-w-6xl mx-auto">
+    <header class="mb-4"><p class="meta mb-1"><a href="{% url 'clients:detail' workspace_id=workspace.id %}" class="link">{{ workspace.name }}</a></p><h1 class="page-title">Campaigns</h1></header>
+    {% include "planning/_nav.html" with nav="campaigns" %}
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <section class="panel lg:col-span-2" aria-labelledby="list-title">
+            <div class="panel-header"><h2 id="list-title" class="section-title">Campaigns</h2></div>
+            <ul class="divide-y divide-hairline">
+                {% for c in campaigns %}
+                <li class="px-5 py-3 flex items-center justify-between gap-3">
+                    <div><p class="text-14 font-medium"><span class="inline-block w-2.5 h-2.5 rounded-full mr-1" style="background: {{ c.color }};" aria-hidden="true"></span>{{ c.name }}</p><p class="meta">{{ c.starts_on|date:"j M" }} – {{ c.ends_on|date:"j M Y" }}{% if c.objective %} · {{ c.objective|truncatechars:60 }}{% endif %}</p></div>
+                    {% if can_plan %}<a href="{% url 'planning:campaign' workspace_id=workspace.id campaign_id=c.id %}" class="btn btn-quiet btn-sm">Edit<span class="sr-only"> {{ c.name }}</span></a>{% endif %}
+                </li>
+                {% empty %}<li class="px-5 py-3 text-14 text-ink-muted">No campaigns yet.</li>
+                {% endfor %}
+            </ul>
+        </section>
+        {% if can_plan %}
+        <form method="post" class="panel panel-body space-y-3 content-start">
+            {% csrf_token %}
+            <h2 class="section-title">{% if editing %}Edit {{ editing.name }}{% else %}New campaign{% endif %}</h2>
+            {% include "projects/_fields.html" %}
+            <div class="flex flex-wrap gap-2"><button type="submit" class="btn btn-primary">Save</button>{% if editing %}<a href="{% url 'planning:campaigns' workspace_id=workspace.id %}" class="btn btn-quiet">Cancel</a><button type="submit" name="delete" value="1" class="btn btn-danger-quiet ml-auto">Remove</button>{% endif %}</div>
+        </form>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

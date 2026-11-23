@@ -87,6 +87,10 @@ urlpatterns = [
     path("brand/", include("apps.brand.urls")),
     path("client-onboarding/", include("apps.client_onboarding.urls")),
     path("reviews/", include("apps.reviews.urls")),
+    path("planning/", include("apps.planning.urls")),
+    path("shoots/", include("apps.shoots.urls")),
+    path("call-sheet/", include("apps.shoots.urls_public")),
+    path("assets/", include("apps.assets.urls")),
     path("", include("apps.studio.urls")),
     path("", include("apps.accounts.urls_root")),
 ]

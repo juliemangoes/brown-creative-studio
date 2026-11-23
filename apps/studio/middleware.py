@@ -34,7 +34,15 @@ CLIENT_WORKSPACE_VIEWS = frozenset(
 )
 # Portal namespaces: BrightBean's portal, the public about pages, and the fork's portal sections.
 CLIENT_NAMESPACES = frozenset(
-    {"client_portal", "about", "onboarding_portal", "brand_portal", "projects_portal", "reviews_portal"}
+    {
+        "client_portal",
+        "about",
+        "onboarding_portal",
+        "brand_portal",
+        "projects_portal",
+        "reviews_portal",
+        "shoots_public",
+    }
 )
 CLIENT_VIEWS = frozenset(
     {

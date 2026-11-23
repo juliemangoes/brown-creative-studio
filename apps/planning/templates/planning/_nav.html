@@ -1,0 +1,7 @@
+<nav class="flex flex-wrap gap-2 mb-6" aria-label="Planning">
+    <a href="{% url 'planning:board' workspace_id=workspace.id %}" class="btn btn-sm {% if nav == 'board' %}btn-secondary{% else %}btn-quiet{% endif %}"{% if nav == 'board' %} aria-current="page"{% endif %}>Plan</a>
+    <a href="{% url 'calendar:calendar' workspace_id=workspace.id %}" class="btn btn-sm btn-quiet">Calendar</a>
+    <a href="{% url 'planning:campaigns' workspace_id=workspace.id %}" class="btn btn-sm {% if nav == 'campaigns' %}btn-secondary{% else %}btn-quiet{% endif %}"{% if nav == 'campaigns' %} aria-current="page"{% endif %}>Campaigns</a>
+    <a href="{% url 'planning:key_dates' workspace_id=workspace.id %}" class="btn btn-sm {% if nav == 'dates' %}btn-secondary{% else %}btn-quiet{% endif %}"{% if nav == 'dates' %} aria-current="page"{% endif %}>Key dates</a>
+    <a href="{% url 'composer:idea_board' workspace_id=workspace.id %}" class="btn btn-sm btn-quiet">Idea bank</a>
+</nav>

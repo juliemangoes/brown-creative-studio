@@ -2,6 +2,7 @@
 Org calendar day view - single-day timeline with hourly divisions.
 Context: day_slots, target_date, default_workspace.
 {% endcomment %}
+{% load planning %}
 
 <div class="bg-surface mx-auto" style="animation: slideUp 200ms cubic-bezier(0.16,1,0.3,1) both; max-height: calc(100vh - 260px); overflow-y: auto;">
     {% for hour, hour_posts in day_slots %}
@@ -22,7 +23,8 @@ Context: day_slots, target_date, default_workspace.
             {% for pp in hour_posts %}
             <a href="{% url 'composer:compose_edit' workspace_id=pp.post.workspace_id post_id=pp.post_id %}"
                class="cross-post-chip status-{{ pp.status }}"
-               title="{{ pp.post.workspace.name }}: {{ pp.post.caption_snippet }}">
+               title="{{ pp.post.workspace.name }}: {% production_label pp %}. {{ pp.post.caption_snippet }}">
+                <span class="sr-only">{% production_label pp %}: </span>
                 <span class="ws-dot" style="background: {{ pp.post.workspace.primary_color|default:'var(--accent)' }};"></span>
                 <span class="w-4 h-4 rounded-control flex items-center justify-center pi-{{ pp.social_account.platform }} flex-shrink-0 text-on-scrim">
                     {% include "social_accounts/partials/_platform_icon.html" with platform=pp.social_account.platform size="3" %}

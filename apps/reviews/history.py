@@ -41,11 +41,10 @@ def post_history(post, *, include_internal=True) -> list[Event]:
     events: list[Event] = [Event(post.created_at, "created", "Post created", actor=_name(post.author))]
 
     try:
-        plan = post.content_plan
-    except Exception:  # noqa: BLE001 - no planning record
-        plan = None
-    if plan is not None and plan.idea_id:
-        idea = plan.idea
+        idea = post.source_idea  # BrightBean's Idea.post link, set when an idea becomes a post
+    except Exception:  # noqa: BLE001 - not from an idea
+        idea = None
+    if idea is not None:
         events.append(
             Event(
                 idea.created_at,

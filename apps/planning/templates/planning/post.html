@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+{% load ds %}
+{% block title %}Production · {{ post.title|default:"Post" }} · {{ SITE_NAME }}{% endblock %}
+{% block content %}
+<div class="w-full max-w-6xl mx-auto">
+    <header class="mb-6">
+        <p class="meta mb-1"><a href="{% url 'planning:board' workspace_id=workspace.id %}" class="link">{{ workspace.name }} · Plan</a></p>
+        <h1 class="page-title">{{ post.title|default:post.caption|default:"Untitled post"|truncatechars:70 }}</h1>
+        <div class="flex flex-wrap items-center gap-2 mt-2">
+            {% for pp, label in labels %}<span class="status status-neutral">{{ pp.social_account.get_platform_display }}: {{ label }}</span>{% empty %}<span class="status status-neutral">{{ plan.get_stage_display }} · no accounts yet</span>{% endfor %}
+        </div>
+        <div class="flex flex-wrap gap-2 mt-3">
+            <a href="{% url 'composer:compose_edit' workspace_id=workspace.id post_id=post.id %}" class="btn btn-secondary btn-sm">Write it in the composer</a>
+            <a href="{% url 'reviews:post' workspace_id=workspace.id post_id=post.id %}" class="btn btn-quiet btn-sm">Approval and full history</a>
+        </div>
+    </header>
+
+    <section class="panel panel-body mb-6" aria-labelledby="stage-title">
+        <h2 id="stage-title" class="section-title mb-3">Production stage</h2>
+        <ol class="flex flex-wrap gap-2">
+            {% for value, label in stages %}
+            <li>{% if can_plan %}<form method="post" action="{% url 'planning:stage' workspace_id=workspace.id post_id=post.id %}">{% csrf_token %}<input type="hidden" name="stage" value="{{ value }}"><button type="submit" class="btn btn-sm {% if plan.stage == value %}btn-secondary{% else %}btn-quiet{% endif %}" aria-pressed="{% if plan.stage == value %}true{% else %}false{% endif %}">{{ forloop.counter }}. {{ label }}</button></form>{% else %}<span class="btn btn-sm {% if plan.stage == value %}btn-secondary{% else %}btn-quiet{% endif %}">{{ forloop.counter }}. {{ label }}</span>{% endif %}</li>
+            {% endfor %}
+        </ol>
+        <p class="meta mt-2">Approval and publishing status stay with each platform version; this tracks how far the content itself has got.</p>
+    </section>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <form method="post" class="panel panel-body lg:col-span-2 grid sm:grid-cols-2 gap-4 content-start">
+            {% csrf_token %}
+            <h2 class="section-title sm:col-span-2">Brief</h2>
+            {% for field in form %}{% if field.name != "stage" %}<div class="field{% if field.name == 'script' or field.name == 'hook' or field.name == 'hashtags' %} sm:col-span-2{% endif %}"><label class="label" for="{{ field.id_for_label }}">{{ field.label }}</label>{{ field }}{% for e in field.errors %}<p class="field-error">{{ e }}</p>{% endfor %}</div>{% else %}<input type="hidden" name="stage" value="{{ plan.stage }}">{% endif %}{% endfor %}
+            {% if can_plan %}<div class="sm:col-span-2"><button type="submit" class="btn btn-primary">Save brief</button></div>{% endif %}
+        </form>
+        <aside class="space-y-6 min-w-0">
+            <section class="panel panel-body" aria-labelledby="caption-title"><h2 id="caption-title" class="section-title mb-2">Caption</h2><p class="text-14 whitespace-pre-line">{{ post.caption|default:"Not written yet." }}</p></section>
+            <section class="panel" aria-labelledby="media-title">
+                <div class="panel-header"><h2 id="media-title" class="section-title">Media</h2></div>
+                <ul class="divide-y divide-hairline">
+                    {% for pm in media %}
+                    <li class="px-5 py-3 flex items-center justify-between gap-2">
+                        <a href="{% url 'assets:rights' workspace_id=workspace.id asset_id=pm.media_asset_id %}" class="text-14 link truncate">{{ pm.media_asset.filename }}</a>
+                        {% with r=pm.media_asset.rights %}{% if r and r.expired %}<span class="status status-danger">Rights expired</span>{% elif r and r.expires_on %}<span class="status status-neutral">Until {{ r.expires_on|date:"j M" }}</span>{% elif not r %}<span class="meta">Rights not recorded</span>{% endif %}{% endwith %}
+                    </li>
+                    {% empty %}<li class="px-5 py-3 text-14 text-ink-muted">No media yet{% if plan.stage == "shot_needed" %}; it's on a shot list{% endif %}.</li>
+                    {% endfor %}
+                </ul>
+            </section>
+            <section class="panel" aria-labelledby="shots-title">
+                <div class="panel-header"><h2 id="shots-title" class="section-title">Shots</h2></div>
+                <ul class="divide-y divide-hairline">
+                    {% for shot in shots %}<li class="px-5 py-3 text-14"><a href="{% url 'shoots:detail' workspace_id=workspace.id shoot_id=shot.shoot_id %}" class="link">{{ shot.shoot.title }}, {{ shot.shoot.date|date:"j M" }}</a> <span class="meta">· {{ shot.code }} · {{ shot.get_status_display }}</span></li>{% empty %}<li class="px-5 py-3 text-14 text-ink-muted">Not on a shoot yet.</li>{% endfor %}
+                </ul>
+            </section>
+        </aside>
+    </div>
+</div>
+{% endblock %}

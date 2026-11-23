@@ -1,0 +1,27 @@
+{# Week rows. Context: weeks, show_client, today, prev, next, base #}
+<div class="flex items-center justify-between mb-3">
+    <a href="?from={{ prev }}{% if selected %}&amp;client={{ selected }}{% endif %}" class="btn btn-quiet btn-sm">← Earlier</a>
+    <span class="meta">13 weeks from {{ weeks.0.start|date:"j M" }}</span>
+    <a href="?from={{ next }}{% if selected %}&amp;client={{ selected }}{% endif %}" class="btn btn-quiet btn-sm">Later →</a>
+</div>
+<ol class="space-y-3">
+    {% for wk in weeks %}
+    <li class="panel">
+        <div class="panel-header">
+            <h3 class="text-14 font-semibold">{% if wk.start <= today and today <= wk.end %}This week{% else %}Week of {{ wk.start|date:"j M" }}{% endif %} <span class="meta font-normal">{{ wk.start|date:"j" }}–{{ wk.end|date:"j M" }}</span></h3>
+            <span class="meta tabular-nums{% if wk.short %} text-warning font-medium{% endif %}">{{ wk.items|length }} post{{ wk.items|length|pluralize }}{% if wk.expected %} of ~{{ wk.expected|floatformat:0 }}{% endif %}</span>
+        </div>
+        {% if wk.key_dates or wk.campaigns %}
+        <div class="px-5 pt-3 flex flex-wrap gap-2">
+            {% for key in wk.key_dates %}<span class="status {% if key.kind == 'holiday' %}status-accent{% else %}status-info{% endif %}">{{ key.date|date:"D j" }} · {{ key.title }}{% if show_client and key.workspace %} ({{ key.workspace.name }}){% endif %}</span>{% endfor %}
+            {% for c in wk.campaigns %}<span class="status status-neutral"><span class="inline-block w-2 h-2 rounded-full" style="background: {{ c.color }};" aria-hidden="true"></span> {{ c.name }}{% if show_client %} ({{ c.workspace.name }}){% endif %}</span>{% endfor %}
+        </div>
+        {% endif %}
+        {% if wk.items %}
+        <ul class="px-5 py-1 divide-y divide-hairline">{% for item in wk.items %}{% include "planning/_item.html" %}{% endfor %}</ul>
+        {% else %}
+        <p class="px-5 py-3 text-14 text-ink-muted">Nothing planned.</p>
+        {% endif %}
+    </li>
+    {% endfor %}
+</ol>

@@ -1,0 +1,23 @@
+{% extends "about/base_public.html" %}
+{% block title %}Call sheet · {{ shoot.title }} · {{ SITE_NAME }}{% endblock %}
+{% block content %}
+<article class="space-y-6 pb-10">
+    <header>
+        <p class="meta">{{ shoot.workspace.name }}</p>
+        <h1 class="display-title">{{ shoot.title }}</h1>
+        <p class="text-16 mt-1">{{ shoot.date|date:"l j F Y" }} · call {{ shoot.call_time|time:"H:i" }}{% if shoot.wrap_time %}, wrap {{ shoot.wrap_time|time:"H:i" }}{% endif %}</p>
+        <p class="mt-2"><a href="{% if public %}{% url 'shoots_public:call_sheet_pdf' token=shoot.share_token %}{% else %}?format=pdf{% endif %}" class="btn btn-secondary btn-sm">Download PDF</a></p>
+    </header>
+    {% if shoot.locations %}<section><h2 class="section-title mb-1">Where</h2><ul class="text-14 space-y-1">{% for place in shoot.locations %}<li>{{ place }}</li>{% endfor %}</ul></section>{% endif %}
+    {% if shoot.client_contact %}<section><h2 class="section-title mb-1">On site for {{ shoot.workspace.name }}</h2><p class="text-14">{{ shoot.client_contact.name }}{% if shoot.client_contact.phone %} · {{ shoot.client_contact.phone }}{% endif %}</p></section>{% endif %}
+    {% if shoot.run_of_show %}<section><h2 class="section-title mb-1">Run of show</h2><table class="table"><tbody>{% for row in shoot.run_of_show %}<tr><td class="tabular-nums w-24">{{ row.time }}</td><td>{{ row.item }}</td></tr>{% endfor %}</tbody></table></section>{% endif %}
+    {% if shoot.prep_checklist %}<section><h2 class="section-title mb-1">Before the shoot, please</h2><ul class="text-14 space-y-1">{% for item in shoot.prep_checklist %}<li>{% if item.done %}✓{% else %}○{% endif %} {{ item.text }}</li>{% endfor %}</ul></section>{% endif %}
+    {% if shoot.wardrobe %}<section><h2 class="section-title mb-1">Wardrobe</h2><p class="text-14 whitespace-pre-line">{{ shoot.wardrobe }}</p></section>{% endif %}
+    {% if shoot.props %}<section><h2 class="section-title mb-1">Props</h2><p class="text-14 whitespace-pre-line">{{ shoot.props }}</p></section>{% endif %}
+    {% if shoot.talent %}<section><h2 class="section-title mb-1">Talent</h2><ul class="text-14">{% for t in shoot.talent %}<li>{{ t.name }}{% if t.role %} · {{ t.role }}{% endif %}</li>{% endfor %}</ul></section>{% endif %}
+    {% if shoot.permits %}<section><h2 class="section-title mb-1">Permits</h2><p class="text-14 whitespace-pre-line">{{ shoot.permits }}</p></section>{% endif %}
+    {% if shoot.release_forms %}<section><h2 class="section-title mb-1">Release forms</h2><p class="text-14 whitespace-pre-line">{{ shoot.release_forms }}</p></section>{% endif %}
+    {% if shoot.client_notes %}<section><h2 class="section-title mb-1">Notes</h2><p class="text-14 whitespace-pre-line">{{ shoot.client_notes }}</p></section>{% endif %}
+    {% if shots %}<section><h2 class="section-title mb-1">Shot list</h2><ol class="text-14 space-y-1">{% for shot in shots %}<li><span class="font-mono text-13 text-ink-muted">{{ shot.code }}</span> {{ shot.description }}{% if shot.location %} <span class="meta">· {{ shot.location }}</span>{% endif %}</li>{% endfor %}</ol></section>{% endif %}
+</article>
+{% endblock %}

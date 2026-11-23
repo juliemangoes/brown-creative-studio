@@ -86,6 +86,9 @@ LOCAL_APPS = [
     "apps.brand",
     "apps.client_onboarding",
     "apps.reviews",
+    "apps.planning",
+    "apps.shoots",
+    "apps.assets",
     "theme",
 ]
 
