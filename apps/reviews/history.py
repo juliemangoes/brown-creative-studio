@@ -57,7 +57,7 @@ def post_history(post, *, include_internal=True) -> list[Event]:
 
     for event in (
         AuditEvent.objects.filter(target_type="Post", target_id=str(post.pk))
-        .exclude(verb="approval.reopened")
+        .exclude(verb__startswith="approval.")  # approval records below say the same, with the exact version
         .select_related("actor")
         .order_by("created_at")
     ):
@@ -95,9 +95,9 @@ def post_history(post, *, include_internal=True) -> list[Event]:
         .select_related("actor", "version", "platform_post__social_account")
         .order_by("created_at")
     ):
-        scope = f" · {record.platform_post.social_account.get_platform_display()}" if record.platform_post_id else ""
-        version = f" · version {record.version.version_number}" if record.version_id else ""
-        title = f"{record.get_stage_display()}: {record.get_decision_display().lower()}{scope}{version}"
+        scope = f" · {record.platform_post.social_account.get_platform_display()}" if record.platform_post else ""
+        numbered = f" · version {record.version.version_number}" if record.version else ""
+        title = f"{record.get_stage_display()}: {record.get_decision_display().lower()}{scope}{numbered}"
         events.append(
             Event(
                 record.created_at,

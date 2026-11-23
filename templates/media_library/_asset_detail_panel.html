@@ -64,6 +64,9 @@
       Download
     </a>
     {% endif %}
+    {% if not is_shared_library and workspace %}
+    <a href="{% url 'assets:rights' workspace_id=workspace.id asset_id=asset.id %}" class="btn btn-secondary btn-sm">Rights and use</a>
+    {% endif %}
     {% if is_shared_library and is_admin or not asset.is_shared %}
     <button class="inline-flex items-center gap-1.5 px-4 py-2 text-12 font-semibold rounded-control transition-all ml-auto cursor-pointer btn-danger-soft-bg"
             style="color: var(--error-500, var(--danger));"

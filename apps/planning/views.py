@@ -14,6 +14,7 @@ from django.views.decorators.http import require_http_methods, require_POST
 from apps.audit.services import record
 from apps.clients.forms import _style
 from apps.composer.models import ContentCategory, Idea, Post
+from apps.members.decorators import require_permission
 from apps.planning.models import Campaign, ContentPlan, KeyDate
 from apps.planning.services import (
     ensure_holidays,
@@ -25,7 +26,6 @@ from apps.planning.services import (
     set_stage,
     week_start,
 )
-from apps.reviews.views import staff_member_required
 from apps.studio.decorators import in_local_time, in_studio_time, studio_staff_required
 from apps.studio.permissions import workspace_permission
 from apps.studio.today import staff_memberships
@@ -54,8 +54,11 @@ class QuickPlanForm(forms.Form):
     pillar = forms.ModelChoiceField(queryset=ContentCategory.objects.none(), required=False, label="Pillar")
     campaign = forms.ModelChoiceField(queryset=Campaign.objects.none(), required=False)
     stage = forms.ChoiceField(
-        choices=ContentPlan.Stage.choices, initial=ContentPlan.Stage.PLANNED, label="Production stage"
+        choices=ContentPlan.Stage.choices, initial=ContentPlan.Stage.PLANNED, label="Production stage", required=False
     )
+
+    def clean_stage(self):
+        return self.cleaned_data.get("stage") or ContentPlan.Stage.PLANNED
 
     def __init__(self, *args, workspace=None, **kwargs):
         super().__init__(*args, **kwargs)
@@ -129,7 +132,7 @@ class CampaignForm(forms.ModelForm):
 # ── Plan views ───────────────────────────────────────────────────────────────
 
 
-@staff_member_required
+@require_permission("view_plan")
 @in_local_time
 def board(request, workspace_id):
     ws = request.workspace
@@ -173,7 +176,7 @@ def board(request, workspace_id):
 @in_studio_time
 def all_clients(request):
     memberships = staff_memberships(request.user, request.org)
-    workspaces = [m.workspace for m in memberships]
+    workspaces = [m.workspace for m in memberships if m.effective_permissions.get("view_plan", False)]
     selected = request.GET.get("client", "")
     shown = [ws for ws in workspaces if not selected or str(ws.id) == selected]
     start = _start(request)
@@ -191,7 +194,8 @@ def all_clients(request):
     )
 
 
-@staff_member_required
+@require_permission("view_plan")
+@require_permission("create_posts")
 @require_POST
 def quick_add(request, workspace_id):
     _require_plan(request)
@@ -214,7 +218,8 @@ def quick_add(request, workspace_id):
     return redirect("planning:board", workspace_id=workspace_id)
 
 
-@staff_member_required
+@require_permission("view_plan")
+@require_permission("create_posts")
 @require_POST
 def idea_to_plan(request, workspace_id, idea_id):
     _require_plan(request)
@@ -237,7 +242,7 @@ def _post(request, post_id):
     return get_object_or_404(Post.objects.filter(workspace=request.workspace), pk=post_id)
 
 
-@staff_member_required
+@require_permission("view_plan")
 @in_local_time
 @require_http_methods(["GET", "POST"])
 def post_detail(request, workspace_id, post_id):
@@ -290,7 +295,8 @@ def post_detail(request, workspace_id, post_id):
     )
 
 
-@staff_member_required
+@require_permission("view_plan")
+@require_permission("create_posts")
 @require_POST
 def stage(request, workspace_id, post_id):
     _require_plan(request)
@@ -302,7 +308,7 @@ def stage(request, workspace_id, post_id):
 # ── Campaigns and key dates ──────────────────────────────────────────────────
 
 
-@staff_member_required
+@require_permission("view_plan")
 @in_local_time
 @require_http_methods(["GET", "POST"])
 def campaigns(request, workspace_id, campaign_id=None):
@@ -347,7 +353,7 @@ def campaigns(request, workspace_id, campaign_id=None):
     )
 
 
-@staff_member_required
+@require_permission("view_plan")
 @in_local_time
 @require_http_methods(["GET", "POST"])
 def key_dates(request, workspace_id):

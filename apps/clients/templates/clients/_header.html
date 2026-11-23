@@ -12,7 +12,10 @@
                 </div>
             </div>
         </div>
-        <a href="{% url 'calendar:calendar' workspace_id=workspace.id %}" class="btn btn-secondary">Open calendar</a>
+        <div class="flex flex-wrap gap-2">
+            {% if shell_can_plan %}<a href="{% url 'planning:board' workspace_id=workspace.id %}" class="btn btn-secondary">Plan</a>{% endif %}
+            <a href="{% url 'calendar:calendar' workspace_id=workspace.id %}" class="btn btn-secondary">Open calendar</a>
+        </div>
     </div>
     <nav class="tabs mt-6" aria-label="Client">
         <a href="{% url 'clients:detail' workspace_id=workspace.id %}" class="tab"{% if tab == "overview" %} aria-current="page"{% endif %}>Overview</a>

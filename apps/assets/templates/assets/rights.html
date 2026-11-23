@@ -6,8 +6,8 @@
     <p class="meta mb-1"><a href="{% url 'media_library:index' workspace_id=workspace.id %}" class="link">{{ workspace.name }} · Media</a></p>
     <h1 class="page-title mb-6">{{ asset.title|default:asset.filename }}</h1>
     {% if at_risk %}
-    <div class="state state-error mb-6" role="alert"><p class="state-title">Rights end before {{ at_risk|length }} planned post{{ at_risk|length|pluralize }}</p>
-        <p class="state-body">{% for p in at_risk %}<a href="{% url 'planning:post' workspace_id=workspace.id post_id=p.id %}" class="link">{{ p.title|default:"Untitled post" }}</a>{% if not forloop.last %}, {% endif %}{% endfor %}. Replace the media or extend the licence before they go out.</p></div>
+    <div class="alert-error mb-6" role="alert"><p class="font-semibold">Rights end before {{ at_risk|length }} planned post{{ at_risk|length|pluralize }}</p>
+        <p class="mt-1">{% for p in at_risk %}<a href="{% url 'planning:post' workspace_id=workspace.id post_id=p.id %}" class="link">{{ p.title|default:"Untitled post" }}</a>{% if not forloop.last %}, {% endif %}{% endfor %}. Replace the media or extend the licence before they go out.</p></div>
     {% endif %}
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <section class="panel panel-body lg:col-span-2" aria-labelledby="rights-title">

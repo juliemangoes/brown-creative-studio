@@ -8,6 +8,7 @@ share link the studio turns on; it shows nothing internal.
 from __future__ import annotations
 
 import json
+import re
 from datetime import time, timedelta
 
 from django import forms
@@ -31,6 +32,15 @@ from apps.shoots.models import Shoot, Shot
 from apps.studio.decorators import in_local_time, in_studio_time, studio_staff_required
 from apps.studio.permissions import workspace_permission
 
+SIGNED_RE = re.compile(r"\s*\((signed|release signed|firmado)\)\s*$", re.IGNORECASE)
+
+
+def _talent(line: str) -> dict:
+    """ "Rosa Chi: chef (signed)" → {"name": "Rosa Chi", "role": "chef", "release": True}."""
+    signed = bool(SIGNED_RE.search(line))
+    name, _, role = SIGNED_RE.sub("", line).partition(":")
+    return {"name": name.strip(), "role": role.strip(), "release": signed}
+
 
 def _lines(text):
     return [line.strip() for line in (text or "").splitlines() if line.strip()]
@@ -44,7 +54,10 @@ class ShootForm(forms.ModelForm):
         widget=forms.Textarea(attrs={"rows": 3}), required=False, label="Equipment (one per line)"
     )
     talent_text = forms.CharField(
-        widget=forms.Textarea(attrs={"rows": 2}), required=False, label="Talent (Name: role, one per line)"
+        widget=forms.Textarea(attrs={"rows": 2}),
+        required=False,
+        label="Talent (Name: role, one per line)",
+        help_text="Add “(signed)” at the end of a line once that person's release form is in.",
     )
     run_text = forms.CharField(
         widget=forms.Textarea(attrs={"rows": 4}), required=False, label="Run of show (time | what, one per line)"
@@ -96,7 +109,9 @@ class ShootForm(forms.ModelForm):
                     "locations_text": "\n".join(inst.locations),
                     "equipment_text": "\n".join(inst.equipment),
                     "talent_text": "\n".join(
-                        f"{t.get('name', '')}: {t.get('role', '')}".rstrip(": ") for t in inst.talent
+                        f"{t.get('name', '')}: {t.get('role', '')}".rstrip(": ")
+                        + (" (signed)" if t.get("release") else "")
+                        for t in inst.talent
                     ),
                     "run_text": "\n".join(f"{r.get('time', '')} | {r.get('item', '')}" for r in inst.run_of_show),
                     "prep_text": "\n".join(i.get("text", "") for i in inst.prep_checklist),
@@ -117,11 +132,7 @@ class ShootForm(forms.ModelForm):
         data = self.cleaned_data
         shoot.locations = _lines(data["locations_text"])
         shoot.equipment = _lines(data["equipment_text"])
-        shoot.talent = [
-            {"name": n.strip(), "role": r.strip()}
-            for line in _lines(data["talent_text"])
-            for n, _, r in [line.partition(":")]
-        ]
+        shoot.talent = [_talent(line) for line in _lines(data["talent_text"])]
         shoot.run_of_show = [
             {"time": t.strip(), "item": i.strip()}
             for line in _lines(data["run_text"])
@@ -138,11 +149,7 @@ class ShootForm(forms.ModelForm):
 # ── Scope ────────────────────────────────────────────────────────────────────
 
 
-def _crew_only(membership) -> bool:
-    perms = membership.effective_permissions
-    return membership.workspace_role == WorkspaceMembership.WorkspaceRole.CONTRIBUTOR and not perms.get(
-        "manage_shoots", False
-    )
+_crew_only = services.crew_only
 
 
 def _shoots(request):
@@ -193,7 +200,9 @@ def all_shoots(request):
             qs.filter(date__gte=today - timedelta(days=14)).select_related("workspace").prefetch_related("crew")
         )
     shoots.sort(key=lambda s: (s.date, s.call_time))
-    return render(request, "shoots/all.html", {"rows": [(s, services.conflicts(s)) for s in shoots], "today": today})
+    visible_ids = services.visible_workspace_ids(request.user, request.org)
+    rows = [(s, services.conflicts(s, visible_ids)) for s in shoots]
+    return render(request, "shoots/all.html", {"rows": rows, "today": today})
 
 
 # ── One client ───────────────────────────────────────────────────────────────
@@ -274,7 +283,9 @@ def shoot_detail(request, workspace_id, shoot_id):
             "shoot": shoot,
             "form": form,
             "shots": shots,
-            "conflicts": services.conflicts(shoot),
+            "conflicts": services.conflicts(
+                shoot, services.visible_workspace_ids(request.user, request.workspace.organization)
+            ),
             "candidates": services.candidate_posts(shoot) if _can_manage(request) else [],
             "unmatched": unmatched,
             "can_manage": _can_manage(request),

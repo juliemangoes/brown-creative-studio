@@ -9,6 +9,80 @@ live in new Django apps and new files; those are listed per entry but need no
 merge care. See [docs/fork/README.md](docs/fork/README.md) for the working rules
 and the upstream merge procedure.
 
+## 2026-11-23 · Phase 4: content operations
+
+### Upstream files changed by hand
+
+| File | Change | Reason |
+|---|---|---|
+| `config/settings/base.py` | Added `apps.reviews`, `apps.planning`, `apps.shoots`, `apps.assets` to `LOCAL_APPS`. | New apps. |
+| `config/urls.py` | `/portal/review/` (before the portal's catch-all token pattern), `/reviews/`, `/planning/`, `/shoots/`, `/call-sheet/`, `/assets/`. | New pages. |
+| `requirements.txt` | `fpdf2>=2.8,<3.0` (LGPL-3.0, compatible with AGPL-3.0). | Call sheet PDFs. |
+| `apps/approvals/services.py` | `approve_post` asks `reviews.check_client_stage` for each platform version: only a client approves the client stage, clients approve only what is waiting for them, and an approval rule's named approvers are respected. Versions it may not move are skipped; if none moved it raises with the reason. | Approval gap: studio staff could approve on the client's behalf, and a client could approve versions still in studio review. |
+| `apps/approvals/views.py` | `add_comment` keeps the created comment and calls `reviews.attach_pin` (image point or video time). | Pinned feedback. |
+| `apps/composer/views.py` | The status transition endpoint refuses `approved` without `check_client_stage`, and `scheduled`/`publishing` (except retrying a failed post) without `schedule_block_reason`, answering 400 with the reason. | Every route into scheduling checks that the required approvals cover the exact content. |
+| `apps/calendar/views.py` | Drag-to-reschedule and bulk publish call `schedule_block_reason` before promoting a post. | Bulk publish uses `bulk_update`, which skips the model signal that otherwise guards scheduling. |
+| `apps/workspaces/views.py` | New workspaces start with `approval_workflow_mode = required_internal_and_client`. | The studio's default: internal review, then one client approval before scheduling. |
+| `templates/approvals/partials/comment_list.html` | Shows a comment's pin ("photo.jpg, at 0:12"). | Pinned feedback. |
+| `templates/calendar/partials/month_grid.html`, `week_grid.html`, `day_grid.html`, `templates/organizations/partials/day_grid.html`, `week_grid.html` | `{% load planning %}`; the chip's title and a screen-reader label carry `{% production_label pp %}` ("Shot needed · Draft"). | Production stage and approval status together on the calendar. |
+| `templates/calendar/partials/list_view.html` | The status cell adds the production stage (`{% production_stage post %}`). | Same, in the list view. |
+| `templates/calendar/calendar.html` | A "Plan" button beside the view switch, for people with `view_plan` (`shell_can_plan`). | The 13-week plan is one click from the calendar. |
+| `templates/media_library/_asset_detail_panel.html` | "Rights and use" button (client libraries only). | Asset rights and where an asset is used. |
+| `templates/layouts/workspace_settings.html` | Two items after Client Portal: "Approvers and turnaround" (`reviews:rule`) and "Portal links" (`reviews:portal_links`). | Reach the approval rule and link revocation from the client's settings. |
+
+### Behaviour changes to watch on upstream merges
+
+- **Model signals guard approvals** (`apps/reviews/signals.py`). A `PlatformPost` saved into
+  `scheduled` or `publishing` from another status (except a failed retry) is refused with
+  `ApprovalRequiredError` unless the required approvals cover its exact content. Any change
+  to approved content (title, caption, first comment, tags, media, media file or version,
+  per-platform overrides) sends approved, pending-client, scheduled, failed and on-hold
+  versions back to studio review, with an audit event. Code that writes in bulk
+  (`bulk_update`, `QuerySet.update`) skips signals and must call `schedule_block_reason`
+  itself, as the calendar now does. `apps.reviews.services.bypass()` is for fixtures only
+  (the demo uses it for posts created already published).
+- `ApprovalRecord` is written for every `ApprovalAction` (signal), with the exact
+  `PostVersion` and content fingerprints. A submission moves the post's production stage to
+  "Ready for review" (`apps/planning/signals.py`).
+- New workspace permission `view_plan` (owner, manager, editor, viewer; not contributors or
+  clients) opens the plan, campaigns, key dates, asset rights and a post's review history.
+  Freelancers keep to their tasks and the shoots they are crew on, as the brief says. Custom
+  roles need the key added to see these pages.
+- `ClientScopeMiddleware` adds `reviews_portal` and `shoots_public` to the client
+  namespaces. The public call sheet needs no login but only works while its share link is on.
+
+### New files
+
+- `apps/reviews/`: approval records with exact versions, comment pins, approval rules
+  (named approvers, turnaround), the schedule guard and reopen-on-change, client-stage
+  checks, override with reason, the post's full history, the client's batch review
+  (week, month, everything waiting) and portal link revocation.
+- `apps/planning/`: content plans (stage, format, objective, hook, script, call to action,
+  dates, owner, campaign), campaigns, key dates (Belize public holidays built in), the
+  13-week plan per client and across clients, warnings (gaps, one-sided pillar or format,
+  no media or no approval close to the date, rights ending before the post).
+- `apps/shoots/`: shoots and shot lists, booking conflicts, readiness, shot lists from
+  planned posts, on-set mode that works offline (`static/shoots/onset.js`, a service worker),
+  matching uploads to shots by code (scanned first), follow-up tasks, content runway, call
+  sheets as a page, a share link and a PDF.
+- `apps/assets/`: usage rights per media asset (source, usage, licence, releases, expiry)
+  and where the asset is used.
+- Today gains upcoming shoot days with what is still missing, and planned posts no shoot
+  covers. The rail's Calendar section includes the Plan; Approvals includes reviews.
+- Docs: [docs/fork/content-operations.md](docs/fork/content-operations.md).
+
+### Changed test expectations
+
+- `apps/approvals/test_workflow.py::TwoStageFlowTests`: the client-stage approval is now made
+  by a client user (added in `setUp`). Studio staff approving the client stage is refused by
+  design.
+- `tests/test_member_role_authorization.py`: a `_studio_approved()` helper on
+  `RoleAuthorizationBase` records a real studio approval (an `ApprovalAction`), used by
+  `TransitionFollowUpTests::test_an_approved_post_can_still_be_scheduled_under_required_approval`
+  and `ApprovalWorkflowGateTests::test_an_approved_post_is_scheduled_by_its_author`. Both wrote
+  `status="approved"` straight to the database with no approval behind it, which the schedule
+  guard now refuses. What they check (an approved post can be scheduled) is unchanged.
+
 ## 2026-11-23 · Modern redesign
 
 The owner asked for a more modern interface, replacing Phase 1's editorial direction.

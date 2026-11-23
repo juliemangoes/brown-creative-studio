@@ -27,6 +27,10 @@ POST_STATUS_LABELS = {
     "on_hold": "On hold",
 }
 DONE_STATUSES = {"scheduled", "publishing", "published"}
+# Once a post is approved its production is finished: labels show the status alone.
+STAGE_HIDDEN_STATUSES = DONE_STATUSES | {"approved"}
+# Stages a post leaves automatically when it is sent for review.
+BEFORE_REVIEW = ("idea", "planned", "shot_needed", "in_production")
 
 
 # ── Plans and stages ─────────────────────────────────────────────────────────
@@ -64,7 +68,7 @@ def combined_label(platform_post=None, *, post=None, plan=None, status=None) -> 
     status_label = POST_STATUS_LABELS.get(status or "", (status or "").replace("_", " ").capitalize())
     if plan is None and post is not None:
         plan = ContentPlan.objects.filter(post_id=post.pk).only("stage").first()
-    if plan is None or status in DONE_STATUSES:
+    if plan is None or status in STAGE_HIDDEN_STATUSES:
         return status_label
     return f"{plan.get_stage_display()} · {status_label}"
 
@@ -248,10 +252,7 @@ def plan_weeks(workspaces, start: date, weeks: int = 13) -> list[Week]:
     )
     result = OrderedDict((first + timedelta(days=7 * i), Week(first + timedelta(days=7 * i))) for i in range(weeks))
     for post in posts:
-        try:
-            plan = post.content_plan
-        except ContentPlan.DoesNotExist:
-            plan = None
+        plan = getattr(post, "content_plan", None)  # reverse one-to-one; None when the post has no plan
         day = _post_day(post, plan)
         if day is None or not (first <= day < last):
             continue

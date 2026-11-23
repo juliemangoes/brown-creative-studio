@@ -465,3 +465,11 @@ def test_new_workspaces_require_studio_then_client_approval(client, studio):
     from apps.workspaces.models import Workspace
 
     assert Workspace.objects.get(name="Brand new client").approval_workflow_mode == "required_internal_and_client"
+
+
+def test_client_settings_link_to_approvers_and_portal_links(client, studio):
+    ws = studio["restaurant"]
+    client.force_login(studio["owner"])
+    body = client.get(reverse("workspaces:settings", kwargs={"workspace_id": ws.id})).content.decode()
+    assert reverse("reviews:rule", kwargs={"workspace_id": ws.id}) in body
+    assert reverse("reviews:portal_links", kwargs={"workspace_id": ws.id}) in body

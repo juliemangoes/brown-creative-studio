@@ -59,6 +59,7 @@ PRIMARY: tuple[Section, ...] = (
         all_url="organizations:cross_workspace_calendar",
         match=lambda app, url, tab: (
             (app == "calendar" and tab != "approvals")
+            or app == "planning"
             or url == "cross_workspace_calendar"
             or (app == "composer" and url in ("compose", "compose_edit"))
         ),
@@ -73,7 +74,7 @@ PRIMARY: tuple[Section, ...] = (
         "approvals",
         client_url="calendar:calendar",
         client_query="?mode=list&tab=approvals",
-        match=lambda app, url, tab: (app == "calendar" and tab == "approvals") or app == "approvals",
+        match=lambda app, url, tab: (app == "calendar" and tab == "approvals") or app in ("approvals", "reviews"),
     ),
     Section(
         "reports",
@@ -121,7 +122,7 @@ SECONDARY: tuple[Section, ...] = (
         "media",
         client_url="media_library:index",
         all_url="media_library_org:shared_index",
-        match=_app("media_library", "media_library_org"),
+        match=_app("media_library", "media_library_org", "assets"),
     ),
     Section("inbox", "Inbox", "inbox", client_url="inbox:feed", permission="use_inbox", match=_app("inbox")),
 )

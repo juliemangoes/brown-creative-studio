@@ -154,6 +154,38 @@
                 {% endif %}
             </section>
 
+            {# ── Shoot days ──────────────────────────────────────────── #}
+            {% if today.shoots or today.needs_shoot %}
+            <section class="panel" aria-labelledby="shoots-title">
+                <div class="panel-header">
+                    <h2 id="shoots-title" class="section-title">Shoot days, next 2 weeks</h2>
+                    <a href="{% if today.selected %}{% url 'shoots:list' workspace_id=today.selected.id %}{% else %}{% url 'shoots:all' %}{% endif %}" class="link text-13">Shoots</a>
+                </div>
+                <ul class="divide-y divide-hairline">
+                    {% for row in today.shoots %}
+                    <li class="px-5 py-3">
+                        <div class="flex items-center justify-between gap-3">
+                            <a href="{{ row.url }}" class="text-14 font-medium text-ink hover:underline min-w-0 truncate">{{ row.shoot.title }}</a>
+                            {% if row.missing %}<span class="status status-warning">{{ row.missing|length }} to sort</span>{% else %}<span class="status status-success">Ready</span>{% endif %}
+                        </div>
+                        <p class="meta mt-0.5">{% if not today.selected %}{{ row.shoot.workspace.name }} · {% endif %}{% if row.shoot.date == today_date %}Today{% else %}{{ row.shoot.date|date:"D j M" }}{% endif %}, call {{ row.shoot.call_time|time:"H:i" }} · {{ row.shots }} shot{{ row.shots|pluralize }}</p>
+                        {% if row.missing %}<p class="meta mt-0.5">Missing: {{ row.missing|join:"; " }}</p>{% endif %}
+                    </li>
+                    {% endfor %}
+                    {% if today.needs_shoot %}
+                    <li class="px-5 py-3">
+                        <p class="text-14 font-medium text-ink">Posts that need a shoot <span class="tabular-nums text-ink-muted font-normal">{{ today.needs_shoot|length }}</span></p>
+                        <ul class="mt-1 space-y-0.5">
+                            {% for plan in today.needs_shoot|slice:":5" %}
+                            <li class="meta"><a href="{% url 'planning:post' workspace_id=plan.workspace_id post_id=plan.post_id %}" class="link">{{ plan.post.title|default:"Untitled post"|truncatechars:50 }}</a>{% if not today.selected %} · {{ plan.workspace.name }}{% endif %} · for {{ plan.target_date|date:"j M" }}</li>
+                            {% endfor %}
+                        </ul>
+                    </li>
+                    {% endif %}
+                </ul>
+            </section>
+            {% endif %}
+
             {# ── Accounts to reconnect ───────────────────────────────── #}
             <section class="panel" aria-labelledby="accounts-title">
                 <div class="panel-header"><h2 id="accounts-title" class="section-title">Accounts to reconnect</h2></div>

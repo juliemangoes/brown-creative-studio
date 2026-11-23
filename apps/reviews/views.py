@@ -18,27 +18,11 @@ from apps.studio.decorators import in_local_time
 from apps.studio.permissions import has_studio_permission, workspace_permission
 
 
-def staff_member_required(view_func):
-    """Any studio member of this client (never a client user); the RBAC middleware already checked membership."""
-    import functools
-
-    from apps.studio.permissions import is_client_membership
-
-    @functools.wraps(view_func)
-    def _wrapped(request, *args, **kwargs):
-        membership = getattr(request, "workspace_membership", None)
-        if membership is None or is_client_membership(membership):
-            raise PermissionDenied
-        return view_func(request, *args, **kwargs)
-
-    return _wrapped
-
-
 def _post(request, post_id):
     return get_object_or_404(Post.objects.filter(workspace=request.workspace), pk=post_id)
 
 
-@staff_member_required
+@require_permission("view_plan")
 @in_local_time
 def post_review(request, workspace_id, post_id):
     post = _post(request, post_id)
@@ -51,7 +35,9 @@ def post_review(request, workspace_id, post_id):
             "workspace": request.workspace,
             "post": post,
             "states": states,
-            "history": post_history(post, include_internal=True),
+            "history": post_history(
+                post, include_internal=request.workspace_membership.effective_permissions.get("view_internal", False)
+            ),
             "media": list(post.media_attachments.select_related("media_asset").order_by("position")),
             "can_override": has_studio_permission(request.org_membership, "override_approval")
             and any(pp.status == "pending_client" for pp in platform_posts),
@@ -60,7 +46,7 @@ def post_review(request, workspace_id, post_id):
     )
 
 
-@staff_member_required
+@require_permission("approve_posts")
 @require_POST
 def override(request, workspace_id, post_id):
     post = _post(request, post_id)

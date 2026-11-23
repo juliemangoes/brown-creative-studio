@@ -29,6 +29,7 @@
                 Calendar
             </button>
         </div>
+        {% if shell_can_plan %}<a href="{% url 'planning:board' workspace_id=workspace.id %}" class="btn btn-secondary">Plan</a>{% endif %}
         <a href="{% url 'composer:compose' workspace_id=workspace.id %}" class="btn btn-primary">New post</a>
     </div>
 </div>

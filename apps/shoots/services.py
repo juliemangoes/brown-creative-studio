@@ -15,6 +15,15 @@ from apps.shoots.models import Shoot, Shot
 DEFAULT_LENGTH = timedelta(hours=4)
 
 
+def crew_only(membership) -> bool:
+    """Contributors (freelancers) without ``manage_shoots`` see only the shoots they are crew on."""
+    from apps.members.models import WorkspaceMembership
+
+    return membership.workspace_role == WorkspaceMembership.WorkspaceRole.CONTRIBUTOR and not (
+        membership.effective_permissions.get("manage_shoots", False)
+    )
+
+
 def _span(shoot):
     start = datetime.combine(shoot.date, shoot.call_time)
     end = datetime.combine(shoot.date, shoot.wrap_time) if shoot.wrap_time else start + DEFAULT_LENGTH
@@ -25,8 +34,26 @@ def _norm(values):
     return {str(v).strip().lower(): str(v).strip() for v in values if str(v).strip()}
 
 
-def conflicts(shoot) -> list[str]:
-    """People, equipment and locations double-booked with other shoots in the studio at overlapping times."""
+def visible_workspace_ids(user, organization) -> set:
+    """Clients whose shoots this person may see (staff memberships with ``view_shoots``)."""
+    from apps.members.models import WorkspaceMembership
+
+    return {
+        m.workspace_id
+        for m in WorkspaceMembership.objects.filter(user=user, workspace__organization=organization)
+        .exclude(workspace_role=WorkspaceMembership.WorkspaceRole.CLIENT)
+        .select_related("custom_role")
+        if m.effective_permissions.get("view_shoots", False)
+    }
+
+
+def conflicts(shoot, visible=None) -> list[str]:
+    """People, equipment and locations double-booked with other shoots in the studio at overlapping times.
+
+    ``visible`` is the set of client workspaces the reader may see; a clashing shoot for any
+    other client is described without its title or client (``None`` means no masking, for
+    internal checks that only count conflicts).
+    """
     if shoot.status == Shoot.Status.CANCELLED:
         return []
     start, end = _span(shoot)
@@ -44,7 +71,10 @@ def conflicts(shoot) -> list[str]:
         o_start, o_end = _span(other)
         if not (start < o_end and o_start < end):
             continue
-        where = f"{other.title} ({other.workspace.name}, {o_start:%H:%M}–{o_end:%H:%M})"
+        if visible is None or other.workspace_id in visible:
+            where = f"{other.title} ({other.workspace.name}, {o_start:%H:%M}–{o_end:%H:%M})"
+        else:
+            where = f"another client's shoot ({o_start:%H:%M}–{o_end:%H:%M})"
         for user in other.crew.all():
             if user.pk in crew:
                 found.append(f"{user.name or user.email} is also on {where}.")
@@ -362,14 +392,14 @@ def runway(workspace, today=None, days=60) -> dict:
         .prefetch_related("media_attachments", "shots")
         .distinct()
     )
-    covered, uncovered = [], []
+    covered: list[tuple] = []
+    uncovered: list[tuple] = []
     for post in posts:
-        try:
-            fmt = post.content_plan.format
-        except Exception:  # noqa: BLE001
-            fmt = ""
+        plan = getattr(post, "content_plan", None)
+        fmt = plan.format if plan else ""
         has_material = bool(post.media_attachments.all()) or any(
-            s.status == Shot.Status.CAPTURED and s.media.exists() for s in post.shots.all()
+            s.status == Shot.Status.CAPTURED and s.media.exists()
+            for s in getattr(post, "shots").all()  # noqa: B009 - reverse relation from this app
         )
         day = timezone.localtime(post.scheduled_at or post.proposed_publish_at).date()
         (covered if has_material or fmt == "text" else uncovered).append((day, post))
@@ -392,3 +422,52 @@ def runway(workspace, today=None, days=60) -> dict:
         "late": bool(needed_by and (upcoming is None or upcoming.date > needed_by)),
         "uncovered_posts": [p for _, p in uncovered[:10]],
     }
+
+
+def readiness(shoot) -> list[str]:
+    """What is still missing before a shoot day, in plain words (empty when it is ready)."""
+    missing = []
+    shots = list(shoot.shots.all())
+    if not shots:
+        missing.append("No shot list yet")
+    else:
+        unlinked = sum(1 for s in shots if s.priority == Shot.Priority.MUST and not s.post_id and not s.is_unplanned)
+        if unlinked:
+            missing.append(f"{unlinked} must-have shot{'s' if unlinked != 1 else ''} not tied to a post")
+    if not shoot.crew.exists():
+        missing.append("No crew")
+    if not [loc for loc in shoot.locations if str(loc).strip()]:
+        missing.append("No location")
+    needs_release = [t for t in shoot.talent if isinstance(t, dict) and t.get("name") and not t.get("release")]
+    if needs_release:
+        missing.append(f"{len(needs_release)} release form{'s' if len(needs_release) != 1 else ''} outstanding")
+    if not shoot.prep_sent_at:
+        missing.append("Client prep not sent")
+    if conflicts(shoot):
+        missing.append("Booking conflict")
+    return missing
+
+
+def posts_needing_shots(workspace_ids, today=None, days=21):
+    """Planned posts marked "shot needed" in the next ``days`` that are on no upcoming shoot's list."""
+    from apps.planning.models import ContentPlan
+
+    today = today or timezone.localdate()
+    on_a_shoot = Shot.objects.filter(
+        workspace_id__in=workspace_ids,
+        post__isnull=False,
+        shoot__date__gte=today,
+        shoot__status__in=[Shoot.Status.PLANNED, Shoot.Status.CONFIRMED],
+    ).values("post_id")
+    planned = (
+        ContentPlan.objects.filter(
+            workspace_id__in=workspace_ids,
+            stage=ContentPlan.Stage.SHOT_NEEDED,
+            target_date__gte=today,
+            target_date__lte=today + timedelta(days=days),
+        )
+        .exclude(post_id__in=on_a_shoot)
+        .select_related("post", "workspace")
+        .order_by("target_date")
+    )
+    return list(planned[:20])

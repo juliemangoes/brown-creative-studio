@@ -6,13 +6,14 @@ from django import forms
 from django.contrib import messages
 from django.core.exceptions import PermissionDenied
 from django.shortcuts import get_object_or_404, redirect, render
+from django.utils import timezone
 from django.views.decorators.http import require_http_methods
 
 from apps.assets.models import AssetRights
 from apps.audit.services import record
 from apps.clients.forms import _style
 from apps.media_library.models import MediaAsset
-from apps.reviews.views import staff_member_required
+from apps.members.decorators import require_permission
 from apps.studio.decorators import in_local_time
 from apps.studio.permissions import workspace_permission
 
@@ -43,7 +44,7 @@ def where_used(asset):
     return {"posts": posts, "shots": list(asset.shots.select_related("shoot"))}
 
 
-@staff_member_required
+@require_permission("view_plan")
 @in_local_time
 @require_http_methods(["GET", "POST"])
 def rights(request, workspace_id, asset_id):
@@ -75,7 +76,7 @@ def rights(request, workspace_id, asset_id):
             when = row["post"].scheduled_at or row["post"].proposed_publish_at
             if (
                 when
-                and when.date() > instance.expires_on
+                and timezone.localtime(when).date() > instance.expires_on
                 and not any(pp.status == "published" for pp in row["platforms"])
             ):
                 upcoming_after_expiry.append(row["post"])
