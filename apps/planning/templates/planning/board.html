@@ -28,7 +28,7 @@
                 {% else %}<p class="text-14 text-ink-muted">Nothing planned in the next 30 days yet.</p>{% endif %}
             </section>
             <section class="panel" aria-labelledby="ideas-title">
-                <div class="panel-header"><h2 id="ideas-title" class="section-title">Idea bank</h2><a href="{% url 'composer:idea_board' workspace_id=workspace.id %}" class="link text-13">All ideas</a></div>
+                <div class="panel-header"><h2 id="ideas-title" class="section-title">Idea bank</h2><a href="{% url 'composer:create_landing' workspace_id=workspace.id %}" class="link text-13">All ideas</a></div>
                 {% if ideas %}
                 <ul class="divide-y divide-hairline">
                     {% for idea in ideas %}

@@ -36,11 +36,12 @@ def contrast(a: str, b: str) -> float:
 
 
 def test_spec_values_are_exact():
-    """The light and dark values are the ones in the design brief."""
-    assert LIGHT["canvas"] == "#FAF7F2" and DARK_CHOSEN["canvas"] == "#17120F"
+    """The anchor values of the modern palette (docs/fork/design-system.md); the brand brown is unchanged."""
+    assert LIGHT["canvas"] == "#F5F4F2" and DARK_CHOSEN["canvas"] == "#0F0D0C"
+    assert LIGHT["surface"] == "#FFFFFF" and DARK_CHOSEN["surface"] == "#181614"
     assert LIGHT["accent"] == "#6F4A32" and DARK_CHOSEN["accent"] == "#D2A77F"
-    assert LIGHT["text-primary"] == "#241A14" and DARK_CHOSEN["text-primary"] == "#F4EEE6"
-    assert LIGHT["control-border"] == "#8C7B6C" and DARK_CHOSEN["control-border"] == "#7D6E62"
+    assert LIGHT["text-primary"] == "#1C1714" and DARK_CHOSEN["text-primary"] == "#F3F1EE"
+    assert LIGHT["control-border"] == "#8A847D" and DARK_CHOSEN["control-border"] == "#77706A"
 
 
 def test_dark_theme_is_identical_whether_chosen_or_from_the_system():

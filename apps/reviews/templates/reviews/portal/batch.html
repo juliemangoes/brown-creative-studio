@@ -9,10 +9,10 @@
         <p class="text-ink-muted mt-1">{% blocktranslate count n=total_pending %}{{ n }} post is waiting for you.{% plural %}{{ n }} posts are waiting for you.{% endblocktranslate %}</p>
     </header>
 
-    <nav class="flex flex-wrap items-center gap-2" aria-label="{% translate 'Period' %}">
-        <a href="?period=week" class="btn btn-sm {% if period == 'week' %}btn-secondary{% else %}btn-quiet{% endif %}"{% if period == 'week' %} aria-current="page"{% endif %}>{% translate "Week" %}</a>
-        <a href="?period=month" class="btn btn-sm {% if period == 'month' %}btn-secondary{% else %}btn-quiet{% endif %}"{% if period == 'month' %} aria-current="page"{% endif %}>{% translate "Month" %}</a>
-        <a href="?period=all" class="btn btn-sm {% if period == 'all' %}btn-secondary{% else %}btn-quiet{% endif %}"{% if period == 'all' %} aria-current="page"{% endif %}>{% translate "Everything waiting" %}</a>
+    <nav class="flex flex-wrap items-center gap-2" aria-label="{% translate 'Period' %}"><span class="segmented">
+        <a href="?period=week" class="segment"{% if period == 'week' %} aria-current="page"{% endif %}>{% translate "Week" %}</a>
+        <a href="?period=month" class="segment"{% if period == 'month' %} aria-current="page"{% endif %}>{% translate "Month" %}</a>
+        <a href="?period=all" class="segment"{% if period == 'all' %} aria-current="page"{% endif %}>{% translate "Everything waiting" %}</a></span>
         {% if start %}
         <span class="ml-auto flex items-center gap-2">
             <a href="?period={{ period }}&amp;start={{ prev|date:'Y-m-d' }}" class="btn btn-quiet btn-sm" aria-label="{% translate 'Previous' %}">←</a>

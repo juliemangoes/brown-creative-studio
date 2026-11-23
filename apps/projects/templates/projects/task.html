@@ -24,9 +24,9 @@
             {% if editable %}
             <section class="panel panel-body" aria-labelledby="status-title">
                 <h2 id="status-title" class="section-title mb-3">Status</h2>
-                <form method="post" action="{% url 'projects:task_status' workspace_id=workspace.id task_id=task.id %}" class="flex flex-wrap gap-2">
+                <form method="post" action="{% url 'projects:task_status' workspace_id=workspace.id task_id=task.id %}" class="segmented">
                     {% csrf_token %}<input type="hidden" name="next" value="{{ request.get_full_path }}">
-                    {% for value, label in statuses %}<button type="submit" name="status" value="{{ value }}" class="btn btn-sm {% if value == task.status %}btn-secondary{% else %}btn-quiet{% endif %}"{% if value == task.status %} aria-pressed="true"{% else %} aria-pressed="false"{% endif %}>{{ label }}</button>{% endfor %}
+                    {% for value, label in statuses %}<button type="submit" name="status" value="{{ value }}" class="segment"{% if value == task.status %} aria-pressed="true"{% else %} aria-pressed="false"{% endif %}>{{ label }}</button>{% endfor %}
                 </form>
             </section>
             {% endif %}

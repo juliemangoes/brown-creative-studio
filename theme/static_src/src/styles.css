@@ -22,39 +22,7 @@
    apps/design_system/tests/test_guards.py rejects it in templates.
    ═══════════════════════════════════════════════════════════════ */
 
-/* ── Fonts: self-hosted (SIL Open Font License, see static/fonts/*) ── */
-@font-face {
-  font-family: "Instrument Serif";
-  font-style: normal;
-  font-weight: 400;
-  font-display: swap;
-  src: url("../../fonts/instrument-serif/instrument-serif-latin-400-normal.woff2") format("woff2");
-  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
-}
-@font-face {
-  font-family: "Instrument Serif";
-  font-style: normal;
-  font-weight: 400;
-  font-display: swap;
-  src: url("../../fonts/instrument-serif/instrument-serif-latin-ext-400-normal.woff2") format("woff2");
-  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
-}
-@font-face {
-  font-family: "Instrument Serif";
-  font-style: italic;
-  font-weight: 400;
-  font-display: swap;
-  src: url("../../fonts/instrument-serif/instrument-serif-latin-400-italic.woff2") format("woff2");
-  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
-}
-@font-face {
-  font-family: "Instrument Serif";
-  font-style: italic;
-  font-weight: 400;
-  font-display: swap;
-  src: url("../../fonts/instrument-serif/instrument-serif-latin-ext-400-italic.woff2") format("woff2");
-  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
-}
+/* ── Font: Geist, self-hosted (SIL Open Font License, see static/fonts/geist) ── */
 @font-face {
   font-family: "Geist";
   font-style: normal;
@@ -102,7 +70,7 @@
   --brand-800: #452D1F;
   --brand-900: #2F1F15;
 
-  --brand-font-display: "Instrument Serif", Georgia, "Times New Roman", serif;
+  --brand-font-display: "Geist", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
   --brand-font-body: "Geist", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
   --brand-font-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
 }
@@ -114,13 +82,14 @@
 :root {
   color-scheme: light;
 
-  --canvas: #FAF7F2;          /* app background */
-  --surface: #FFFFFF;         /* panels, tables, dialogs */
-  --sunken: #F2EDE5;          /* wells, hover, selected rows (also "raised") */
-  --hairline: #E4DCD1;        /* dividers and quiet borders */
-  --control-border: #8C7B6C;  /* inputs and interactive outlines */
-  --text-primary: #241A14;
-  --text-secondary: #675749;
+  --canvas: #F5F4F2;          /* app background: the rail and the frame around the page */
+  --surface: #FFFFFF;         /* the page, panels, tables, dialogs */
+  --sunken: #F0EEEB;          /* wells, hover, selected rows (also "raised") */
+  --hairline: #E7E4E0;        /* dividers and quiet borders */
+  --hairline-strong: #D9D5D0; /* outlines on secondary buttons and chips (text identifies them) */
+  --control-border: #8A847D;  /* inputs and other outlines that identify a control */
+  --text-primary: #1C1714;
+  --text-secondary: #5F5750;
   --accent: #6F4A32;          /* primary actions, focus, active navigation */
   --on-accent: #FFFFFF;
   --success: #2F6B4F;         /* approved, published, paid */
@@ -130,16 +99,21 @@
 
   /* Derived: hover and tinted states of the tokens above. */
   --accent-hover: #5B3C28;
-  --accent-soft: #F1E6DB;
-  --accent-line: #D6BFA9;
-  --success-soft: #E6F0EA;
-  --warning-soft: #F7ECD8;
-  --danger-soft: #F8E5E1;
-  --info-soft: #E3EDF3;
+  --accent-soft: #F3ECE5;
+  --accent-line: #D9C4B0;
+  --success-soft: #E7F1EB;
+  --warning-soft: #F8EDDA;
+  --danger-soft: #F9E7E3;
+  --info-soft: #E5EEF4;
   --scrim: #17120F;           /* overlays behind dialogs and over media (use with /opacity) */
   --on-scrim: #FFFFFF;        /* text and icons over media */
 
-  --chevron: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='none' stroke='%23675749' stroke-width='1.75' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 8l4 4 4-4'/%3E%3C/svg%3E");
+  /* Elevation: a hairline plus a soft shadow lifts the page and its cards. */
+  --shadow-card: 0 1px 2px rgb(28 23 20 / 0.05);
+  --shadow-raised: 0 1px 3px rgb(28 23 20 / 0.08), 0 1px 2px rgb(28 23 20 / 0.04);
+  --shadow-control: 0 1px 2px rgb(28 23 20 / 0.06);
+
+  --chevron: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='none' stroke='%235F5750' stroke-width='1.75' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 8l4 4 4-4'/%3E%3C/svg%3E");
 }
 
 /* ── Layer 2: semantic tokens (dark) ───────────────────────────── */
@@ -148,56 +122,64 @@
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
     color-scheme: dark;
-    --canvas: #17120F;
-    --surface: #211A16;
-    --sunken: #2B231E;
-    --hairline: #3A2F28;
-    --control-border: #7D6E62;
-    --text-primary: #F4EEE6;
-    --text-secondary: #B9AB9E;
+    --canvas: #0F0D0C;
+    --surface: #181614;
+    --sunken: #221F1C;
+    --hairline: #2E2A27;
+    --hairline-strong: #3B3632;
+    --control-border: #77706A;
+    --text-primary: #F3F1EE;
+    --text-secondary: #A9A29B;
     --accent: #D2A77F;
-    --on-accent: #241A14;
+    --on-accent: #1C1714;
     --success: #7CC4A1;
     --warning: #E0B566;
     --danger: #F0998B;
     --info: #8FBEDA;
     --accent-hover: #DFBB98;
-    --accent-soft: #3A2C22;
+    --accent-soft: #33281F;
     --accent-line: #6B5141;
-    --success-soft: #1F3329;
-    --warning-soft: #3A2E1A;
-    --danger-soft: #3E2420;
-    --info-soft: #1F2F3A;
-    --scrim: #0B0806;
+    --success-soft: #1B2E24;
+    --warning-soft: #332918;
+    --danger-soft: #3A211D;
+    --info-soft: #1B2A34;
+    --scrim: #050403;
     --on-scrim: #FFFFFF;
-    --chevron: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='none' stroke='%23B9AB9E' stroke-width='1.75' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 8l4 4 4-4'/%3E%3C/svg%3E");
+    --shadow-card: 0 1px 2px rgb(0 0 0 / 0.35);
+    --shadow-raised: 0 1px 3px rgb(0 0 0 / 0.45), 0 1px 2px rgb(0 0 0 / 0.3);
+    --shadow-control: 0 1px 2px rgb(0 0 0 / 0.3);
+    --chevron: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='none' stroke='%23A9A29B' stroke-width='1.75' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 8l4 4 4-4'/%3E%3C/svg%3E");
   }
 }
 :root[data-theme="dark"] {
   color-scheme: dark;
-  --canvas: #17120F;
-  --surface: #211A16;
-  --sunken: #2B231E;
-  --hairline: #3A2F28;
-  --control-border: #7D6E62;
-  --text-primary: #F4EEE6;
-  --text-secondary: #B9AB9E;
+  --canvas: #0F0D0C;
+  --surface: #181614;
+  --sunken: #221F1C;
+  --hairline: #2E2A27;
+  --hairline-strong: #3B3632;
+  --control-border: #77706A;
+  --text-primary: #F3F1EE;
+  --text-secondary: #A9A29B;
   --accent: #D2A77F;
-  --on-accent: #241A14;
+  --on-accent: #1C1714;
   --success: #7CC4A1;
   --warning: #E0B566;
   --danger: #F0998B;
   --info: #8FBEDA;
   --accent-hover: #DFBB98;
-  --accent-soft: #3A2C22;
+  --accent-soft: #33281F;
   --accent-line: #6B5141;
-  --success-soft: #1F3329;
-  --warning-soft: #3A2E1A;
-  --danger-soft: #3E2420;
-  --info-soft: #1F2F3A;
-  --scrim: #0B0806;
+  --success-soft: #1B2E24;
+  --warning-soft: #332918;
+  --danger-soft: #3A211D;
+  --info-soft: #1B2A34;
+  --scrim: #050403;
   --on-scrim: #FFFFFF;
-  --chevron: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='none' stroke='%23B9AB9E' stroke-width='1.75' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 8l4 4 4-4'/%3E%3C/svg%3E");
+  --shadow-card: 0 1px 2px rgb(0 0 0 / 0.35);
+  --shadow-raised: 0 1px 3px rgb(0 0 0 / 0.45), 0 1px 2px rgb(0 0 0 / 0.3);
+  --shadow-control: 0 1px 2px rgb(0 0 0 / 0.3);
+  --chevron: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='none' stroke='%23A9A29B' stroke-width='1.75' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 8l4 4 4-4'/%3E%3C/svg%3E");
 }
 
 /* ── Upstream token names, kept as aliases ─────────────────────── */
@@ -257,20 +239,20 @@
   --accent-indigo: var(--accent);  --accent-indigo-soft: var(--accent-soft);
   --accent-emerald: var(--success); --accent-emerald-soft: var(--success-soft);
 
-  /* Shadows only for menus and dialogs; everything else separates with
-     space and hairlines. */
-  --shadow-menu: 0 8px 24px rgb(23 18 15 / 0.14), 0 1px 3px rgb(23 18 15 / 0.08);
-  --shadow-dialog: 0 24px 64px rgb(23 18 15 / 0.24), 0 2px 6px rgb(23 18 15 / 0.10);
-  --shadow-xs: none;
-  --shadow-sm: none;
-  --shadow-md: none;
+  /* Elevation: cards and the page frame take a soft shadow under a
+     hairline; menus and dialogs float higher. */
+  --shadow-menu: 0 12px 32px -4px rgb(23 18 15 / 0.16), 0 2px 6px rgb(23 18 15 / 0.08);
+  --shadow-dialog: 0 24px 64px -8px rgb(23 18 15 / 0.28), 0 4px 12px rgb(23 18 15 / 0.10);
+  --shadow-xs: var(--shadow-control);
+  --shadow-sm: var(--shadow-card);
+  --shadow-md: var(--shadow-raised);
   --shadow-lg: var(--shadow-menu);
   --shadow-xl: var(--shadow-dialog);
-  --shadow-primary: none;
+  --shadow-primary: var(--shadow-control);
 
-  /* 6 px on controls, 10 px on panels. */
-  --radius-control: 6px;
-  --radius-panel: 10px;
+  /* 8 px on controls, 12 px on panels, full round on status pills. */
+  --radius-control: 8px;
+  --radius-panel: 12px;
   --radius-sm:   var(--radius-control);
   --radius-md:   var(--radius-control);
   --radius-lg:   var(--radius-control);
@@ -301,7 +283,7 @@
   --font-*: initial;
 
   --font-sans: "Geist", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
-  --font-display: "Instrument Serif", Georgia, "Times New Roman", serif;
+  --font-display: "Geist", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
   --font-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
 
   /* Type scale: 12, 13, 14, 16, 20, 24, 32, 44 px. */
@@ -314,11 +296,11 @@
   --text-32: 2rem;      --text-32--line-height: 2.375rem;
   --text-44: 2.75rem;   --text-44--line-height: 3.125rem;
 
-  --radius-control: 6px;
-  --radius-panel: 10px;
+  --radius-control: 8px;
+  --radius-panel: 12px;
 
-  --shadow-menu: 0 8px 24px rgb(23 18 15 / 0.14), 0 1px 3px rgb(23 18 15 / 0.08);
-  --shadow-dialog: 0 24px 64px rgb(23 18 15 / 0.24), 0 2px 6px rgb(23 18 15 / 0.10);
+  --shadow-menu: 0 12px 32px -4px rgb(23 18 15 / 0.16), 0 2px 6px rgb(23 18 15 / 0.08);
+  --shadow-dialog: 0 24px 64px -8px rgb(23 18 15 / 0.28), 0 4px 12px rgb(23 18 15 / 0.10);
 
   --default-transition-duration: 160ms;
 }
@@ -328,6 +310,7 @@
   --color-surface: var(--surface);
   --color-sunken: var(--sunken);
   --color-hairline: var(--hairline);
+  --color-hairline-strong: var(--hairline-strong);
   --color-control: var(--control-border);
   --color-ink: var(--text-primary);
   --color-ink-muted: var(--text-secondary);
@@ -372,7 +355,11 @@
     color: var(--text-primary);
     background: var(--canvas);
     -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
   }
+  /* Headings without a weight class read as headings. */
+  h1, h2, h3 { font-weight: 600; letter-spacing: -0.011em; }
   /* Tailwind 4 defaults borders to currentColor; quiet hairlines instead. */
   *, ::after, ::before, ::backdrop, ::file-selector-button {
     border-color: var(--hairline);
@@ -412,44 +399,52 @@
    SIDEBAR - uses CSS variables that Tailwind can't express
    ═══════════════════════════════════════════════════════════════ */
 .sidebar-nav-item {
+  position: relative;
   display: flex;
   align-items: center;
   gap: 10px;
+  min-height: 34px;
   padding: 6px 10px;
   border-radius: var(--radius-control);
   font-size: 0.875rem;
   font-weight: 500;
   color: var(--text-secondary);
   cursor: pointer;
-  transition: background-color var(--dur-fast) ease, color var(--dur-fast) ease;
+  transition: background-color var(--dur-fast) ease, color var(--dur-fast) ease, box-shadow var(--dur-fast) ease;
   text-decoration: none;
 }
+.sidebar-nav-item svg { flex-shrink: 0; }
 .sidebar-nav-item:hover {
-  background: var(--sunken);
+  background: color-mix(in srgb, var(--text-primary) 5%, transparent);
   color: var(--text-primary);
 }
+/* The current page: a raised white chip on the rail, accent icon. */
 .sidebar-nav-item.active,
 .sidebar-nav-item[aria-current="page"] {
-  background: var(--accent-soft);
-  color: var(--accent);
+  background: var(--surface);
+  color: var(--text-primary);
   font-weight: 600;
+  box-shadow: var(--shadow-control), 0 0 0 1px var(--hairline);
 }
+.sidebar-nav-item.active svg,
+.sidebar-nav-item[aria-current="page"] svg { color: var(--accent); }
 .sidebar-section-label {
   font-size: 0.75rem;
-  font-weight: 600;
-  letter-spacing: 0.04em;
+  font-weight: 500;
   color: var(--text-secondary);
   padding: 16px 10px 4px;
 }
 .sidebar-badge {
   margin-left: auto;
+  min-width: 1.25rem;
+  text-align: center;
   font-size: 0.75rem;
   font-weight: 600;
   font-variant-numeric: tabular-nums;
   padding: 0 6px;
-  border-radius: var(--radius-control);
-  background: var(--sunken);
-  color: var(--text-secondary);
+  border-radius: 9999px;
+  background: var(--accent);
+  color: var(--on-accent);
 }
 .sidebar-logo-mark {
   width: 28px;
@@ -457,12 +452,14 @@
   border-radius: var(--radius-control);
   background: var(--accent);
   color: var(--on-accent);
-  font-size: 0.8125rem;
-  font-weight: 600;
+  font-size: 0.875rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
   display: flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.18), var(--shadow-control);
 }
 img.sidebar-logo-mark {
   background: transparent;
@@ -521,8 +518,8 @@ img.sidebar-logo-mark {
 .btn-primary-lift { transition: background-color var(--dur-fast) ease; }
 .btn-primary-lift:hover { background: var(--accent-hover) !important; }
 
-.card-hover-lift { transition: border-color var(--dur-fast) ease; }
-.card-hover-lift:hover { border-color: var(--control-border) !important; }
+.card-hover-lift { transition: border-color var(--dur-fast) ease, box-shadow var(--dur-fast) ease; }
+.card-hover-lift:hover { border-color: var(--hairline-strong) !important; box-shadow: var(--shadow-raised); }
 
 .btn-surface-1:hover { background: var(--canvas) !important; }
 .btn-surface-2:hover { background: var(--sunken) !important; }
@@ -551,11 +548,11 @@ img.sidebar-logo-mark {
 .btn-primary-tint:hover { background: var(--accent-soft) !important; }
 
 .input-focus { transition: border-color var(--dur-fast) ease, box-shadow var(--dur-fast) ease; }
-.input-focus:focus { border-color: var(--accent) !important; box-shadow: 0 0 0 1px var(--accent) !important; outline: none; }
+.input-focus:focus { border-color: var(--accent) !important; box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 22%, transparent) !important; outline: none; }
 .input-focus:not(:focus) { border-color: var(--control-border); box-shadow: none; }
 
 .input-focus-surface { transition: border-color var(--dur-fast) ease, box-shadow var(--dur-fast) ease, background-color var(--dur-fast) ease; }
-.input-focus-surface:focus { border-color: var(--accent) !important; box-shadow: 0 0 0 1px var(--accent) !important; background: var(--surface) !important; outline: none; }
+.input-focus-surface:focus { border-color: var(--accent) !important; box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 22%, transparent) !important; background: var(--surface) !important; outline: none; }
 .input-focus-surface:not(:focus) { border-color: var(--control-border); box-shadow: none; background: var(--surface); }
 
 /* Form input base */
@@ -574,7 +571,7 @@ img.sidebar-logo-mark {
 }
 .form-input-styled::placeholder { color: var(--text-secondary); }
 .form-input-styled:hover { border-color: var(--text-secondary); }
-.form-input-styled:focus { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent); }
+.form-input-styled:focus { border-color: var(--accent); box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 22%, transparent); }
 .form-input-styled.is-error { border-color: var(--danger); }
 .form-input-styled.is-error:focus { box-shadow: 0 0 0 1px var(--danger); }
 
@@ -595,6 +592,7 @@ img.sidebar-logo-mark {
   transition: background-color var(--dur-fast) ease;
   background: var(--accent);
   color: var(--on-accent);
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.12), var(--shadow-control);
   width: 100%;
 }
 .btn-brand:hover { background: var(--accent-hover); }
@@ -615,7 +613,8 @@ img.sidebar-logo-mark {
   transition: background-color var(--dur-fast) ease, border-color var(--dur-fast) ease;
   background: var(--surface);
   color: var(--text-primary);
-  border: 1px solid var(--control-border);
+  border: 1px solid var(--hairline-strong);
+  box-shadow: var(--shadow-control);
   width: 100%;
 }
 .btn-outline:hover { background: var(--sunken); }
@@ -653,7 +652,8 @@ img.sidebar-logo-mark {
   transition: background-color var(--dur-fast) ease;
   background: var(--surface);
   color: var(--text-primary);
-  border: 1px solid var(--control-border);
+  border: 1px solid var(--hairline-strong);
+  box-shadow: var(--shadow-control);
   width: 100%;
   text-decoration: none;
 }
@@ -681,6 +681,7 @@ img.sidebar-logo-mark {
   background: var(--surface);
   border: 1px solid var(--hairline);
   border-radius: var(--radius-panel);
+  box-shadow: var(--shadow-raised);
   padding: 2.5rem;
   width: 100%;
   max-width: 420px;
@@ -728,7 +729,7 @@ img.sidebar-logo-mark {
 }
 .form-datetime::placeholder { color: var(--text-secondary); font-weight: 400; }
 .form-datetime:hover { border-color: var(--text-secondary); }
-.form-datetime:focus { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent); }
+.form-datetime:focus { border-color: var(--accent); box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 22%, transparent); }
 /* Flatpickr alt-input inherits .form-datetime styling */
 .form-datetime.flatpickr-input + .form-datetime { cursor: pointer; }
 

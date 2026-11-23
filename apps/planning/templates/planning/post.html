@@ -17,9 +17,9 @@
 
     <section class="panel panel-body mb-6" aria-labelledby="stage-title">
         <h2 id="stage-title" class="section-title mb-3">Production stage</h2>
-        <ol class="flex flex-wrap gap-2">
+        <ol class="segmented">
             {% for value, label in stages %}
-            <li>{% if can_plan %}<form method="post" action="{% url 'planning:stage' workspace_id=workspace.id post_id=post.id %}">{% csrf_token %}<input type="hidden" name="stage" value="{{ value }}"><button type="submit" class="btn btn-sm {% if plan.stage == value %}btn-secondary{% else %}btn-quiet{% endif %}" aria-pressed="{% if plan.stage == value %}true{% else %}false{% endif %}">{{ forloop.counter }}. {{ label }}</button></form>{% else %}<span class="btn btn-sm {% if plan.stage == value %}btn-secondary{% else %}btn-quiet{% endif %}">{{ forloop.counter }}. {{ label }}</span>{% endif %}</li>
+            <li>{% if can_plan %}<form method="post" action="{% url 'planning:stage' workspace_id=workspace.id post_id=post.id %}">{% csrf_token %}<input type="hidden" name="stage" value="{{ value }}"><button type="submit" class="segment" aria-pressed="{% if plan.stage == value %}true{% else %}false{% endif %}">{{ forloop.counter }}. {{ label }}</button></form>{% else %}<span class="segment">{{ forloop.counter }}. {{ label }}</span>{% endif %}</li>
             {% endfor %}
         </ol>
         <p class="meta mt-2">Approval and publishing status stay with each platform version; this tracks how far the content itself has got.</p>

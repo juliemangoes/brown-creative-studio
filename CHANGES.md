@@ -9,6 +9,36 @@ live in new Django apps and new files; those are listed per entry but need no
 merge care. See [docs/fork/README.md](docs/fork/README.md) for the working rules
 and the upstream merge procedure.
 
+## 2026-11-23 · Modern redesign
+
+The owner asked for a more modern interface, replacing Phase 1's editorial direction.
+Tokens and components changed; markup changed only where noted. Details and the new
+rules are in [docs/fork/design-system.md](docs/fork/design-system.md).
+
+### Upstream files changed by hand
+
+| File | Change | Reason |
+|---|---|---|
+| `theme/static_src/src/styles.css` | New palette (warm-neutral canvas, white surface, `--hairline-strong`), `--shadow-card`/`--shadow-raised`/`--shadow-control` per theme, radii 8 px and 12 px, Geist as the only family (Instrument Serif `@font-face` removed), headings semibold by default, rail items as raised chips, soft focus halo on inputs, shadows on the upstream button/auth helpers. | Modern look. Contrast still verified by `apps/design_system/tests/test_tokens.py`. |
+| `templates/base.html` | Instrument Serif preload removed; rail loses its right border on desktop; the page column gets `.app-frame` (raised white frame on the canvas). | Modern shell. |
+| `static/favicon/site.webmanifest` | `background_color` follows the new canvas. | Matches the app. |
+| `templates/media_library/library_index.html` | `aria-label`/`aria-pressed` on the grid/list buttons, `aria-label` on the sort select. | axe `button-name`, `select-name` (found while checking the redesign). |
+| `templates/inbox/partials/_filter_bar.html` | `aria-label` on the four filter selects. | axe `select-name`. |
+| `templates/composer/partials/kanban_column.html` | `type`, `aria-label`, `aria-expanded` on the column menu button. | axe `button-name`. |
+
+Fork files changed: `components.css` (type, buttons, inputs, panels, pill status labels,
+tabs, tables, empty states, wordmark; new `.app-frame`, `.segmented`/`.segment`,
+`.stat-label`/`.stat-value`), the rail brand and top bar partials, the style guide,
+and the sub-navigation of Today, Clients, Plan, Brand, task status, post stage and the
+portal review period (now `.segmented`). `static/fonts/instrument-serif/` is deleted
+(fork-added in Phase 1, no longer used).
+
+### Changed test expectations
+
+- `apps/design_system/tests/test_tokens.py::test_spec_values_are_exact` checks the new
+  anchor values (canvas, surface, text, control border); the accent is unchanged. All
+  contrast checks are unchanged and pass.
+
 ## 2026-11-19 · Phase 3: client setup
 
 ### Upstream files changed by hand

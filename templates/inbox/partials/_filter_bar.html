@@ -17,7 +17,7 @@
     </div>
 
     <!-- Platform filter -->
-    <select name="platform" class="filter-select"
+    <select name="platform" class="filter-select" aria-label="Filter by platform"
             hx-get="{% url 'inbox:feed' workspace_id=workspace.id %}"
             hx-target="#inbox-message-list"
             hx-swap="innerHTML"
@@ -29,7 +29,7 @@
     </select>
 
     <!-- Type filter -->
-    <select name="type" class="filter-select"
+    <select name="type" class="filter-select" aria-label="Filter by type"
             hx-get="{% url 'inbox:feed' workspace_id=workspace.id %}"
             hx-target="#inbox-message-list"
             hx-swap="innerHTML"
@@ -42,7 +42,7 @@
     </select>
 
     <!-- Status filter -->
-    <select name="status" class="filter-select"
+    <select name="status" class="filter-select" aria-label="Filter by status"
             hx-get="{% url 'inbox:feed' workspace_id=workspace.id %}"
             hx-target="#inbox-message-list"
             hx-swap="innerHTML"
@@ -55,7 +55,7 @@
     </select>
 
     <!-- Sentiment filter -->
-    <select name="sentiment" class="filter-select"
+    <select name="sentiment" class="filter-select" aria-label="Filter by sentiment"
             hx-get="{% url 'inbox:feed' workspace_id=workspace.id %}"
             hx-target="#inbox-message-list"
             hx-swap="innerHTML"

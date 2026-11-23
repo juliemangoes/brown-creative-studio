@@ -1,5 +1,7 @@
-{# Top of the rail: the studio wordmark (monogram when collapsed). #}
-<div class="flex items-center h-14 px-4 border-b border-hairline flex-shrink-0" :class="sidebarCollapsed ? 'justify-center px-0' : ''">
-    <a href="{{ shell_all_clients_url|default:'/' }}" class="wordmark truncate" x-show="!sidebarCollapsed" aria-label="{{ SITE_NAME }}: all clients">{{ SITE_NAME }}</a>
-    <a href="{{ shell_all_clients_url|default:'/' }}" class="wordmark" x-show="sidebarCollapsed" x-cloak aria-label="{{ SITE_NAME }}: all clients">{{ SITE_NAME|make_list|first }}</a>
+{# Top of the rail: monogram and studio wordmark (monogram alone when collapsed). #}
+<div class="flex items-center h-14 px-4 flex-shrink-0" :class="sidebarCollapsed ? 'justify-center px-0' : ''">
+    <a href="{{ shell_all_clients_url|default:'/' }}" class="wordmark min-w-0" aria-label="{{ SITE_NAME }}: all clients">
+        <span class="sidebar-logo-mark" aria-hidden="true">{{ SITE_NAME|make_list|first }}</span>
+        <span class="truncate" x-show="!sidebarCollapsed">{{ SITE_NAME }}</span>
+    </a>
 </div>
