@@ -1,0 +1,5 @@
+{% load i18n %}{# English / Español, saved on the person's account. Context: request. #}
+<form method="post" action="{% url 'studio:set_language' %}" class="{{ class|default:'' }}" aria-label="{% translate 'Language' %}">{% csrf_token %}
+    <input type="hidden" name="next" value="{{ request.get_full_path }}">
+    <div class="segmented">{% get_current_language as current %}{% for code, name in LANGUAGES %}<button type="submit" name="language" value="{{ code }}" class="segment" lang="{{ code }}"{% if code == current %} aria-pressed="true"{% else %} aria-pressed="false"{% endif %}>{{ name }}</button>{% endfor %}</div>
+</form>

@@ -57,6 +57,7 @@ CLIENT_VIEWS = frozenset(
         "health_check",
         # Signed file links check the client's access themselves.
         "studio:file",
+        "studio:set_language",
         # Onboarding step 8 sends clients to BrightBean's account-connection page.
         "onboarding:connection_page",
         "onboarding:connection_oauth_start",
@@ -184,3 +185,35 @@ class PublicLinkRateLimitMiddleware:
                 return response
             cache.set(key, hits + 1, self.WINDOW)
         return self.get_response(request)
+
+
+class LanguageMiddleware:
+    """Activate the interface language for the request (see ``apps.studio.languages``)."""
+
+    def __init__(self, get_response):
+        self.get_response = get_response
+
+    def __call__(self, request):
+        from django.utils import translation
+
+        from apps.studio.languages import SUPPORTED, user_language
+
+        user = getattr(request, "user", None)
+        session = getattr(request, "session", {})
+        lang = ""
+        if user is not None and user.is_authenticated:
+            # A portal session belongs to one client; the studio's language for that client is the fallback.
+            portal_ws = session.get("portal_workspace_id") if session.get("is_portal_session") else None
+            lang = user_language(user, portal_ws)
+        if not lang:
+            lang = session.get("language", "")
+        if lang not in SUPPORTED:
+            browser = translation.get_language_from_request(request)
+            lang = (browser or "en").split("-")[0]
+            lang = lang if lang in SUPPORTED else "en"
+        translation.activate(lang)
+        request.LANGUAGE_CODE = lang
+        response = self.get_response(request)
+        response.headers.setdefault("Content-Language", lang)
+        translation.deactivate()
+        return response

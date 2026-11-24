@@ -322,6 +322,7 @@ class _Builder:
         self.cast = {
             "restaurant": restaurant,
             "skincare": skincare,
+            "realty": realty,
             "owner": owner,
             "team": team,
             "freelancer": freelancer,
@@ -878,6 +879,142 @@ class _Builder:
             media_asset_ids=[licensed.id],
         )
 
+    # ── Phase 5: billing, portal messages, languages ─────────────────────
+    def billing(self):
+        """Invoices in every state, proposals and contracts, a payment to confirm, and client messages."""
+        from apps.billing import services as bill
+        from apps.billing.models import CatalogItem, Invoice, Payment
+        from apps.clients.models import ClientProfile
+        from apps.conversations import services as talk
+        from apps.studio.languages import set_language
+
+        c = self.cast
+        casa, luma, vista, owner = c["restaurant"], c["skincare"], c["realty"], c["owner"]
+        ana, lia, marco = c["clients"]["ana"], c["clients"]["lia"], c["clients"]["marco"]
+        today = timezone.localdate(self.now)
+        td = timedelta
+
+        settings_row = bill.settings_for(self.org)
+        settings_row.legal_name = "Brown Creative Studio (demo)"
+        settings_row.address = "Burns Avenue\nSan Ignacio, Cayo\nBelize"
+        settings_row.tax_id = "DEMO-000000"
+        settings_row.email = f"billing@{DEMO_EMAIL_DOMAIN}"
+        settings_row.bank_details = "Demo Bank Belize · Brown Creative Studio · account 000-000000 (invented)"
+        settings_row.payment_instructions = "Transfers usually arrive within one working day."
+        settings_row.tax_name, settings_row.tax_rate = "GST (demo)", Decimal("12.5")
+        settings_row.footer_note = "Demo data: invented studio, accounts and amounts."
+        settings_row.save()
+        catalog = {
+            name: CatalogItem.objects.create(
+                organization=self.org,
+                name=name,
+                unit=unit,
+                unit_price=Decimal(price),
+                recurring=recurring,
+                service_kind=kind,
+            )
+            for name, unit, price, recurring, kind in (
+                ("Social media management", "month", "1800.00", True, "social_media"),
+                ("Brand identity", "project", "3000.00", False, "branding"),
+                ("Brand strategy workshop", "project", "900.00", False, "brand_strategy"),
+                ("Content shoot day", "day", "460.00", False, "social_media"),
+                ("Extra reel", "item", "150.00", False, "social_media"),
+            )
+        }
+
+        def issued(invoice, days_ago, *, due_days=14):
+            """Send it, then move its dates back as if it went out ``days_ago`` days ago."""
+            invoice = bill.send_invoice(invoice, owner, notify=False)
+            Invoice.objects.filter(pk=invoice.pk).update(
+                issue_date=today - td(days=days_ago), due_date=today - td(days=days_ago - due_days)
+            )
+            invoice.refresh_from_db()
+            return bill.recalculate(invoice, today=today)
+
+        def line(name, qty=1, **kw):
+            item = catalog[name]
+            return {"description": kw.pop("description", item.name), "quantity": qty, "unit_price": item.unit_price,
+                    "service_kind": item.service_kind, "catalog_item": item, **kw}  # fmt: skip
+
+        # Casa Maya: retainer invoices paid, current one with a receipt to confirm, extras overdue, next month drafted.
+        october = issued(bill.create_invoice(casa, owner, purpose="retainer", title="Social media, October",
+                                             lines=[line("Social media management")]), 50)  # fmt: skip
+        bill.record_payment(
+            october, owner, amount=october.balance, received_on=today - td(days=40), reference="TRF-10422"
+        )
+        november = issued(bill.create_invoice(casa, owner, purpose="retainer", title="Social media, November",
+                                              lines=[line("Social media management")]), 10)  # fmt: skip
+        bill.mark_viewed(november, ana)
+        bill.submit_payment_proof(
+            november, ana, amount=november.balance, upload=self._photo("transfer-receipt.png", (240, 238, 234), (40, 40, 40)),
+            reference="TRF-11873",
+        )  # fmt: skip
+        extras = issued(bill.create_invoice(casa, owner, purpose="extra", title="October extras",
+                                            lines=[line("Content shoot day"), line("Extra reel", 2)]), 30)  # fmt: skip
+        bill.record_payment(extras, owner, amount=Decimal("400.00"), received_on=today - td(days=12), reference="Cash at the shoot",
+                            method=Payment.Method.CASH)  # fmt: skip
+        credit = bill.create_credit_note(extras, owner, amount=Decimal("168.75"), reason="One extra reel not delivered")
+        bill.send_invoice(credit, owner, notify=False)
+        bill.create_invoice(
+            casa, None, purpose="retainer", title="Social media, December", lines=[line("Social media management")]
+        )
+
+        # Luma: brand refresh signed and deposit paid; a new proposal waiting; a USD invoice (pegged 2:1).
+        brand = bill.create_proposal(
+            luma, owner, title="Luma brand refresh", services=["branding"], deposit_percent=Decimal("50"), start_onboarding=False,
+            lines=[{"description": "Brand identity", "unit_price": Decimal("3000.00"), "catalog_item": catalog["Brand identity"]}],
+        )  # fmt: skip
+        bill.send_proposal(brand, owner, notify=False)
+        accepted = bill.accept_proposal(brand, lia, name="Lia Chen", agreed=True)
+        bill.sign_contract(accepted["contract"], lia, name="Lia Chen", agreed=True, ip="203.0.113.24")
+        if accepted["invoice"]:
+            bill.record_payment(accepted["invoice"], owner, amount=accepted["invoice"].balance, reference="TRF-20811")
+        offer = bill.create_proposal(
+            luma, owner, title="Luma social media 2027", services=["social_media"], deposit_percent=Decimal("0"),
+            start_onboarding=False,
+            lines=[{"description": "Brand strategy workshop", "unit_price": Decimal("900.00"),
+                    "catalog_item": catalog["Brand strategy workshop"]},
+                   {"description": "Social media management", "unit_price": Decimal("1800.00"), "recurring": True,
+                    "catalog_item": catalog["Social media management"]}],
+        )  # fmt: skip
+        bill.send_proposal(offer, owner, notify=False)
+        usd = bill.create_invoice(luma, owner, purpose="extra", title="Influencer kit shipping", currency="USD",
+                                  exchange_rate=Decimal("2.000000"), lines=[{"description": "Courier, Belize City to Miami",
+                                                                       "unit_price": Decimal("85.00"), "tax_rate": 0}])  # fmt: skip
+        issued(usd, 5)
+
+        # Vista Realty (onboarding): the contract is out for signature and the deposit invoice is sent.
+        listing = bill.create_proposal(
+            vista, owner, title="Vista Realty listings content", services=["social_media"], deposit_percent=Decimal("50"),
+            start_onboarding=False,
+            lines=[{"description": "Listing photo and video package", "unit_price": Decimal("2400.00")}],
+        )  # fmt: skip
+        bill.send_proposal(listing, owner, notify=False)
+        listing.status = listing.Status.ACCEPTED
+        listing.accepted_name, listing.decided_by, listing.decided_at = "Marco Ruiz", marco, self.now - td(days=3)
+        listing.save()
+        contract = bill.create_contract(vista, owner, proposal=listing)
+        bill.send_contract(contract, owner, notify=False)
+        deposit = bill.create_invoice(vista, owner, purpose="deposit", title=f"Deposit for {listing.number}", proposal=listing,
+                                      lines=[{"description": "Deposit (50%) for listings content", "unit_price": Decimal("1200.00")}])  # fmt: skip
+        issued(deposit, 2)
+
+        # Messages tied to items.
+        thread = talk.start(casa, ana, subject="", body="Hi! Can we split the November payment in two this time?",
+                            from_client=True, about="invoice", about_id=november.id)  # fmt: skip
+        talk.reply(
+            thread,
+            owner,
+            "Of course. Pay half now and half by the 15th; I've noted it on the invoice.",
+            from_client=False,
+        )
+        talk.start(luma, lia, subject="Night serum launch date", body="Could we move the launch posts to the 12th?",
+                   from_client=True)  # fmt: skip
+
+        # Languages: Marco reads the portal in Spanish; Vista's portal defaults to Spanish.
+        ClientProfile.objects.filter(workspace=vista).update(portal_language="es")
+        set_language(marco, "es")
+
 
 def seed_demo(now=None) -> DemoResult:
     from apps.reviews.services import bypass
@@ -889,4 +1026,5 @@ def seed_demo(now=None) -> DemoResult:
         result = builder.build()
     # Phase 4's walk-through runs with the review rules on, like real work.
     builder.content_operations()
+    builder.billing()
     return result

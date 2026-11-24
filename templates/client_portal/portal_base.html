@@ -1,6 +1,6 @@
-{% load static %}
+{% load static i18n %}
 <!DOCTYPE html>
-<html lang="en">
+{% get_current_language as LANG %}<html lang="{{ LANG }}">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -35,15 +35,16 @@
                     <span class="client-name truncate">{{ workspace.name }}</span>
                 </div>
                 <div class="flex items-center gap-4 flex-shrink-0">
-                    <span class="hidden sm:inline text-13 text-ink-muted">with <span class="font-display text-16 text-ink">{{ SITE_NAME }}</span></span>
-                    <a href="{% url 'accounts:logout' %}" class="text-14 text-ink-muted underline underline-offset-2 hover:text-ink">Log out</a>
+                    <span class="hidden sm:inline text-13 text-ink-muted">{% blocktranslate with studio=SITE_NAME %}with <span class="font-display text-16 text-ink">{{ studio }}</span>{% endblocktranslate %}</span>
+                    {% include "studio/_language_choice.html" with class="hidden sm:block" %}
+                    <a href="{% url 'accounts:logout' %}" class="text-14 text-ink-muted underline underline-offset-2 hover:text-ink">{% translate "Log out" %}</a>
                 </div>
             </div>
-            <nav class="tabs border-b-0 -mb-px" aria-label="Portal">
-            <a href="{% url 'client_portal:dashboard' %}" class="tab flex-shrink-0"{% if request.resolver_match.url_name == 'dashboard' %} aria-current="page"{% endif %}>Home</a>
-            <a href="{% url 'client_portal:approval_queue' %}" class="tab flex-shrink-0"{% if request.resolver_match.url_name == 'approval_queue' %} aria-current="page"{% endif %}>Approvals</a>
-            <a href="{% url 'client_portal:published' %}" class="tab flex-shrink-0"{% if request.resolver_match.url_name == 'published' %} aria-current="page"{% endif %}>Published</a>
-            <a href="{% url 'client_portal:activity' %}" class="tab flex-shrink-0"{% if request.resolver_match.url_name == 'activity' and request.resolver_match.namespace == 'client_portal' %} aria-current="page"{% endif %}>Activity</a>
+            <nav class="tabs border-b-0 -mb-px" aria-label="{% translate 'Portal' %}">
+            <a href="{% url 'client_portal:dashboard' %}" class="tab flex-shrink-0"{% if request.resolver_match.url_name == 'dashboard' %} aria-current="page"{% endif %}>{% translate "Home" %}</a>
+            <a href="{% url 'client_portal:approval_queue' %}" class="tab flex-shrink-0"{% if request.resolver_match.url_name == 'approval_queue' %} aria-current="page"{% endif %}>{% translate "Approvals" %}</a>
+            <a href="{% url 'client_portal:published' %}" class="tab flex-shrink-0"{% if request.resolver_match.url_name == 'published' %} aria-current="page"{% endif %}>{% translate "Published" %}</a>
+            <a href="{% url 'client_portal:activity' %}" class="tab flex-shrink-0"{% if request.resolver_match.url_name == 'activity' and request.resolver_match.namespace == 'client_portal' %} aria-current="page"{% endif %}>{% translate "Activity" %}</a>
             {# Brown Creative Studio (CHANGES.md): sections from the fork's apps (apps.studio.portal). #}
             {% for section in portal_sections %}<a href="{{ section.url }}" class="tab flex-shrink-0"{% if section.active %} aria-current="page"{% endif %}>{{ section.label }}</a>{% endfor %}
             </nav>
@@ -62,6 +63,7 @@
         </div>
         {% endfor %}
         {% block content %}{% endblock %}
+        {% include "studio/_language_choice.html" with class="sm:hidden mt-10 flex justify-center" %}
     </main>
 
     {% include "about/_public_footer.html" %}

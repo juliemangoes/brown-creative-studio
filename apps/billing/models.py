@@ -14,6 +14,7 @@ from decimal import ROUND_HALF_UP, Decimal
 from django.conf import settings
 from django.db import models
 from django.utils import timezone
+from django.utils.translation import gettext_lazy as _
 
 from apps.common.managers import WorkspaceScopedModel
 from apps.studio.files import PrivateFile
@@ -78,11 +79,11 @@ class CatalogItem(models.Model):
     """A service the studio sells, reused on proposals and invoices."""
 
     class Unit(models.TextChoices):
-        MONTH = "month", "per month"
-        PROJECT = "project", "per project"
-        DAY = "day", "per day"
-        ITEM = "item", "each"
-        HOUR = "hour", "per hour"
+        MONTH = "month", _("per month")
+        PROJECT = "project", _("per project")
+        DAY = "day", _("per day")
+        ITEM = "item", _("each")
+        HOUR = "hour", _("per hour")
 
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     organization = models.ForeignKey("organizations.Organization", on_delete=models.CASCADE, related_name="+")
@@ -107,8 +108,8 @@ class DocumentTemplate(models.Model):
     """Reusable proposal introductions and contract terms. ``{{ client }}``-style fields are filled in."""
 
     class Kind(models.TextChoices):
-        PROPOSAL = "proposal", "Proposal"
-        CONTRACT = "contract", "Contract"
+        PROPOSAL = "proposal", _("Proposal")
+        CONTRACT = "contract", _("Contract")
 
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     organization = models.ForeignKey("organizations.Organization", on_delete=models.CASCADE, related_name="+")
@@ -131,12 +132,12 @@ class DocumentTemplate(models.Model):
 
 class Proposal(WorkspaceScopedModel):
     class Status(models.TextChoices):
-        DRAFT = "draft", "Draft"
-        SENT = "sent", "Sent"
-        VIEWED = "viewed", "Viewed"
-        ACCEPTED = "accepted", "Accepted"
-        DECLINED = "declined", "Declined"
-        WITHDRAWN = "withdrawn", "Withdrawn"
+        DRAFT = "draft", _("Draft")
+        SENT = "sent", _("Sent")
+        VIEWED = "viewed", _("Viewed")
+        ACCEPTED = "accepted", _("Accepted")
+        DECLINED = "declined", _("Declined")
+        WITHDRAWN = "withdrawn", _("Withdrawn")
 
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     number = models.CharField(max_length=30, blank=True, default="")
@@ -209,11 +210,11 @@ class ProposalLine(models.Model):
 
 class Contract(WorkspaceScopedModel):
     class Status(models.TextChoices):
-        DRAFT = "draft", "Draft"
-        SENT = "sent", "Sent for signature"
-        VIEWED = "viewed", "Viewed"
-        SIGNED = "signed", "Signed"
-        VOID = "void", "Void"
+        DRAFT = "draft", _("Draft")
+        SENT = "sent", _("Sent for signature")
+        VIEWED = "viewed", _("Viewed")
+        SIGNED = "signed", _("Signed")
+        VOID = "void", _("Void")
 
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     proposal = models.ForeignKey(Proposal, on_delete=models.SET_NULL, null=True, blank=True, related_name="contracts")
@@ -255,24 +256,24 @@ class Contract(WorkspaceScopedModel):
 
 class Invoice(WorkspaceScopedModel):
     class Kind(models.TextChoices):
-        INVOICE = "invoice", "Invoice"
-        CREDIT_NOTE = "credit_note", "Credit note"
+        INVOICE = "invoice", _("Invoice")
+        CREDIT_NOTE = "credit_note", _("Credit note")
 
     class Status(models.TextChoices):
-        DRAFT = "draft", "Draft"
-        SENT = "sent", "Sent"
-        VIEWED = "viewed", "Viewed"
-        PARTLY_PAID = "partly_paid", "Partly paid"
-        PAID = "paid", "Paid"
-        OVERDUE = "overdue", "Overdue"
-        VOID = "void", "Void"
+        DRAFT = "draft", _("Draft")
+        SENT = "sent", _("Sent")
+        VIEWED = "viewed", _("Viewed")
+        PARTLY_PAID = "partly_paid", _("Partly paid")
+        PAID = "paid", _("Paid")
+        OVERDUE = "overdue", _("Overdue")
+        VOID = "void", _("Void")
 
     class Purpose(models.TextChoices):
-        DEPOSIT = "deposit", "Deposit"
-        MILESTONE = "milestone", "Milestone"
-        ONE_TIME = "one_time", "One-time"
-        RETAINER = "retainer", "Monthly retainer"
-        EXTRA = "extra", "Extras"
+        DEPOSIT = "deposit", _("Deposit")
+        MILESTONE = "milestone", _("Milestone")
+        ONE_TIME = "one_time", _("One-time")
+        RETAINER = "retainer", _("Monthly retainer")
+        EXTRA = "extra", _("Extras")
 
     OPEN_STATUSES = (Status.SENT, Status.VIEWED, Status.PARTLY_PAID, Status.OVERDUE)
 
@@ -283,7 +284,7 @@ class Invoice(WorkspaceScopedModel):
     purpose = models.CharField(max_length=10, choices=Purpose.choices, default=Purpose.ONE_TIME)
     title = models.CharField(max_length=200, blank=True, default="")
     credits = models.ForeignKey(
-        "self", on_delete=models.PROTECT, null=True, blank=True, related_name="credit_notes",
+        "self", on_delete=models.CASCADE, null=True, blank=True, related_name="credit_notes",
         help_text="For a credit note: the invoice it reduces.",
     )  # fmt: skip
     proposal = models.ForeignKey(Proposal, on_delete=models.SET_NULL, null=True, blank=True, related_name="invoices")
@@ -391,19 +392,20 @@ class InvoiceLine(models.Model):
 
 class Payment(WorkspaceScopedModel):
     class Method(models.TextChoices):
-        BANK_TRANSFER = "bank_transfer", "Bank transfer"
-        CASH = "cash", "Cash"
-        CHEQUE = "cheque", "Cheque"
-        CARD = "card", "Card (online)"
-        OTHER = "other", "Other"
+        BANK_TRANSFER = "bank_transfer", _("Bank transfer")
+        CASH = "cash", _("Cash")
+        CHEQUE = "cheque", _("Cheque")
+        CARD = "card", _("Card (online)")
+        OTHER = "other", _("Other")
 
     class Status(models.TextChoices):
-        PENDING = "pending", "Waiting for the studio to confirm"
-        CONFIRMED = "confirmed", "Confirmed"
-        REJECTED = "rejected", "Not received"
+        PENDING = "pending", _("Waiting for the studio to confirm")
+        CONFIRMED = "confirmed", _("Confirmed")
+        REJECTED = "rejected", _("Not received")
 
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    invoice = models.ForeignKey(Invoice, on_delete=models.PROTECT, related_name="payments")
+    # Deleting a sent invoice is refused in the services (drafts only); deleting a client deletes it all.
+    invoice = models.ForeignKey(Invoice, on_delete=models.CASCADE, related_name="payments")
     amount = models.DecimalField(max_digits=12, decimal_places=2)
     currency = models.CharField(max_length=3)
     method = models.CharField(max_length=15, choices=Method.choices, default=Method.BANK_TRANSFER)
@@ -455,13 +457,13 @@ class TaxDocument(WorkspaceScopedModel):
     """A certified tax document issued by an authorised provider for an invoice. The app never makes one up."""
 
     class Status(models.TextChoices):
-        REQUESTED = "requested", "Requested"
-        ISSUED = "issued", "Issued"
-        FAILED = "failed", "Failed"
-        CANCELLED = "cancelled", "Cancelled"
+        REQUESTED = "requested", _("Requested")
+        ISSUED = "issued", _("Issued")
+        FAILED = "failed", _("Failed")
+        CANCELLED = "cancelled", _("Cancelled")
 
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    invoice = models.OneToOneField(Invoice, on_delete=models.PROTECT, related_name="tax_document")
+    invoice = models.OneToOneField(Invoice, on_delete=models.CASCADE, related_name="tax_document")
     provider = models.CharField(max_length=20)
     status = models.CharField(max_length=10, choices=Status.choices, default=Status.REQUESTED)
     official_number = models.CharField(max_length=120, blank=True, default="")

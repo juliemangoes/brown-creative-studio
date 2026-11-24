@@ -14,6 +14,7 @@ from decimal import Decimal
 from django.conf import settings
 from django.db import transaction
 from django.utils import timezone
+from django.utils.translation import gettext as _
 
 from apps.audit.services import record
 from apps.billing.adapters import provider
@@ -191,7 +192,7 @@ def _refresh_status(invoice, today: date) -> None:
     if invoice.status in (Invoice.Status.DRAFT, Invoice.Status.VOID):
         return
     if invoice.is_credit_note:
-        invoice.status = Invoice.Status.PAID  # issued and applied
+        invoice.status = Invoice.Status.SENT  # issued; it applies to its invoice when sent
         return
     if invoice.total > 0 and invoice.balance <= 0:
         if invoice.status != Invoice.Status.PAID:
@@ -323,7 +324,9 @@ def _notify_client(workspace, *, subject, template, context) -> list[str]:
     """Email billing people: portal users get a sign-in link; others the document's share link."""
     from django.core.mail import EmailMultiAlternatives
     from django.template.loader import render_to_string
+    from django.utils import translation
 
+    from apps.clients.services import profile_for
     from apps.common.mail import send_or_raise, transactional
     from apps.studio.portal import send_portal_email
 
@@ -332,16 +335,18 @@ def _notify_client(workspace, *, subject, template, context) -> list[str]:
     for user in users:
         if send_portal_email(user, workspace, subject=subject, template=template, context=context):
             sent.append(user.email)
+    language = profile_for(workspace).portal_language or settings.LANGUAGE_CODE
     for email in emails:
         ctx = {**context, "workspace": workspace, "site_name": settings.SITE_NAME, "portal_url": ""}
-        msg = EmailMultiAlternatives(
-            subject=subject,
-            body=render_to_string(f"{template}.txt", ctx),
-            from_email=settings.DEFAULT_FROM_EMAIL,
-            to=[email],
-            headers=transactional(),
-        )
-        msg.attach_alternative(render_to_string(f"{template}.html", ctx), "text/html")
+        with translation.override(language):
+            msg = EmailMultiAlternatives(
+                subject=subject() if callable(subject) else str(subject),
+                body=render_to_string(f"{template}.txt", ctx),
+                from_email=settings.DEFAULT_FROM_EMAIL,
+                to=[email],
+                headers=transactional(),
+            )
+            msg.attach_alternative(render_to_string(f"{template}.html", ctx), "text/html")
         try:
             send_or_raise(msg)
             sent.append(email)
@@ -406,7 +411,10 @@ def send_invoice(invoice, actor, *, notify=True, today: date | None = None) -> I
 def _notify_sent(invoice):
     _notify_client(
         invoice.workspace,
-        subject=f"{settings.SITE_NAME}: {invoice.get_kind_display().lower()} {invoice.number}",
+        subject=lambda: (
+            (_("%(studio)s: credit note %(number)s") if invoice.is_credit_note else _("%(studio)s: invoice %(number)s"))
+            % {"studio": settings.SITE_NAME, "number": invoice.number}
+        ),
         template="billing/email/invoice_sent",
         context={"invoice": invoice, "share_url": share_url(invoice)},
     )
@@ -793,7 +801,9 @@ def send_proposal(proposal, actor, *, notify=True) -> Proposal:
         transaction.on_commit(
             lambda: _notify_client(
                 proposal.workspace,
-                subject=f"{settings.SITE_NAME}: proposal {proposal.number}",
+                subject=lambda: (
+                    _("%(studio)s: proposal %(number)s") % {"studio": settings.SITE_NAME, "number": proposal.number}
+                ),
                 template="billing/email/proposal_sent",
                 context={"proposal": proposal},
             )
@@ -1031,7 +1041,7 @@ def send_contract(contract, actor, *, notify=True) -> Contract:
         transaction.on_commit(
             lambda: _notify_client(
                 contract.workspace,
-                subject=f"{settings.SITE_NAME}: a contract to sign",
+                subject=lambda: _("%(studio)s: a contract to sign") % {"studio": settings.SITE_NAME},
                 template="billing/email/contract_sent",
                 context={"contract": contract},
             )
@@ -1132,11 +1142,15 @@ def send_reminders(today: date | None = None, grace_days: int = 3) -> int:
             continue
         recipients = _notify_client(
             invoice.workspace,
-            subject=(
-                f"{settings.SITE_NAME}: {invoice.number} is due "
-                + ("today" if offset == 0 else f"on {invoice.due_date:%d %b}")
-                if offset <= 0
-                else f"{settings.SITE_NAME}: {invoice.number} is overdue"
+            subject=lambda offset=offset, invoice=invoice: (
+                (
+                    _("%(studio)s: invoice %(number)s is due today")
+                    if offset == 0
+                    else _("%(studio)s: invoice %(number)s is due on %(date)s")
+                    if offset < 0
+                    else _("%(studio)s: invoice %(number)s is overdue")
+                )
+                % {"studio": settings.SITE_NAME, "number": invoice.number, "date": invoice.due_date.strftime("%d/%m")}
             ),
             template="billing/email/reminder",
             context={"invoice": invoice, "offset": offset, "share_url": share_url(invoice)},

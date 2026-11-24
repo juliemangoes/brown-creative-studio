@@ -7,7 +7,7 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
 WORKDIR /app
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    libpq-dev gcc curl ffmpeg \
+    libpq-dev gcc curl ffmpeg gettext \
     && rm -rf /var/lib/apt/lists/*
 
 # Install Node.js for Tailwind build
@@ -22,6 +22,12 @@ COPY . .
 
 # Build Tailwind CSS
 RUN cd theme/static_src && npm ci && npm run build
+
+# Brown Creative Studio (CHANGES.md): compile the Spanish translations (locale/*.po).
+RUN DJANGO_SETTINGS_MODULE=config.settings.production \
+    SECRET_KEY=build-placeholder \
+    DATABASE_URL=sqlite:///tmp/build.db \
+    python manage.py compilemessages --ignore=".venv/*"
 
 # Collect static files
 RUN DJANGO_SETTINGS_MODULE=config.settings.production \

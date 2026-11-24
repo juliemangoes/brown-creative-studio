@@ -27,10 +27,10 @@ class Command(BaseCommand):
             raise CommandError(
                 "seed_demo only runs with DEBUG on. Use --force on a staging server, never on production."
             )
-        if demo_exists():
-            if not reset:
-                raise CommandError(f'"{DEMO_ORG_NAME}" already exists. Run with --reset to replace it.')
-            remove_demo()
+        if demo_exists() and not reset:
+            raise CommandError(f'"{DEMO_ORG_NAME}" already exists. Run with --reset to replace it.')
+        if reset:
+            remove_demo()  # also clears demo users left behind by a removed or half-built demo
             self.stdout.write("Removed the previous demo.")
 
         result = seed_demo()

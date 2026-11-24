@@ -120,6 +120,11 @@ jobs:
       - name: makemigrations --check
         run: python manage.py makemigrations --check --dry-run
 
+      - name: Compile translations
+        run: |
+          sudo apt-get install -y --no-install-recommends gettext
+          python manage.py compilemessages --ignore=".venv/*"
+
       - name: pytest
         run: pytest --cov=apps --cov-report=term-missing
 
