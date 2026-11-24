@@ -293,3 +293,32 @@ def test_finance_summary_in_the_base_currency(studio):
     assert summary["outstanding"] == Decimal("1000.00") + usd.total * 2
     assert summary["collected_ytd"] == Decimal("125.00") and summary["mrr"] == Decimal("1800.00")
     assert ProposalLine.objects.count() == 0
+
+
+def test_the_package_sets_the_retainer_scope(studio):
+    """Posts per month come from the package sold, not from a default."""
+    from apps.billing.models import CatalogItem
+
+    package = CatalogItem.objects.create(
+        organization=studio["org"], name="Social: Growth", unit="month", unit_price=Decimal("2400"), recurring=True,
+        posts_per_month=16, reels_per_month=6, shoot_days_per_month=2,
+    )  # fmt: skip
+    ws = studio["skincare"]
+    proposal = services.create_proposal(
+        ws, studio["owner"], title="Growth", services=["social_media"], deposit_percent=Decimal("0"),
+        start_onboarding=False, contract_template=None,
+        lines=[{"description": package.name, "unit_price": package.unit_price, "recurring": True, "catalog_item": package}],
+    )  # fmt: skip
+    assert proposal.package() == {"posts": 16, "reels": 6, "stories": 0, "shoot_days": 2}
+    services.send_proposal(proposal, studio["owner"], notify=False)
+    services.accept_proposal(proposal, studio["skincare_client"], name="Lia", agreed=True)
+    retainer = Retainer.current_for(ws)
+    assert (retainer.posts_per_month, retainer.reels_per_month, retainer.shoot_days_per_month) == (16, 6, 2)
+    assert retainer.monthly_fee == Decimal("2400.00")
+
+
+def test_no_package_means_no_runway_target(studio):
+    from apps.clients.health import runway_signal
+
+    signal = runway_signal(studio["restaurant"], timezone.now(), None)
+    assert signal.tone == "neutral" and "posts per month" in signal.detail

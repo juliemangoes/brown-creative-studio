@@ -230,7 +230,7 @@ def content_gaps(workspaces, profiles, now) -> list[dict]:
         if social and social.status != ServiceLine.Status.ACTIVE:
             continue  # social media is paused or ended for this client
         signal = runway_signal(ws, now, Retainer.current_for(ws))
-        if signal.tone != "success":
+        if signal.tone in ("warning", "danger"):  # no package means nothing to measure against
             rows.append({"workspace": ws, "signal": signal})
     rows.sort(key=lambda r: (r["signal"].tone != "danger", r["workspace"].name))
     return rows

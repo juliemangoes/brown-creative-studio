@@ -94,6 +94,11 @@ class CatalogItem(models.Model):
     unit_price = models.DecimalField(max_digits=12, decimal_places=2, default=ZERO)
     currency = models.CharField(max_length=3, default=_default_currency)
     recurring = models.BooleanField(default=False, help_text="Billed every month (a retainer).")
+    # What a monthly package includes: it becomes the client's retainer scope when a proposal is accepted.
+    posts_per_month = models.PositiveSmallIntegerField(default=0)
+    reels_per_month = models.PositiveSmallIntegerField(default=0)
+    stories_per_month = models.PositiveSmallIntegerField(default=0)
+    shoot_days_per_month = models.PositiveSmallIntegerField(default=0)
     is_active = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
@@ -183,6 +188,19 @@ class Proposal(WorkspaceScopedModel):
 
     def monthly_total(self) -> Decimal:
         return money(sum((line.total for line in self.lines.all() if line.recurring), ZERO))
+
+    def package(self) -> dict:
+        """What the monthly lines include, from their catalog packages (times the quantity)."""
+        totals = {"posts": 0, "reels": 0, "stories": 0, "shoot_days": 0}
+        for line in self.lines.all():
+            item = line.catalog_item
+            if line.recurring and item is not None:
+                qty = int(line.quantity)
+                totals["posts"] += item.posts_per_month * qty
+                totals["reels"] += item.reels_per_month * qty
+                totals["stories"] += item.stories_per_month * qty
+                totals["shoot_days"] += item.shoot_days_per_month * qty
+        return totals
 
     def deposit_amount(self) -> Decimal:
         return money(self.one_off_total() * self.deposit_percent / 100)

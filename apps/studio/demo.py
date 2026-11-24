@@ -901,24 +901,28 @@ class _Builder:
         settings_row.email = f"billing@{DEMO_EMAIL_DOMAIN}"
         settings_row.bank_details = "Demo Bank Belize · Brown Creative Studio · account 000-000000 (invented)"
         settings_row.payment_instructions = "Transfers usually arrive within one working day."
-        settings_row.tax_name, settings_row.tax_rate = "GST (demo)", Decimal("12.5")
+        settings_row.tax_name, settings_row.tax_rate = "", Decimal("0")  # the studio charges no tax for now
         settings_row.footer_note = "Demo data: invented studio, accounts and amounts."
         settings_row.save()
+        packages = {"posts_per_month": 12, "reels_per_month": 4, "stories_per_month": 8, "shoot_days_per_month": 1}
+        growth = {"posts_per_month": 16, "reels_per_month": 6, "stories_per_month": 12, "shoot_days_per_month": 2}
         catalog = {
             name: CatalogItem.objects.create(
                 organization=self.org,
                 name=name,
                 unit=unit,
                 unit_price=Decimal(price),
-                recurring=recurring,
+                recurring=bool(scope),
                 service_kind=kind,
-            )
-            for name, unit, price, recurring, kind in (
-                ("Social media management", "month", "1800.00", True, "social_media"),
-                ("Brand identity", "project", "3000.00", False, "branding"),
-                ("Brand strategy workshop", "project", "900.00", False, "brand_strategy"),
-                ("Content shoot day", "day", "460.00", False, "social_media"),
-                ("Extra reel", "item", "150.00", False, "social_media"),
+                **(scope or {}),
+            )  # fmt: skip
+            for name, unit, price, scope, kind in (
+                ("Social media management", "month", "1800.00", packages, "social_media"),
+                ("Social media management: Growth", "month", "2400.00", growth, "social_media"),
+                ("Brand identity", "project", "3000.00", None, "branding"),
+                ("Brand strategy workshop", "project", "900.00", None, "brand_strategy"),
+                ("Content shoot day", "day", "460.00", None, "social_media"),
+                ("Extra reel", "item", "150.00", None, "social_media"),
             )
         }
 

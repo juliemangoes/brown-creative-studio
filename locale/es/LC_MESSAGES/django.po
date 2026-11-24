@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-11-24 04:00+0000\n"
+"POT-Creation-Date: 2026-11-24 19:34+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -19,12 +19,10 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
 #: apps/billing/models.py:82
-#| msgid "Each month"
 msgid "per month"
 msgstr "al mes"
 
 #: apps/billing/models.py:83
-#| msgid "Brand project"
 msgid "per project"
 msgstr "por proyecto"
 
@@ -40,151 +38,143 @@ msgstr "cada uno"
 msgid "per hour"
 msgstr "por hora"
 
-#: apps/billing/models.py:111
+#: apps/billing/models.py:116
 #: apps/billing/templates/billing/portal/proposal.html:6
 msgid "Proposal"
 msgstr "Propuesta"
 
-#: apps/billing/models.py:112
+#: apps/billing/models.py:117
 #: apps/billing/templates/billing/portal/contract.html:6
 msgid "Contract"
 msgstr "Contrato"
 
-#: apps/billing/models.py:135 apps/billing/models.py:213
-#: apps/billing/models.py:263 apps/billing/templates/billing/_document.html:10
+#: apps/billing/models.py:140 apps/billing/models.py:231
+#: apps/billing/models.py:281 apps/billing/templates/billing/_document.html:10
 msgid "Draft"
 msgstr "Borrador"
 
-#: apps/billing/models.py:136 apps/billing/models.py:264
+#: apps/billing/models.py:141 apps/billing/models.py:282
 msgid "Sent"
 msgstr "Enviada"
 
-#: apps/billing/models.py:137 apps/billing/models.py:215
-#: apps/billing/models.py:265
+#: apps/billing/models.py:142 apps/billing/models.py:233
+#: apps/billing/models.py:283
 msgid "Viewed"
 msgstr "Vista"
 
-#: apps/billing/models.py:138
+#: apps/billing/models.py:143
 msgid "Accepted"
 msgstr "Aceptada"
 
-#: apps/billing/models.py:139
-#| msgid "Decline"
+#: apps/billing/models.py:144
 msgid "Declined"
 msgstr "Rechazada"
 
-#: apps/billing/models.py:140
+#: apps/billing/models.py:145
 msgid "Withdrawn"
 msgstr "Retirada"
 
-#: apps/billing/models.py:214
+#: apps/billing/models.py:232
 msgid "Sent for signature"
 msgstr "Enviado para firma"
 
-#: apps/billing/models.py:216
-#| msgid "Sign"
+#: apps/billing/models.py:234
 msgid "Signed"
 msgstr "Firmado"
 
-#: apps/billing/models.py:217 apps/billing/models.py:269
+#: apps/billing/models.py:235 apps/billing/models.py:287
 msgid "Void"
 msgstr "Anulada"
 
-#: apps/billing/models.py:259
+#: apps/billing/models.py:277
 #: apps/billing/templates/billing/portal/index.html:29
 msgid "Invoice"
 msgstr "Factura"
 
-#: apps/billing/models.py:260
-#| msgid "Credit notes"
+#: apps/billing/models.py:278
 msgid "Credit note"
 msgstr "Nota de crédito"
 
-#: apps/billing/models.py:266
+#: apps/billing/models.py:284
 msgid "Partly paid"
 msgstr "Pago parcial"
 
-#: apps/billing/models.py:267 apps/billing/templates/billing/_document.html:46
+#: apps/billing/models.py:285 apps/billing/templates/billing/_document.html:46
 #: apps/billing/templates/billing/portal/index.html:28
 msgid "Paid"
 msgstr "Pagado"
 
-#: apps/billing/models.py:268
+#: apps/billing/models.py:286
 msgid "Overdue"
 msgstr "Vencida"
 
-#: apps/billing/models.py:272
+#: apps/billing/models.py:290
 msgid "Deposit"
 msgstr "Anticipo"
 
-#: apps/billing/models.py:273
+#: apps/billing/models.py:291
 msgid "Milestone"
 msgstr "Hito"
 
-#: apps/billing/models.py:274
+#: apps/billing/models.py:292
 msgid "One-time"
 msgstr "Pago único"
 
-#: apps/billing/models.py:275
-#| msgid "Monthly"
+#: apps/billing/models.py:293
 msgid "Monthly retainer"
 msgstr "Iguala mensual"
 
-#: apps/billing/models.py:276
+#: apps/billing/models.py:294
 msgid "Extras"
 msgstr "Adicionales"
 
-#: apps/billing/models.py:395
+#: apps/billing/models.py:413
 #: apps/billing/templates/billing/portal/_pay.html:17
 msgid "Bank transfer"
 msgstr "Transferencia bancaria"
 
-#: apps/billing/models.py:396
+#: apps/billing/models.py:414
 msgid "Cash"
 msgstr "Efectivo"
 
-#: apps/billing/models.py:397
+#: apps/billing/models.py:415
 msgid "Cheque"
 msgstr "Cheque"
 
-#: apps/billing/models.py:398
+#: apps/billing/models.py:416
 msgid "Card (online)"
 msgstr "Tarjeta (en línea)"
 
-#: apps/billing/models.py:399
-#| msgid "there"
+#: apps/billing/models.py:417
 msgid "Other"
 msgstr "Otro"
 
-#: apps/billing/models.py:402
+#: apps/billing/models.py:420
 msgid "Waiting for the studio to confirm"
 msgstr "Esperando la confirmación del estudio"
 
-#: apps/billing/models.py:403 apps/shoots/models.py:24
+#: apps/billing/models.py:421 apps/shoots/models.py:24
 #: apps/shoots/templates/shoots/portal/index.html:11
 msgid "Confirmed"
 msgstr "Confirmada"
 
-#: apps/billing/models.py:404
-#| msgid "Received"
+#: apps/billing/models.py:422
 msgid "Not received"
 msgstr "No recibido"
 
-#: apps/billing/models.py:459
-#| msgid "Request hold"
+#: apps/billing/models.py:478
 msgid "Requested"
 msgstr "Solicitado"
 
-#: apps/billing/models.py:460
+#: apps/billing/models.py:479
 msgid "Issued"
 msgstr "Emitido"
 
-#: apps/billing/models.py:461
+#: apps/billing/models.py:480
 msgid "Failed"
 msgstr "Falló"
 
-#: apps/billing/models.py:462 apps/shoots/models.py:26
-#| msgid "Cancel"
+#: apps/billing/models.py:481 apps/shoots/models.py:26
 msgid "Cancelled"
 msgstr "Cancelada"
 
@@ -280,22 +270,22 @@ msgstr "%(studio)s: factura %(number)s"
 msgid "%(studio)s: proposal %(number)s"
 msgstr "%(studio)s: propuesta %(number)s"
 
-#: apps/billing/services.py:1044
+#: apps/billing/services.py:1051
 #, python-format
 msgid "%(studio)s: a contract to sign"
 msgstr "%(studio)s: un contrato para firmar"
 
-#: apps/billing/services.py:1147
+#: apps/billing/services.py:1155
 #, python-format
 msgid "%(studio)s: invoice %(number)s is due today"
 msgstr "%(studio)s: la factura %(number)s vence hoy"
 
-#: apps/billing/services.py:1149
+#: apps/billing/services.py:1157
 #, python-format
 msgid "%(studio)s: invoice %(number)s is due on %(date)s"
 msgstr "%(studio)s: la factura %(number)s vence el %(date)s"
 
-#: apps/billing/services.py:1151
+#: apps/billing/services.py:1159
 #, python-format
 msgid "%(studio)s: invoice %(number)s is overdue"
 msgstr "%(studio)s: la factura %(number)s está vencida"
@@ -375,7 +365,7 @@ msgstr "Acreditado"
 msgid "Balance due"
 msgstr "Saldo pendiente"
 
-#: apps/billing/templates/billing/_document.html:49
+#: apps/billing/templates/billing/_document.html:50
 #, python-format
 msgid "Rate used: 1 %(c)s = %(r)s %(b)s"
 msgstr "Tipo de cambio usado: 1 %(c)s = %(r)s %(b)s"
@@ -730,19 +720,45 @@ msgid "Each month"
 msgstr "Cada mes"
 
 #: apps/billing/templates/billing/portal/proposal.html:17
+#| msgid "Each month"
+msgid "Included each month"
+msgstr "Incluye cada mes"
+
+#: apps/billing/templates/billing/portal/proposal.html:17
+#, python-format
+msgid "%(counter)s post"
+msgid_plural "%(counter)s posts"
+msgstr[0] "%(counter)s publicación"
+msgstr[1] "%(counter)s publicaciones"
+
+#: apps/billing/templates/billing/portal/proposal.html:17
+#, python-format
+msgid "%(counter)s reel"
+msgid_plural "%(counter)s reels"
+msgstr[0] "%(counter)s reel"
+msgstr[1] "%(counter)s reels"
+
+#: apps/billing/templates/billing/portal/proposal.html:17
+#, python-format
+msgid "%(counter)s shoot day"
+msgid_plural "%(counter)s shoot days"
+msgstr[0] "%(counter)s día de grabación"
+msgstr[1] "%(counter)s días de grabación"
+
+#: apps/billing/templates/billing/portal/proposal.html:18
 #, python-format
 msgid "Deposit on acceptance (%(p)s%%)"
 msgstr "Anticipo al aceptar (%(p)s%%)"
 
-#: apps/billing/templates/billing/portal/proposal.html:18
+#: apps/billing/templates/billing/portal/proposal.html:20
 msgid "Taxes, if any, are added on the invoice."
 msgstr "Los impuestos, si corresponden, se agregan en la factura."
 
-#: apps/billing/templates/billing/portal/proposal.html:23
+#: apps/billing/templates/billing/portal/proposal.html:24
 msgid "Accept this proposal"
 msgstr "Aceptar esta propuesta"
 
-#: apps/billing/templates/billing/portal/proposal.html:24
+#: apps/billing/templates/billing/portal/proposal.html:25
 msgid ""
 "Accepting sends you the contract to sign and the deposit invoice. Nothing is"
 " charged automatically."
@@ -750,36 +766,36 @@ msgstr ""
 "Al aceptar, recibirá el contrato para firmar y la factura del anticipo. No "
 "se cobra nada automáticamente."
 
-#: apps/billing/templates/billing/portal/proposal.html:26
+#: apps/billing/templates/billing/portal/proposal.html:27
 msgid "Your full name"
 msgstr "Su nombre completo"
 
-#: apps/billing/templates/billing/portal/proposal.html:27
+#: apps/billing/templates/billing/portal/proposal.html:28
 #, python-format
 msgid "I accept this proposal on behalf of %(client)s."
 msgstr "Acepto esta propuesta en nombre de %(client)s."
 
-#: apps/billing/templates/billing/portal/proposal.html:28
+#: apps/billing/templates/billing/portal/proposal.html:29
 msgid "Accept proposal"
 msgstr "Aceptar propuesta"
 
-#: apps/billing/templates/billing/portal/proposal.html:28
+#: apps/billing/templates/billing/portal/proposal.html:29
 msgid "Decline"
 msgstr "Rechazar"
 
-#: apps/billing/templates/billing/portal/proposal.html:31
+#: apps/billing/templates/billing/portal/proposal.html:32
 msgid "Anything you'd like the studio to know? (optional)"
 msgstr "¿Algo que quiera decirle al estudio? (opcional)"
 
-#: apps/billing/templates/billing/portal/proposal.html:32
+#: apps/billing/templates/billing/portal/proposal.html:33
 msgid "Decline proposal"
 msgstr "Rechazar propuesta"
 
-#: apps/billing/templates/billing/portal/proposal.html:32
+#: apps/billing/templates/billing/portal/proposal.html:33
 msgid "Back"
 msgstr "Volver"
 
-#: apps/billing/templates/billing/portal/proposal.html:36
+#: apps/billing/templates/billing/portal/proposal.html:37
 #, python-format
 msgid "Accepted by %(name)s on %(date)s."
 msgstr "Aceptada por %(name)s el %(date)s."
@@ -1294,7 +1310,7 @@ msgstr "Primero escriba un mensaje."
 msgid "Sent. The studio usually replies within a working day."
 msgstr "Enviado. El estudio suele responder en un día hábil."
 
-#: apps/conversations/services.py:130
+#: apps/conversations/services.py:131
 #, python-format
 msgid "New message: %(subject)s"
 msgstr "Nuevo mensaje: %(subject)s"
@@ -1587,7 +1603,6 @@ msgid "Try another week or month, or see everything waiting."
 msgstr "Pruebe otra semana u otro mes, o vea todo lo pendiente."
 
 #: apps/shoots/models.py:23
-#| msgid "Planned for"
 msgid "Planned"
 msgstr "Planificada"
 

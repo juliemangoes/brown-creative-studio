@@ -25,13 +25,16 @@ and the upstream merge procedure.
 | `Dockerfile` | Installs `gettext` and runs `compilemessages` before `collectstatic`. | Compiled translations in the image (`.mo` files are not committed). |
 | `.github/workflows/ci.yml` | Compiles translations before pytest. | Language tests need the compiled catalog. |
 | `.env.example` | `BILLING_PAYMENT_PROVIDER`, `BILLING_SIGNATURE_PROVIDER`, `BILLING_TAX_PROVIDER`. | Documented settings. |
+| `templates/base.html` | The `onboarding/partials/_checklist.html` include ("Get started" pop-up) is removed. | Owner's decision, 2026-11-24. |
 
 Fork files changed in earlier apps: email subjects in `apps/brand/services.py` and
 `apps/client_onboarding/services.py` render in the recipient's language; `apps/brand/portal.py`
 strings are translatable; `apps/shoots/templates/shoots/call_sheet.html` uses a shared,
 translated `_sheet.html`; the client header gains Billing (with `view_billing`) and Messages tabs;
 client health gains an Invoices signal (only for people with `view_billing`); Today gains overdue
-invoices and payments to confirm; the rail's Billing section needs `view_billing`.
+invoices and payments to confirm; the rail's Billing section needs `view_billing`. The content
+runway has no default of 12 posts: without a package (retainer posts per month) it shows the
+planned count only, and Today lists no gap for that client.
 
 ### Behaviour changes to watch on upstream merges
 

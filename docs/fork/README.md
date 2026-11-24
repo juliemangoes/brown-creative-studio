@@ -16,6 +16,19 @@ django-background-tasks) and under its license (AGPL-3.0).
 | [`content-operations.md`](content-operations.md) | Planning, shoots and on-set mode, asset rights, approvals and a post's full history |
 | [`portal-and-billing.md`](portal-and-billing.md) | The client portal's sections, English and Spanish, proposals, contracts, invoices, payments and messages |
 
+## Decisions that differ from the build brief
+
+Made by the studio owner; revisit them here if things change.
+
+| Date | Decision | Brief said |
+|---|---|---|
+| 2026-11-23 | Modern interface: one sans family, neutral canvas, raised page frame ([design-system.md](design-system.md)). | Editorial direction with a serif display face. |
+| 2026-11-24 | **No two-factor sign-in** for studio users. BrightBean's unused `totp_secret` field stays as it is. | Require two-factor authentication for studio users. |
+| 2026-11-24 | **No taxes on invoices for now.** The tax rate defaults to 0; set a tax name and rate in Billing settings when the studio starts charging one. | (Taxes supported; rate not given.) |
+| 2026-11-24 | **Bank transfer only.** Clients pay by online bank transfer and upload the receipt; no card provider (`BILLING_PAYMENT_PROVIDER=none`). The mock card checkout exists only for testing. | Payment provider not chosen; launch with bank transfer and receipts. |
+| 2026-11-24 | **Posts per month come from the package sold.** Monthly catalog items carry posts, reels, stories and shoot days; accepting a proposal sets the client's retainer scope from them. No default of 12. | (Default not specified.) |
+| 2026-11-24 | BrightBean's "Get started" checklist pop-up is removed. | (Not covered.) |
+
 ## Rules that keep upstream merges cheap
 
 1. **New features go in new Django apps** under `apps/`, linked to a client through

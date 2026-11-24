@@ -38,7 +38,10 @@ English. To change a translation, edit `locale/es/LC_MESSAGES/django.po` and run
 
 ## Proposals and contracts
 
-1. **Billing → Catalog** holds the services you sell and their usual prices.
+1. **Billing → Catalog** holds the services you sell and their usual prices. A monthly package
+   also says what it includes: posts, reels, stories and shoot days a month. When a proposal with
+   that package is accepted, those numbers become the client's retainer scope, which the runway,
+   the plan and retainer delivery measure against.
 2. From a client's **Billing** tab, **New proposal**: add services (monthly or one-off), the
    deposit percentage, the contract to send on acceptance, and whether to start onboarding.
    **Send to the client** numbers it (P-0001) and emails their billing people.
@@ -57,7 +60,8 @@ English. To change a translation, edit `locale/es/LC_MESSAGES/django.po` and run
 - **Kinds:** deposit, milestone, one-time, monthly retainer, extras; and credit notes against a
   sent invoice.
 - **Amounts:** line discounts, a discount on the whole invoice (spread over lines before tax),
-  tax per line (the default comes from settings). Rounded half-up to the cent.
+  and tax per line when the studio charges one (none for now: the default rate is 0; set a name
+  and rate in Billing settings when that changes). Rounded half-up to the cent.
 - **Currencies:** BZD by default (`BILLING_CURRENCIES` adds others). Another currency needs the
   exchange rate on the day it is issued; the rate is stored on the invoice and the finance view
   converts with it.
@@ -82,9 +86,9 @@ English. To change a translation, edit `locale/es/LC_MESSAGES/django.po` and run
   amount. The studio sees **Payments to confirm** on Today and in Billing, then confirms it or
   marks it not received with a reason the client sees.
 - **Recorded by the studio:** cash, cheque, transfer or other, with an optional receipt.
-- **Online card payments:** behind `BILLING_PAYMENT_PROVIDER`. Only the `mock` provider exists so
-  far: it shows a test checkout page that says no money moves, and records a test payment once
-  per reference.
+- **No card payments.** The studio takes online bank transfers only (`BILLING_PAYMENT_PROVIDER=none`,
+  the default). A `mock` provider exists for testing the card flow; it shows a page that says no
+  money moves.
 
 ## Who sees what in the studio
 

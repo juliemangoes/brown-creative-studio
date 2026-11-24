@@ -25,7 +25,6 @@ PLANNED_STATUSES = (
     "scheduled",
     "on_hold",
 )
-DEFAULT_POSTS_PER_MONTH = 12
 
 
 @dataclass
@@ -99,9 +98,19 @@ def runway(workspace, now, days=30):
 
 
 def runway_signal(workspace, now, retainer=None) -> Signal:
-    expected = retainer.posts_per_month if retainer and retainer.posts_per_month else DEFAULT_POSTS_PER_MONTH
+    """Planned posts against the package's posts per month. Without a package there is nothing to measure."""
     planned, last = runway(workspace, now)
     url = reverse("calendar:calendar", kwargs={"workspace_id": workspace.id})
+    if not (retainer and retainer.posts_per_month):
+        return Signal(
+            "runway",
+            "Content runway",
+            "neutral",
+            f"{planned} planned for the next 30 days. Set the package's posts per month (Services and retainer) "
+            "to track the runway.",
+            reverse("clients:services", kwargs={"workspace_id": workspace.id}),
+        )
+    expected = retainer.posts_per_month
     until = f" Nothing planned after {timezone.localtime(last):%b %-d}." if last else ""
     detail = f"{planned} of {expected} posts planned for the next 30 days.{until}"
     if planned < expected / 2:

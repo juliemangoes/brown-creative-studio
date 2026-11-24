@@ -590,7 +590,11 @@ def billing_settings(request):
 class CatalogForm(forms.ModelForm):
     class Meta:
         model = CatalogItem
-        fields = ["name", "description", "service_kind", "unit", "unit_price", "currency", "recurring", "is_active"]
+        fields = ["name", "description", "service_kind", "unit", "unit_price", "currency", "recurring", "posts_per_month",
+                  "reels_per_month", "stories_per_month", "shoot_days_per_month", "is_active"]  # fmt: skip
+        labels = {"recurring": "Billed monthly (a package)", "posts_per_month": "Posts a month in this package",
+                  "reels_per_month": "Reels a month", "stories_per_month": "Stories a month",
+                  "shoot_days_per_month": "Shoot days a month"}  # fmt: skip
         widgets = {"description": forms.Textarea(attrs={"rows": 2})}
 
     def __init__(self, *args, **kwargs):

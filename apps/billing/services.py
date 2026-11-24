@@ -868,14 +868,21 @@ def accept_proposal(proposal, user, *, name: str, agreed: bool) -> dict:
                 workspace=workspace, kind=kind, defaults={"status": ServiceLine.Status.ACTIVE, "started_on": today}
             )
     monthly = proposal.monthly_total()
-    if monthly > 0 and not Retainer.current_for(workspace):
-        Retainer.objects.create(
-            workspace=workspace,
-            name=proposal.title[:120],
-            monthly_fee=monthly,
-            currency=proposal.currency,
-            starts_on=today,
-        )
+    if monthly > 0:
+        package = proposal.package()
+        scope = {
+            "monthly_fee": monthly,
+            "currency": proposal.currency,
+            "posts_per_month": package["posts"],
+            "reels_per_month": package["reels"],
+            "stories_per_month": package["stories"],
+            "shoot_days_per_month": package["shoot_days"],
+        }
+        current = Retainer.current_for(workspace)
+        if current is None:
+            Retainer.objects.create(workspace=workspace, name=proposal.title[:120], starts_on=today, **scope)
+        else:  # a new package replaces the monthly scope
+            Retainer.objects.filter(pk=current.pk).update(name=proposal.title[:120], **scope)
 
     if proposal.contract_template_id:
         created["contract"] = create_contract(workspace, user, proposal=proposal, send=True)
