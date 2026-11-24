@@ -82,7 +82,8 @@ def test_today_shows_real_demo_items(demo):
     today = build_today(_user("owner"), demo.organization)
     assert today.approvals and today.approvals[0].overdue
     assert today.upcoming_count >= 3
-    assert [item.post.title for item in today.failed] == ["Sunscreen myths"]
+    assert sorted(item.post.title for item in today.failed) == ["Sunscreen myths", "Weekend glow giveaway"]
+    assert [t.platform_post.post.title for t in today.manual_posts] == ["How to layer serums"]
     assert {row["account"].account_name for row in today.accounts} == {"Luma Skincare", "Luma Skincare Page"}
     assert [row["workspace"].name for row in today.stalled] == ["Vista Realty"]
     assert {row["workspace"].name for row in today.gaps} >= {"Luma Skincare"}
