@@ -9,6 +9,61 @@ live in new Django apps and new files; those are listed per entry but need no
 merge care. See [docs/fork/README.md](docs/fork/README.md) for the working rules
 and the upstream merge procedure.
 
+## 2026-11-24 · Phase 6: publishing
+
+### Upstream files changed by hand
+
+| File | Change | Reason |
+|---|---|---|
+| `apps/composer/models.py` (+ migration `0024`) | `PlatformPost.Status.MANUAL_ACTION` ("Manual action needed"); transitions `scheduled`/`publishing` → `manual_action` → `published`, `draft`, `changes_requested`; its colour. | TikTok assisted posting: a due post someone posts by hand, never "Failed". |
+| `apps/composer/status.py` | `manual_action` ranks between `approved` and `scheduled` in the post-level status. | Mixed posts show the action needed. |
+| `apps/composer/views.py` | The per-account chip refuses to reschedule a failed post whose outcome is unknown (points to Publishing); `manual_action` counts as past review. | Safe retry: no second copy. |
+| `apps/publisher/engine.py` | `poll_and_publish` first routes nearly-due hand-posted posts (`apps.publishing`); the due query excludes hand-posted platforms; success stores the live link (`platform_extra["live_url"]`); an ambiguous Facebook/Instagram failure (timeout, dropped connection, 5xx) fails with "may or may not be live" and a flag instead of an automatic retry; an interrupted Facebook/Instagram publish is flagged the same way; a TikTok inbox result becomes `manual_action`; owners are alerted on every failure; Instagram's live publishing limit is checked before `publish_post` (`provider.check_publishing_limit`). All isolated, each marked in the code. | Brief: publish once, no duplicate on retry, inbox is not failure, alert the owner, live limit. |
+| `providers/instagram.py` | `check_publishing_limit()` reads `content_publishing_limit` and raises `QuotaExceededError` when used up; a failed check never blocks. | Brief: check the live limit rather than hard-coding it. |
+| `apps/notifications/models.py` (+ migration `0007`) | Event types `manual_publish`, `publish_check`. | Notifications for posting by hand and pre-publish problems. |
+| `apps/approvals/templatetags/approval_extras.py`, `apps/design_system/templatetags/ds.py` | Label and tone for `manual_action` (the Phase 1 placeholder key renamed). | Shared status vocabulary. |
+| `config/settings/base.py` | `apps.publishing` in `LOCAL_APPS`. | New app. |
+| `config/urls.py` | `/publishing/`. | New pages. |
+| `config/settings/test.py` | `TIKTOK_DIRECT_POST_ENABLED = True`. | BrightBean's publisher tests exercise TikTok Direct Post; production defaults to off. |
+| `.env.example` | `TIKTOK_DIRECT_POST_ENABLED`, `PUBLISHING_*`. | Documented settings. |
+
+Fork files changed: `apps/studio/migrations/0003_studio_platforms.py` hides every platform except
+Facebook, Instagram and TikTok (Platform visibility; an admin can show them again); the rail gains
+**Publishing** (`view_plan`); Today gains **Post by hand** and **Won't go out as it stands**;
+`apps/reviews` ignores the publisher's own keys in `platform_extra` (`live_url`,
+`outcome_unknown`) when fingerprinting and when deciding to reopen, adds `manual_action` to the
+statuses a change reopens; `apps/planning` labels `manual_action` and the portal calendar shows such a post as Scheduled; the demo adds a TikTok post to
+post by hand, an uncertain Instagram failure and a published TikTok with its link.
+
+### Behaviour changes to watch on upstream merges
+
+- **TikTok is never sent to TikTok's API** while `TIKTOK_DIRECT_POST_ENABLED` is false (the
+  default). It becomes Manual action needed an hour before its time.
+- **No automatic retry after an uncertain Facebook/Instagram failure.** BrightBean retried every
+  retryable error; the fork stops on timeouts, dropped connections and 5xx answers from those two
+  platforms, because they take no idempotency key. Clean refusals are retried as before.
+- **A failed post flagged `outcome_unknown` cannot go back to `scheduled`** from any route unless
+  `apps.publishing.services.retry(confirmed_not_live=True)` clears the flag (a `pre_save` guard).
+- Studio owners get a `post_failed` notification for every failure, as well as the author.
+
+### New files
+
+- `apps/publishing/`: `ManualPublishTask` (who posts it, when, the live link and ID, done once),
+  `PublishAlert` (one alert per post, problem and time); routing, completion, reassignment, safe
+  retry and "it is live" (`services.py`); pre-publish checks (`checks.py`); the publishing queue
+  (all clients and per client), the manual posting page with download and copy, retry and mark
+  live (`views.py`, templates); a 15-minute job for checks and reminders in the general lane
+  (`tasks.py`); the retry backstop (`signals.py`); tests.
+- `docs/fork/publishing.md`.
+
+### Changed test expectations
+
+- `apps/publisher/tests.py::PublishErrorIsNeverRawTest::test_an_exhausted_retry_budget_stops_promising_a_retry`
+  patches `outcome_unknown` to False: a 503 from Instagram is now an unknown outcome that is never
+  retried; the test is about the retry budget.
+- `apps/social_accounts/tests/test_views.py::TestConnectPlatformView` makes every platform visible
+  first, because the fork hides Bluesky, Threads and the others.
+
 ## 2026-11-24 · Phase 5: portal and billing
 
 ### Upstream files changed by hand

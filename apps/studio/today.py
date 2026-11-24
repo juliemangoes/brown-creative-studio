@@ -112,6 +112,8 @@ class Today:
     needs_shoot: list = field(default_factory=list)  # planned posts needing a shot, on no shoot yet
     overdue_invoices: list = field(default_factory=list)  # only where the person sees billing
     payments_to_confirm: int = 0
+    manual_posts: list = field(default_factory=list)  # ManualPublishTask waiting to be posted by hand
+    publish_problems: list = field(default_factory=list)  # (platform_post, issues) due within a day
 
     @property
     def attention_count(self) -> int:
@@ -124,6 +126,8 @@ class Today:
             + len(self.overdue_tasks)
             + len(self.overdue_invoices)
             + self.payments_to_confirm
+            + len(self.manual_posts)
+            + len(self.publish_problems)
             + sum(1 for b in self.brand_signoffs if b.status == "changes_requested")
             + sum(1 for g in self.gaps if g["signal"].tone == "danger")
         )
@@ -218,6 +222,39 @@ def failed(workspace_ids, now) -> list[PostItem]:
         .order_by("-updated_at")
     )
     return posts_by_post(qs)
+
+
+def manual_posts(memberships, workspace_ids) -> list:
+    """Posts waiting to be posted by hand (apps.publishing), where the person sees the plan."""
+    from apps.publishing.models import ManualPublishTask
+
+    ids = [m.workspace_id for m in memberships if m.workspace_id in workspace_ids and _sees_plan(m)]
+    return list(
+        ManualPublishTask.objects.filter(
+            workspace_id__in=ids,
+            status=ManualPublishTask.Status.OPEN,
+            platform_post__status="manual_action",
+        )
+        .select_related("workspace", "assignee", "platform_post__post", "platform_post__social_account")
+        .order_by("due_at")
+    )
+
+
+def publish_problems(memberships, workspace_ids, now) -> list:
+    """Upcoming posts (next day) that won't go out as they stand: connection, approval or media."""
+    from apps.publishing import checks
+
+    ids = [m.workspace_id for m in memberships if m.workspace_id in workspace_ids and _sees_plan(m)]
+    rows = []
+    for pp in checks.upcoming_posts(ids, now, hours=checks.alert_hours()):
+        problems = [i for i in checks.check(pp, now) if i.severity == "danger"]
+        if problems:
+            rows.append((pp, problems))
+    return rows
+
+
+def _sees_plan(membership) -> bool:
+    return bool(membership.effective_permissions.get("view_plan", False))
 
 
 def content_gaps(workspaces, profiles, now) -> list[dict]:
@@ -428,4 +465,6 @@ def build_today(user, organization, selected=None, now=None) -> Today:
         needs_shoot=needs_shoot(memberships, ids, timezone.localdate(now)),
         overdue_invoices=overdue,
         payments_to_confirm=pending,
+        manual_posts=manual_posts(memberships, ids),
+        publish_problems=publish_problems(memberships, ids, now),
     )

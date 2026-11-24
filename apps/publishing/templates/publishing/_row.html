@@ -1,0 +1,39 @@
+{% load ds %}
+<li class="px-5 py-3 flex flex-wrap items-start justify-between gap-3">
+    <div class="min-w-0">
+        {% if all_clients %}<p class="meta">{{ pp.post.workspace.name }}</p>{% endif %}
+        <a href="{% url 'composer:compose_edit' workspace_id=pp.post.workspace_id post_id=pp.post_id %}" class="text-14 font-medium link">{{ pp.post.title|default:"Untitled post" }}</a>
+        <p class="meta">{{ pp.social_account.get_platform_display }} · {{ pp.social_account.account_name }}
+            {% if key == "published" %} · published {{ pp.published_at|date:"D j M, H:i" }}{% elif pp.due %} · {{ pp.due|date:"D j M, H:i" }}{% endif %}
+            {% if key == "manual_action" and pp.task %} · {% if pp.task.assignee %}{{ pp.task.assignee.name|default:pp.task.assignee.email }}{% else %}nobody assigned{% endif %}{% endif %}
+        </p>
+        {% if key == "failed" or key == "manual_action" %}{% if pp.publish_error %}<p class="text-14 {% if key == 'failed' %}text-danger{% else %}text-ink-muted{% endif %} mt-1">{{ pp.publish_error }}</p>{% endif %}{% endif %}
+        {% if pp.live_url %}<p class="text-14 mt-1"><a href="{{ pp.live_url }}" class="link" target="_blank" rel="noopener noreferrer">View the live post<span class="sr-only"> (opens in a new tab)</span></a></p>{% endif %}
+    </div>
+    <div class="flex flex-wrap items-center gap-2">
+        {% status "post" pp.status %}
+        {% if key == "manual_action" and pp.task %}
+        <a href="{% url 'publishing:task' workspace_id=pp.post.workspace_id task_id=pp.task.id %}" class="btn btn-secondary btn-sm">Post it</a>
+        {% endif %}
+        {% if key == "failed" and can_act %}
+        <div x-data="{ open: false }" class="relative">
+            <button type="button" class="btn btn-secondary btn-sm" @click="open = !open" :aria-expanded="open.toString()">Fix</button>
+            <div x-show="open" x-cloak @click.outside="open = false" class="absolute right-0 z-20 mt-2 w-80 panel panel-body space-y-4 shadow-raised">
+                <form method="post" action="{% url 'publishing:retry' workspace_id=pp.post.workspace_id platform_post_id=pp.id %}" class="space-y-2">
+                    {% csrf_token %}
+                    {% if pp.outcome_unknown %}
+                    <label class="flex items-start gap-2 text-14"><input type="checkbox" name="confirmed_not_live" value="1" required class="mt-1"> I checked {{ pp.social_account.get_platform_display }}: this post is not live.</label>
+                    {% endif %}
+                    <button type="submit" class="btn btn-primary btn-sm w-full">Try again now</button>
+                </form>
+                <form method="post" action="{% url 'publishing:mark_live' workspace_id=pp.post.workspace_id platform_post_id=pp.id %}" class="space-y-2 border-t border-hairline pt-3">
+                    {% csrf_token %}
+                    <label for="live-{{ pp.id }}" class="label">It is live: paste its link</label>
+                    <input id="live-{{ pp.id }}" name="live_url" type="url" required placeholder="https://" class="input">
+                    <button type="submit" class="btn btn-secondary btn-sm w-full">Mark published</button>
+                </form>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</li>

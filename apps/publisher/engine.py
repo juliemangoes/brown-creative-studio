@@ -385,6 +385,16 @@ class PublishEngine:
         Called every ~15 seconds by the background worker. Groups due
         PlatformPosts by parent Post and publishes each group.
         """
+        # Brown Creative Studio (CHANGES.md): posts that are posted by hand (TikTok
+        # while Direct Post is off) become "Manual action needed" instead of being
+        # sent to the platform. Isolated so a problem there never stops publishing.
+        try:
+            from apps.publishing.services import route_due_manual_posts
+
+            route_due_manual_posts()
+        except Exception:
+            logger.exception("Routing posts to manual posting failed")
+
         due_pps = self._get_due_platform_posts()
 
         # Group by parent post_id
@@ -450,6 +460,8 @@ class PublishEngine:
             # parks the whole post out of the publish path even if a sibling
             # platform is already scheduled.
             .exclude(post__platform_posts__status=PlatformPost.Status.ON_HOLD)
+            # Brown Creative Studio (CHANGES.md): never send a hand-posted platform to its API.
+            .exclude(social_account__platform__in=_manual_platforms())
             .select_related("post__workspace", "social_account")
             .order_by("effective_at")[: _max_concurrent_publishes()]
         )
@@ -603,6 +615,12 @@ class PublishEngine:
                         **(platform_post.platform_extra or {}),
                         **response_extra,
                     }
+                # Brown Creative Studio (CHANGES.md): keep the live post's link.
+                if result.get("url"):
+                    platform_post.platform_extra = {
+                        **(platform_post.platform_extra or {}),
+                        "live_url": result["url"],
+                    }
                 # Captured before the reset below, or every success would log
                 # as attempt 1 and the retry history would vanish.
                 attempt_number = platform_post.retry_count + 1
@@ -685,7 +703,17 @@ class PublishEngine:
             )
 
             user_message = friendly_publish_error(e)
-            if getattr(e, "retryable", True) and not _refused_a_live_token(platform_post.social_account, e):
+            # Brown Creative Studio (CHANGES.md): Facebook and Instagram take no
+            # idempotency key, so a failure that may have come after the post went
+            # live is never retried automatically — someone checks the page first.
+            from apps.publishing.services import flag_outcome_unknown, outcome_unknown, unknown_message
+
+            if outcome_unknown(platform_post, e):
+                flag_outcome_unknown(platform_post)
+                self._fail_permanently(
+                    platform_post, error_msg, user_message=unknown_message(platform_post), reason="outcome unknown"
+                )
+            elif getattr(e, "retryable", True) and not _refused_a_live_token(platform_post.social_account, e):
                 self._schedule_retry(
                     platform_post,
                     error_msg,
@@ -897,6 +925,10 @@ class PublishEngine:
                 post_type.value,
                 len(media_files),
             )
+            # Brown Creative Studio (CHANGES.md): Instagram's live 24-hour publishing limit.
+            check_limit = getattr(provider, "check_publishing_limit", None)
+            if callable(check_limit):
+                check_limit(access_token, content)
             result = provider.publish_post(access_token, content)
             return {
                 "success": True,
@@ -1107,6 +1139,18 @@ class PublishEngine:
                 "Could not notify the author that PlatformPost %s failed",
                 platform_post.id,
             )
+        # Brown Creative Studio (CHANGES.md): the studio owner hears about every failure too.
+        try:
+            from apps.publishing.services import alert_owners
+
+            alert_owners(
+                platform_post,
+                f"{platform_post.social_account.get_platform_display()} post failed: {platform_post.post.workspace.name}",
+                platform_post.publish_error,
+                skip=[platform_post.post.author],
+            )
+        except Exception:
+            logger.exception("Could not alert owners that PlatformPost %s failed", platform_post.id)
 
     def _schedule_retry(self, platform_post, error_msg, *, user_message, retry_at=None):
         """Schedule a retry, honoring a provider's absolute reset time when given."""
@@ -1252,7 +1296,7 @@ class PublishEngine:
                 self._fail_permanently(
                     platform_post,
                     "Worker stopped mid-publish; no platform handle was recorded.",
-                    user_message=PUBLISH_INTERRUPTED_MESSAGE,
+                    user_message=self._interrupted_message(platform_post),
                     reason="interrupted",
                 )
                 return True
@@ -1274,7 +1318,7 @@ class PublishEngine:
                 self._fail_permanently(
                     platform_post,
                     f"{account.platform} cannot be asked about an in-flight publish.",
-                    user_message=PUBLISH_INTERRUPTED_MESSAGE,
+                    user_message=self._interrupted_message(platform_post),
                     reason="interrupted",
                 )
                 return True
@@ -1318,6 +1362,14 @@ class PublishEngine:
             self._mark_confirmed_published(platform_post, status.platform_post_id or handle)
             return True
 
+        if status.state is PublishState.INBOX:
+            # Brown Creative Studio (CHANGES.md): an upload waiting in the creator's
+            # inbox is not a failure. Someone finishes it in the app and pastes the link.
+            from apps.publishing.services import inbox_to_manual
+
+            if inbox_to_manual(platform_post, status.error or ""):
+                return True
+
         if status.state in (PublishState.FAILED, PublishState.INBOX):
             self._fail_permanently(
                 platform_post,
@@ -1340,6 +1392,19 @@ class PublishEngine:
             )
             return True
         return False
+
+    @staticmethod
+    def _interrupted_message(platform_post) -> str:
+        """Brown Creative Studio (CHANGES.md): an interrupted Facebook/Instagram publish may be live.
+
+        Flag it so a retry needs someone to check the page first (apps.publishing).
+        """
+        from apps.publishing.services import CHECK_BEFORE_RETRY_PLATFORMS, flag_outcome_unknown, unknown_message
+
+        if platform_post.social_account.platform in CHECK_BEFORE_RETRY_PLATFORMS:
+            flag_outcome_unknown(platform_post)
+            return unknown_message(platform_post)
+        return PUBLISH_INTERRUPTED_MESSAGE
 
     def _give_up_unconfirmed(self, platform_post, error_msg: str):
         """Stop reconciling a publish whose outcome we never learned.
@@ -1440,6 +1505,13 @@ def _refused_a_live_token(account, exc) -> bool:
     if token != account.oauth_access_token:
         return False
     return expires_at is not None and expires_at > timezone.now()
+
+
+def _manual_platforms() -> list[str]:
+    """Brown Creative Studio (CHANGES.md): platforms posted by hand (apps.publishing)."""
+    from apps.publishing.services import manual_platforms
+
+    return manual_platforms()
 
 
 def _is_ambiguous_submission_failure(exc) -> bool:

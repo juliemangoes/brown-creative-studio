@@ -24,7 +24,8 @@ from apps.studio.portal import (
 )
 
 KEY = "portal_view_content"
-SHOWN = ("approved", "scheduled", "publishing", "published")
+# A post waiting to be posted by hand reads "Scheduled" to the client (apps.publishing).
+SHOWN = ("approved", "scheduled", "publishing", "manual_action", "published")
 
 
 @register_section

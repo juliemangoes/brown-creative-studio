@@ -87,3 +87,18 @@ FILE_LINK_TTL = _env.int("FILE_LINK_TTL", default=300)
 MALWARE_SCAN_BACKEND = _env("MALWARE_SCAN_BACKEND", default="mock").strip().lower()
 CLAMD_HOST = _env("CLAMD_HOST", default="clamav").strip()
 CLAMD_PORT = _env.int("CLAMD_PORT", default=3310)
+
+# ── Publishing (apps/publishing, Phase 6) ────────────────────────────────────
+# TikTok Direct Post needs TikTok's audit of the app. Until it is approved and
+# this is turned on, TikTok posts are posted by hand: the app prepares the
+# approved video and caption, reminds the assigned person and waits for the
+# live link (assisted posting). Nothing is sent to TikTok's API.
+TIKTOK_DIRECT_POST_ENABLED = _env.bool("TIKTOK_DIRECT_POST_ENABLED", default=False)
+# How long before its time a hand-posted post becomes "Manual action needed".
+PUBLISHING_MANUAL_LEAD_MINUTES = _env.int("PUBLISHING_MANUAL_LEAD_MINUTES", default=60)
+# Pre-publish checks look at posts due in the next PUBLISHING_CHECK_HOURS and
+# alert the team about a problem once it is within PUBLISHING_ALERT_HOURS.
+PUBLISHING_CHECK_HOURS = _env.int("PUBLISHING_CHECK_HOURS", default=48)
+PUBLISHING_ALERT_HOURS = _env.int("PUBLISHING_ALERT_HOURS", default=24)
+# Remind the person again when a hand-posted post is this many minutes late.
+PUBLISHING_MANUAL_REMINDER_MINUTES = _env.int("PUBLISHING_MANUAL_REMINDER_MINUTES", default=60)

@@ -731,10 +731,15 @@ class PublishErrorIsNeverRawTest(TestCase):
         self.platform_post.status = PlatformPost.Status.PUBLISHING
         self.platform_post.save(update_fields=["retry_count", "status"])
 
-        with patch.object(
-            PublishEngine,
-            "_dispatch_to_provider",
-            side_effect=APIError("upstream down", status_code=503, platform="Instagram"),
+        # Brown Creative Studio (CHANGES.md): a 5xx from Instagram is an unknown outcome
+        # the fork never retries automatically; this test is about the retry budget.
+        with (
+            patch.object(
+                PublishEngine,
+                "_dispatch_to_provider",
+                side_effect=APIError("upstream down", status_code=503, platform="Instagram"),
+            ),
+            patch("apps.publishing.services.outcome_unknown", return_value=False),
         ):
             PublishEngine()._publish_platform_post(self.platform_post)
 

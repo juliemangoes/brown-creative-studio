@@ -19,7 +19,7 @@ STATUS_TONES: dict[str, dict[str, tuple[str, str]]] = {
         "published": ("Published", "success"),
         "failed": ("Failed", "danger"),
         "on_hold": ("On hold", "neutral"),
-        "manual_action_needed": ("Manual action needed", "warning"),
+        "manual_action": ("Manual action needed", "warning"),
     },
     # Production stage, tracked separately in apps.planning (Phase 4)
     "production": {

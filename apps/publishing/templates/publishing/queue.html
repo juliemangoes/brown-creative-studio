@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+{% load ds %}
+{% block title %}Publishing{% if workspace %} · {{ workspace.name }}{% endif %} · {{ SITE_NAME }}{% endblock %}
+{% block content %}
+<div class="w-full max-w-6xl mx-auto">
+    <header class="flex flex-wrap items-end justify-between gap-4 mb-6">
+        <div class="min-w-0">
+            {% if workspace %}<p class="meta mb-1"><a href="{% url 'clients:detail' workspace_id=workspace.id %}" class="link">{{ workspace.name }}</a></p>{% endif %}
+            <h1 class="page-title">Publishing</h1>
+            <p class="text-14 text-ink-muted mt-1 max-w-2xl">What is going out, what went out and what needs someone. {% if all_clients %}All your clients, in studio time.{% else %}Times are the client's.{% endif %}</p>
+        </div>
+    </header>
+
+    <nav class="segmented mb-6" aria-label="Queue sections">
+        {% for key, label, rows in groups %}<a href="#{{ key }}" class="segment">{{ label }} <span class="tabular-nums text-ink-muted">{{ rows|length }}</span></a>{% endfor %}
+        <a href="#checks" class="segment">Before it goes out <span class="tabular-nums text-ink-muted">{{ checks|length }}</span></a>
+    </nav>
+
+    {% if not direct_post %}
+    <p class="panel panel-body text-14 mb-6"><span class="font-medium">TikTok is posted by hand.</span> When a TikTok post is nearly due it moves to Manual action needed and the assigned person is notified. They download the video, copy the caption, post it in TikTok and paste the live link here.</p>
+    {% endif %}
+
+    <div class="space-y-6">
+        {% for key, label, rows in groups %}
+        <section class="panel" id="{{ key }}" aria-labelledby="{{ key }}-title">
+            <div class="panel-header"><h2 id="{{ key }}-title" class="section-title">{{ label }}{% if key == "published" %} <span class="meta font-normal">last 14 days</span>{% elif key == "failed" %} <span class="meta font-normal">last 30 days</span>{% endif %}</h2></div>
+            <ul class="divide-y divide-hairline">
+                {% for pp in rows %}{% include "publishing/_row.html" %}{% empty %}
+                <li class="px-5 py-3 text-14 text-ink-muted">{% if key == "manual_action" %}Nothing waiting to be posted by hand.{% elif key == "failed" %}No failed posts.{% elif key == "publishing" %}Nothing is publishing right now.{% elif key == "scheduled" %}Nothing scheduled.{% else %}Nothing published recently.{% endif %}</li>
+                {% endfor %}
+            </ul>
+        </section>
+        {% if key == "failed" %}
+        <section class="panel" id="checks" aria-labelledby="checks-title">
+            <div class="panel-header"><h2 id="checks-title" class="section-title">Before it goes out <span class="meta font-normal">next {{ check_hours }} hours</span></h2></div>
+            <ul class="divide-y divide-hairline">
+                {% for pp, problems in checks %}
+                <li class="px-5 py-3">
+                    {% if all_clients %}<p class="meta">{{ pp.post.workspace.name }}</p>{% endif %}
+                    <a href="{% url 'composer:compose_edit' workspace_id=pp.post.workspace_id post_id=pp.post_id %}" class="text-14 font-medium link">{{ pp.post.title|default:"Untitled post" }}</a>
+                    <p class="meta">{{ pp.social_account.get_platform_display }} · {{ pp.due|date:"D j M, H:i" }}</p>
+                    <ul class="mt-1 space-y-1">{% for issue in problems %}<li class="text-14 {% if issue.severity == 'danger' %}text-danger{% else %}text-ink{% endif %}">{{ issue.message }}</li>{% endfor %}</ul>
+                </li>
+                {% empty %}
+                <li class="px-5 py-3 text-14 text-ink-muted">Every post due in the next {{ check_hours }} hours is connected, approved and has its media.</li>
+                {% endfor %}
+            </ul>
+        </section>
+        {% endif %}
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

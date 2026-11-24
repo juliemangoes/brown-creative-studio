@@ -15,6 +15,7 @@ django-background-tasks) and under its license (AGPL-3.0).
 | [`client-setup.md`](client-setup.md) | Onboarding, projects and tasks, brand profile and Brand Hub, private files and malware scanning |
 | [`content-operations.md`](content-operations.md) | Planning, shoots and on-set mode, asset rights, approvals and a post's full history |
 | [`portal-and-billing.md`](portal-and-billing.md) | The client portal's sections, English and Spanish, proposals, contracts, invoices, payments and messages |
+| [`publishing.md`](publishing.md) | The publishing queue, publishing once, safe retries, pre-publish checks, TikTok posted by hand, and setting up Meta |
 
 ## Decisions that differ from the build brief
 

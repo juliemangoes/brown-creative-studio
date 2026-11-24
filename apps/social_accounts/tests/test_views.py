@@ -215,6 +215,14 @@ class TestAccountListView:
 
 @pytest.mark.django_db
 class TestConnectPlatformView:
+    @pytest.fixture(autouse=True)
+    def _every_platform_visible(self, db):
+        # Brown Creative Studio (CHANGES.md): the fork hides all but Facebook, Instagram
+        # and TikTok (apps/studio/migrations/0003); these tests cover the others too.
+        from apps.social_accounts.models import PlatformVisibility
+
+        PlatformVisibility.objects.update(is_visible=True)
+
     @pytest.mark.parametrize("flag", [False, True])
     @pytest.mark.parametrize("business_login", [False, True])
     @pytest.mark.parametrize("entrypoint", ["connect", "reconnect"])

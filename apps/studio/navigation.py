@@ -77,6 +77,15 @@ PRIMARY: tuple[Section, ...] = (
         match=lambda app, url, tab: (app == "calendar" and tab == "approvals") or app in ("approvals", "reviews"),
     ),
     Section(
+        "publishing",
+        "Publishing",
+        "publishing",
+        client_url="publishing:client",
+        all_url="publishing:queue",
+        permission="view_plan",
+        match=_app("publishing"),
+    ),
+    Section(
         "reports",
         "Reports",
         "reports",

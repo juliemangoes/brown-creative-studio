@@ -12,7 +12,15 @@ from datetime import datetime
 from urllib.parse import urlencode
 
 from .base import SocialProvider
-from .exceptions import APIError, MessagingError, OAuthError, ProviderError, PublishError, WebhookChannelError
+from .exceptions import (
+    APIError,
+    MessagingError,
+    OAuthError,
+    ProviderError,
+    PublishError,
+    QuotaExceededError,
+    WebhookChannelError,
+)
 from .meta_accounts import fetch_me_accounts, page_can_publish
 from .meta_comments import (
     fetch_instagram_comments,
@@ -405,6 +413,37 @@ class InstagramProvider(SocialProvider):
         self._wait_for_container(access_token, carousel_id)
 
         return self._publish_container(access_token, ig_user_id, carousel_id)
+
+    def check_publishing_limit(self, access_token: str, content: PublishContent) -> None:
+        """Brown Creative Studio (CHANGES.md): stop before publishing when the account's
+        rolling 24-hour publishing quota is used up. The engine calls this first.
+
+        Meta's documentation has shown different numbers for this limit, so it is read
+        live (``content_publishing_limit``). If the check itself fails, publishing goes
+        ahead: Meta enforces the limit anyway, and a broken check must not block posts.
+        """
+        ig_user_id = content.extra.get("ig_user_id")
+        if not ig_user_id:
+            return
+        try:
+            resp = self._request(
+                "GET",
+                f"{BASE_URL}/{ig_user_id}/content_publishing_limit",
+                access_token=access_token,
+                params={"fields": "config,quota_usage"},
+            )
+            entry = (resp.json().get("data") or [{}])[0]
+        except Exception as exc:  # noqa: BLE001 - informational check only
+            logger.info("Could not read the Instagram publishing limit for %s: %s", ig_user_id, exc)
+            return
+        total = (entry.get("config") or {}).get("quota_total")
+        usage = entry.get("quota_usage")
+        if isinstance(total, int) and isinstance(usage, int) and usage >= total:
+            raise QuotaExceededError(
+                f"Instagram's publishing limit for this account is used up ({usage} of {total} in 24 hours).",
+                platform=self.platform_name,
+                quota_scope="content_publishing",
+            )
 
     def _create_container(self, access_token: str, ig_user_id: str, payload: dict) -> str:
         resp = self._request(

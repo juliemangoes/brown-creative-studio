@@ -350,6 +350,8 @@ class PlatformPost(models.Model):
         PUBLISHED = "published", "Published"
         FAILED = "failed", "Failed"
         ON_HOLD = "on_hold", "On Hold"
+        # Brown Creative Studio (CHANGES.md): someone posts this by hand (TikTok assisted posting).
+        MANUAL_ACTION = "manual_action", "Manual action needed"
 
     # Every field :meth:`transition_to` may write. A caller that passes
     # ``update_fields`` MUST include these or the transition half-applies
@@ -398,8 +400,8 @@ class PlatformPost(models.Model):
         "pending_client": {"approved", "changes_requested", "rejected"},
         "changes_requested": {"pending_review", "draft"},
         "rejected": {"draft", "pending_review"},
-        "scheduled": {"publishing", "draft"},
-        "publishing": {"published", "failed", "scheduled"},  # scheduled = retry
+        "scheduled": {"publishing", "draft", "manual_action"},
+        "publishing": {"published", "failed", "scheduled", "manual_action"},  # scheduled = retry
         "failed": {"publishing", "draft", "scheduled"},
         # Client-requested hold: parked out of the publish path. The team resolves
         # it back to approved (resume), draft (rework), or changes_requested. There
@@ -407,6 +409,9 @@ class PlatformPost(models.Model):
         # so nothing publishes straight out of a hold.
         "on_hold": {"approved", "draft", "changes_requested"},
         "published": set(),  # terminal
+        # Brown Creative Studio (CHANGES.md): a person posts it and pastes the live link
+        # (apps.publishing), or the team takes it back to rework.
+        "manual_action": {"published", "draft", "changes_requested"},
     }
 
     class FirstCommentStatus(models.TextChoices):
@@ -428,6 +433,7 @@ class PlatformPost(models.Model):
         "partially_published": "yellow",  # only used by Post-level aggregate
         "failed": "red",
         "on_hold": "violet",
+        "manual_action": "amber",
     }
 
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
