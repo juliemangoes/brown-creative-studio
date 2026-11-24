@@ -8,7 +8,7 @@
     <div class="flex-1"></div>
     <button type="button" x-data="{ mac: /Mac|iPhone|iPad/.test(navigator.platform) }"
             @click="$dispatch('studio:command-open')"
-            class="hidden sm:flex items-center gap-2 h-9 w-64 px-3 rounded-control border border-control bg-surface text-14 text-ink-muted whitespace-nowrap hover:bg-sunken transition-colors"
+            class="hidden sm:flex items-center gap-2 h-9 w-72 px-3 rounded-control border border-hairline bg-sunken text-14 text-ink-muted whitespace-nowrap hover:border-control transition-colors"
             aria-label="Search or jump to (Control K)" :aria-label="mac ? 'Search or jump to (Command K)' : 'Search or jump to (Control K)'">
         {% include "studio/shell/_icon.html" with name="search" %}
         <span class="flex-1 text-left">Search or jump to</span>

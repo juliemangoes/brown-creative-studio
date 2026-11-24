@@ -18,7 +18,7 @@
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
             </button>
             <div class="relative" x-data="{ menuOpen: false }">
-                <button @click="menuOpen = !menuOpen"
+                <button type="button" @click="menuOpen = !menuOpen" aria-label="Column options" :aria-expanded="menuOpen"
                         class="w-6 h-6 rounded-control text-ink-muted hover:text-ink-muted hover:bg-surface/80 flex items-center justify-center transition-colors cursor-pointer">
                     <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="6" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="12" cy="18" r="1.5"/></svg>
                 </button>

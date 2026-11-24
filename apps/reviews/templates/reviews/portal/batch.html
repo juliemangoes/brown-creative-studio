@@ -1,0 +1,95 @@
+{% extends "client_portal/portal_base.html" %}
+{% load i18n %}
+{% block title %}{% translate "Review" %} · {{ workspace.name }}{% endblock %}
+{% block content %}
+<div class="space-y-6">
+    <header>
+        <p><a href="{% url 'client_portal:approval_queue' %}" class="link">← {% translate "Approvals" %}</a></p>
+        <h1 class="display-title mt-2">{% translate "Review" %}</h1>
+        <p class="text-ink-muted mt-1">{% blocktranslate count n=total_pending %}{{ n }} post is waiting for you.{% plural %}{{ n }} posts are waiting for you.{% endblocktranslate %}</p>
+    </header>
+
+    <nav class="flex flex-wrap items-center gap-2" aria-label="{% translate 'Period' %}"><span class="segmented">
+        <a href="?period=week" class="segment"{% if period == 'week' %} aria-current="page"{% endif %}>{% translate "Week" %}</a>
+        <a href="?period=month" class="segment"{% if period == 'month' %} aria-current="page"{% endif %}>{% translate "Month" %}</a>
+        <a href="?period=all" class="segment"{% if period == 'all' %} aria-current="page"{% endif %}>{% translate "Everything waiting" %}</a></span>
+        {% if start %}
+        <span class="ml-auto flex items-center gap-2">
+            <a href="?period={{ period }}&amp;start={{ prev|date:'Y-m-d' }}" class="btn btn-quiet btn-sm" aria-label="{% translate 'Previous' %}">←</a>
+            <span class="tabular-nums">{% if period == "month" %}{{ start|date:"F Y" }}{% else %}{{ start|date:"j M" }} – {{ end|date:"j M" }}{% endif %}</span>
+            <a href="?period={{ period }}&amp;start={{ next|date:'Y-m-d' }}" class="btn btn-quiet btn-sm" aria-label="{% translate 'Next' %}">→</a>
+        </span>
+        {% endif %}
+    </nav>
+
+    {% if rows and can_approve %}
+    <form method="post" action="{% url 'reviews_portal:approve_batch' %}" class="panel panel-body flex flex-wrap items-center justify-between gap-3" x-data @submit="if (!confirm('{% translate "Approve every post shown here?" %}')) $event.preventDefault()">
+        {% csrf_token %}<input type="hidden" name="next" value="{{ request.get_full_path }}">
+        {% for row in rows %}<input type="hidden" name="post_ids" value="{{ row.post.id }}">{% endfor %}
+        <p>{% blocktranslate count n=rows|length %}Happy with this {{ n }} post?{% plural %}Happy with all {{ n }} posts shown?{% endblocktranslate %}</p>
+        <button type="submit" class="btn btn-primary">{% blocktranslate count n=rows|length %}Approve {{ n }} post{% plural %}Approve all {{ n }}{% endblocktranslate %}</button>
+    </form>
+    {% endif %}
+
+    {% for row in rows %}
+    <article class="panel" aria-labelledby="p-{{ row.post.id }}" x-data="{ pin: null, t: null, asset: '', changes: false }">
+        <div class="panel-body space-y-4">
+            <div class="flex flex-wrap items-center gap-2">
+                {% for pp in row.platforms %}<span class="text-13 font-semibold px-2.5 py-0.5 rounded-control bg-sunken text-ink-muted">{{ pp.social_account.get_platform_display }}</span>{% endfor %}
+                <span class="meta ml-auto">{% if row.post.scheduled_at %}{{ row.post.scheduled_at|date:"D j M, H:i" }}{% elif row.post.proposed_publish_at %}{% translate "Planned for" %} {{ row.post.proposed_publish_at|date:"D j M" }}{% endif %}{% if row.due %} · {% blocktranslate with d=row.due|date:"D j M, H:i" %}please reply by {{ d }}{% endblocktranslate %}{% endif %}</span>
+            </div>
+            <h2 id="p-{{ row.post.id }}" class="sr-only">{{ row.post.title|default:row.post.caption|truncatechars:60 }}</h2>
+
+            {% for pm in row.media %}
+            <figure class="space-y-2">
+                {% if pm.media_asset.media_type == "video" %}
+                <video src="{{ pm.media_asset.file.url }}" controls preload="metadata" class="w-full rounded-panel bg-sunken" x-ref="v{{ forloop.counter }}"></video>
+                <button type="button" class="btn btn-quiet btn-sm" @click="asset = '{{ pm.media_asset_id }}'; t = Math.round($refs.v{{ forloop.counter }}.currentTime * 10) / 10; pin = null; $nextTick(() => $refs.body.focus())">{% translate "Comment at this moment" %}</button>
+                {% elif pm.media_asset.file %}
+                <div class="relative cursor-crosshair" @click="const r = $event.currentTarget.getBoundingClientRect(); pin = { x: ($event.clientX - r.left) / r.width, y: ($event.clientY - r.top) / r.height }; asset = '{{ pm.media_asset_id }}'; t = null; $nextTick(() => $refs.body.focus())">
+                    <img src="{{ pm.media_asset.file.url }}" alt="{{ pm.alt_text|default:'' }}" class="w-full rounded-panel border border-hairline">
+                    {% for c in row.comments %}{% if c.pin and c.pin.media_asset_id == pm.media_asset_id and c.pin.x is not None %}<span class="absolute -translate-x-1/2 -translate-y-1/2 w-6 h-6 rounded-full bg-accent text-on-accent text-12 font-semibold flex items-center justify-center" style="left: {% widthratio c.pin.x 1 100 %}%; top: {% widthratio c.pin.y 1 100 %}%;" title="{{ c.body|truncatechars:60 }}">{{ forloop.counter }}</span>{% endif %}{% endfor %}
+                    <template x-if="pin && asset === '{{ pm.media_asset_id }}'"><span class="absolute -translate-x-1/2 -translate-y-1/2 w-6 h-6 rounded-full border-2 border-accent bg-surface" :style="`left: ${pin.x * 100}%; top: ${pin.y * 100}%`"></span></template>
+                </div>
+                <figcaption class="meta">{% translate "Tap the image to leave a note on a spot." %}</figcaption>
+                {% endif %}
+            </figure>
+            {% endfor %}
+
+            <p class="whitespace-pre-line">{{ row.post.caption }}</p>
+
+            {% if row.comments %}
+            <ol class="space-y-2">
+                {% for c in row.comments %}
+                <li class="text-14"><span class="font-medium">{{ c.author.name|default:c.author.email }}</span>{% if c.pin %} <span class="meta">· {% if c.pin.timestamp_seconds is not None %}{{ c.pin.label }}{% else %}{% translate "note" %} {{ forloop.counter }}{% endif %}</span>{% endif %}: {{ c.body }}</li>
+                {% endfor %}
+            </ol>
+            {% endif %}
+
+            <form method="post" action="{% url 'reviews_portal:comment' post_id=row.post.id %}" class="space-y-2">
+                {% csrf_token %}<input type="hidden" name="next" value="{{ request.get_full_path }}">
+                <input type="hidden" name="pin_asset" :value="asset"><input type="hidden" name="pin_x" :value="pin ? pin.x : ''"><input type="hidden" name="pin_y" :value="pin ? pin.y : ''"><input type="hidden" name="pin_t" :value="t !== null ? t : ''">
+                <label class="label" for="body-{{ row.post.id }}">{% translate "Comment" %} <span class="meta font-normal" x-show="pin" x-cloak>{% translate "(on the spot you tapped)" %}</span><span class="meta font-normal" x-show="t !== null" x-cloak x-text="'(at ' + Math.floor(t / 60) + ':' + String(Math.floor(t % 60)).padStart(2, '0') + ')'"></span></label>
+                <textarea id="body-{{ row.post.id }}" x-ref="body" name="body" rows="2" class="textarea" required></textarea>
+                <button type="submit" class="btn btn-quiet btn-sm">{% translate "Add comment" %}</button>
+            </form>
+
+            {% if can_approve %}
+            <div class="flex flex-wrap gap-2 pt-2 border-t border-hairline">
+                <form method="post" action="{% url 'reviews_portal:decide' post_id=row.post.id %}">{% csrf_token %}<input type="hidden" name="next" value="{{ request.get_full_path }}"><input type="hidden" name="decision" value="approve"><button type="submit" class="btn btn-primary">{% translate "Approve" %}</button></form>
+                <button type="button" class="btn btn-secondary" @click="changes = !changes">{% translate "Ask for changes" %}</button>
+            </div>
+            <form method="post" action="{% url 'reviews_portal:decide' post_id=row.post.id %}" class="space-y-2" x-show="changes" x-cloak>
+                {% csrf_token %}<input type="hidden" name="next" value="{{ request.get_full_path }}"><input type="hidden" name="decision" value="changes">
+                <label class="label" for="ch-{{ row.post.id }}">{% translate "What should change?" %}</label><textarea id="ch-{{ row.post.id }}" name="comment" rows="3" class="textarea" required></textarea>
+                <button type="submit" class="btn btn-primary">{% translate "Send to the studio" %}</button>
+            </form>
+            {% endif %}
+        </div>
+    </article>
+    {% empty %}
+    {% translate "Nothing waiting in this period" as t %}{% translate "Try another week or month, or see everything waiting." as b %}
+    {% include "ds/_state.html" with kind="empty" title=t body=b %}
+    {% endfor %}
+</div>
+{% endblock %}

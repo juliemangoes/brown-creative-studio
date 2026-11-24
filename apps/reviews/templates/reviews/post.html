@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{% load ds %}
+{% block title %}History · {{ post.title|default:"Post" }} · {{ SITE_NAME }}{% endblock %}
+{% block content %}
+<div class="w-full max-w-5xl mx-auto">
+    <header class="mb-6">
+        <p class="meta mb-1"><a href="{% url 'calendar:calendar' workspace_id=workspace.id %}" class="link">{{ workspace.name }} · Calendar</a></p>
+        <h1 class="page-title">{{ post.title|default:post.caption|default:"Untitled post"|truncatechars:70 }}</h1>
+        <div class="flex flex-wrap gap-2 mt-3">
+            <a href="{% url 'composer:compose_edit' workspace_id=workspace.id post_id=post.id %}" class="btn btn-secondary btn-sm">Open in composer</a>
+            
+        </div>
+    </header>
+
+    <section class="panel mb-6" aria-labelledby="approval-title">
+        <div class="panel-header"><h2 id="approval-title" class="section-title">Approval</h2><span class="meta">Rule: {{ mode }}</span></div>
+        <ul class="divide-y divide-hairline">
+            {% for pp, state, due in states %}
+            <li class="px-5 py-3 flex flex-wrap items-center justify-between gap-3">
+                <div>
+                    <p class="text-14 font-medium">{{ pp.social_account.account_name }} <span class="meta font-normal">· {{ pp.social_account.get_platform_display }}</span></p>
+                    <p class="meta">
+                        {% if not state.required %}No approval required for this client.
+                        {% else %}Studio: {% if state.internal %}approved by {{ state.internal.actor.name|default:state.internal.actor.email }} (version {{ state.internal.version.version_number }}){% else %}not yet{% endif %}
+                        {% if state.needs_client %} · Client: {% if state.client %}{% if state.client.stage == "override" %}overridden by {{ state.client.actor.name|default:state.client.actor.email }}{% else %}approved by {{ state.client.actor.name|default:state.client.actor.email }}{% endif %}{% else %}not yet{% endif %}{% endif %}{% endif %}
+                        {% if due %} · due {{ due|date:"D j M, H:i" }}{% endif %}
+                    </p>
+                </div>
+                <div class="flex items-center gap-2">{% status "post" pp.status %}{% if state.required %}{% if state.cleared %}<span class="status status-success">Cleared to schedule</span>{% else %}<span class="status status-neutral">Not cleared</span>{% endif %}{% endif %}</div>
+            </li>
+            {% endfor %}
+        </ul>
+        {% if can_override %}
+        <form method="post" action="{% url 'reviews:override' workspace_id=workspace.id post_id=post.id %}" class="panel-body border-t border-hairline space-y-2" x-data @submit="if (!confirm('Approve on the client\'s behalf? This is recorded with your reason.')) $event.preventDefault()">
+            {% csrf_token %}
+            <h3 class="text-14 font-semibold">Override the client's approval</h3>
+            <p class="meta">Only when the client has approved some other way (in a meeting, by message). Your name and reason are kept in this history and the audit log.</p>
+            <div class="field"><label class="label" for="reason">Reason</label><input id="reason" name="reason" class="input" required maxlength="500" placeholder="Ana approved by phone on 19 Nov"></div>
+            <button type="submit" class="btn btn-danger-quiet btn-sm">Override and approve</button>
+        </form>
+        {% endif %}
+    </section>
+
+    <section class="panel" aria-labelledby="history-title">
+        <div class="panel-header"><h2 id="history-title" class="section-title">Full history</h2><span class="meta">From idea to publishing</span></div>
+        <div class="px-5">{% include "reviews/_timeline.html" %}</div>
+    </section>
+</div>
+{% endblock %}

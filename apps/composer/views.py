@@ -1428,6 +1428,15 @@ def transition_platform_post(request, workspace_id, post_id, platform_post_id):
     if pp.status == target:
         return JsonResponse({"ok": True, "status": pp.status, "noop": True})
 
+    if target == "approved":
+        # Brown Creative Studio (CHANGES.md): only the client approves the client stage.
+        from apps.reviews.services import check_client_stage
+
+        try:
+            check_client_stage(pp, request.user)
+        except ValueError as exc:
+            return JsonResponse({"error": str(exc)}, status=400)
+
     if target in ("scheduled", "publishing"):
         # A draft has not been through review. Where the workspace requires
         # approval, committing one straight to the publisher would skip it —
@@ -1469,6 +1478,14 @@ def transition_platform_post(request, workspace_id, post_id, platform_post_id):
             return JsonResponse(
                 {"error": "Pick a publish time in the composer before scheduling this post."}, status=400
             )
+
+    if target in ("scheduled", "publishing") and pp.status != "failed":
+        # Brown Creative Studio (CHANGES.md): the required approvals must cover this exact content.
+        from apps.reviews.services import schedule_block_reason
+
+        reason = schedule_block_reason(pp)
+        if reason:
+            return JsonResponse({"error": reason}, status=400)
 
     try:
         pp.transition_to(target)

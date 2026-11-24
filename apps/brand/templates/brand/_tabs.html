@@ -1,5 +1,5 @@
-<nav class="flex flex-wrap gap-2 mb-6" aria-label="Brand">
-    <a href="{% url 'brand:profile' workspace_id=workspace.id %}" class="btn btn-sm {% if brand_tab == 'profile' %}btn-secondary{% else %}btn-quiet{% endif %}"{% if brand_tab == 'profile' %} aria-current="page"{% endif %}>Profile</a>
-    <a href="{% url 'brand:stages' workspace_id=workspace.id %}" class="btn btn-sm {% if brand_tab == 'stages' %}btn-secondary{% else %}btn-quiet{% endif %}"{% if brand_tab == 'stages' %} aria-current="page"{% endif %}>Stages and sign-off</a>
-    <a href="{% url 'brand:files' workspace_id=workspace.id %}" class="btn btn-sm {% if brand_tab == 'files' %}btn-secondary{% else %}btn-quiet{% endif %}"{% if brand_tab == 'files' %} aria-current="page"{% endif %}>Files</a>
+<nav class="segmented mb-6" aria-label="Brand">
+    <a href="{% url 'brand:profile' workspace_id=workspace.id %}" class="segment"{% if brand_tab == 'profile' %} aria-current="page"{% endif %}>Profile</a>
+    <a href="{% url 'brand:stages' workspace_id=workspace.id %}" class="segment"{% if brand_tab == 'stages' %} aria-current="page"{% endif %}>Stages and sign-off</a>
+    <a href="{% url 'brand:files' workspace_id=workspace.id %}" class="segment"{% if brand_tab == 'files' %} aria-current="page"{% endif %}>Files</a>
 </nav>

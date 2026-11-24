@@ -1,0 +1,7 @@
+<nav class="segmented mb-6" aria-label="Planning">
+    <a href="{% url 'planning:board' workspace_id=workspace.id %}" class="segment"{% if nav == 'board' %} aria-current="page"{% endif %}>Plan</a>
+    <a href="{% url 'calendar:calendar' workspace_id=workspace.id %}" class="segment">Calendar</a>
+    <a href="{% url 'planning:campaigns' workspace_id=workspace.id %}" class="segment"{% if nav == 'campaigns' %} aria-current="page"{% endif %}>Campaigns</a>
+    <a href="{% url 'planning:key_dates' workspace_id=workspace.id %}" class="segment"{% if nav == 'dates' %} aria-current="page"{% endif %}>Key dates</a>
+    <a href="{% url 'composer:create_landing' workspace_id=workspace.id %}" class="segment">Idea bank</a>
+</nav>

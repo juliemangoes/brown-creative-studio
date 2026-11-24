@@ -9,9 +9,9 @@
     {% include "ds/_page_header.html" with title="Clients" description="Every client, where they are in the pipeline, and what needs attention." %}
     {% endif %}
 
-    <nav class="flex flex-wrap gap-2 mb-4" aria-label="Saved views">
+    <nav class="segmented mb-4" aria-label="Saved views">
         {% for key, label, count in saved_views %}
-        <a href="?view={{ key }}" class="btn btn-sm {% if key == view_key %}btn-secondary{% else %}btn-quiet{% endif %}"{% if key == view_key %} aria-current="page"{% endif %}>
+        <a href="?view={{ key }}" class="segment"{% if key == view_key %} aria-current="page"{% endif %}>
             {{ label }} <span class="tabular-nums text-ink-muted">{{ count }}</span>
         </a>
         {% endfor %}

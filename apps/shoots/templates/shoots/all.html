@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block title %}Shoots · {{ SITE_NAME }}{% endblock %}
+{% block content %}
+<div class="w-full max-w-6xl mx-auto">
+    {% include "ds/_page_header.html" with title="Shoots" description="Every content day across clients. Double-booked people, equipment or locations are flagged." %}
+    {% if rows %}
+    <ol class="space-y-3">
+        {% for shoot, issues in rows %}
+        <li class="panel panel-body flex flex-wrap items-start justify-between gap-3">
+            <div class="min-w-0">
+                <p class="meta">{{ shoot.workspace.name }}</p>
+                <a href="{% url 'shoots:detail' workspace_id=shoot.workspace_id shoot_id=shoot.id %}" class="text-16 font-medium text-ink hover:underline">{{ shoot.title }}</a>
+                <p class="meta">{{ shoot.date|date:"l j M" }} · {{ shoot.call_time|time:"H:i" }}{% if shoot.wrap_time %}–{{ shoot.wrap_time|time:"H:i" }}{% endif %}{% if shoot.locations %} · {{ shoot.locations|join:", " }}{% endif %}{% if shoot.crew.all %} · {% for u in shoot.crew.all %}{{ u.name|default:u.email }}{% if not forloop.last %}, {% endif %}{% endfor %}{% endif %}</p>
+                {% for issue in issues %}<p class="text-14 text-danger mt-1">{{ issue }}</p>{% endfor %}
+            </div>
+            <span class="status {% if shoot.status == 'confirmed' %}status-success{% elif shoot.status == 'done' %}status-neutral{% elif shoot.status == 'cancelled' %}status-neutral{% else %}status-info{% endif %}">{{ shoot.get_status_display }}</span>
+        </li>
+        {% endfor %}
+    </ol>
+    {% else %}
+    {% include "ds/_state.html" with kind="empty" title="No shoots coming up" body="Plan a content day from a client's Shoots page and build the shot list from their planned posts." %}
+    {% endif %}
+</div>
+{% endblock %}

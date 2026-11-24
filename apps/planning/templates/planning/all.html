@@ -1,0 +1,9 @@
+{% extends "base.html" %}
+{% block title %}Plan · All clients · {{ SITE_NAME }}{% endblock %}
+{% block content %}
+<div class="w-full max-w-6xl mx-auto">
+    {% include "ds/_page_header.html" with title="Plan" description="Every client's next three months in one place. Open a client to add posts, campaigns and key dates." %}
+    <form method="get" class="flex flex-wrap items-end gap-3 mb-4"><div class="field"><label class="label" for="client">Client</label><select id="client" name="client" class="select"><option value="">All clients</option>{% for ws in clients %}<option value="{{ ws.id }}"{% if selected == ws.id|stringformat:"s" %} selected{% endif %}>{{ ws.name }}</option>{% endfor %}</select></div><button type="submit" class="btn btn-secondary btn-sm">Show</button></form>
+    {% if weeks %}{% include "planning/_weeks.html" with show_client=True %}{% else %}{% include "ds/_state.html" with kind="empty" title="No clients yet" body="Clients you work on show here." %}{% endif %}
+</div>
+{% endblock %}

@@ -146,9 +146,18 @@ def approve_post(target, user, workspace, comment=""):
 
     two_stage = workspace.approval_workflow_mode == "required_internal_and_client"
     moved = []
+    blocked = []
     advanced_to_client = False
+    # Brown Creative Studio (CHANGES.md): the client stage is the client's to approve.
+    from apps.reviews.services import check_client_stage
+
     with transaction.atomic():
         for pp in targets:
+            try:
+                check_client_stage(pp, user)
+            except ValueError as exc:
+                blocked.append(str(exc))
+                continue
             from_pending_review = pp.status == "pending_review"
             if not _transition_or_skip(pp, "approved"):
                 continue
@@ -157,6 +166,8 @@ def approve_post(target, user, workspace, comment=""):
                 advanced_to_client = True
 
         if not moved:
+            if blocked:
+                raise ValueError(blocked[0])
             return moved
 
         if is_bundled:

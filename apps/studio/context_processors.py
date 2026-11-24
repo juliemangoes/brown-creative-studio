@@ -87,6 +87,11 @@ def shell(request):
     for client in clients:
         if not client["current"] and client["url"]:
             commands.append({"group": "Switch client", "label": client["name"], "url": client["url"]})
+    can_plan = bool(permissions and permissions.get("view_plan", False))
+    if workspace is not None and can_plan:
+        plan_url = _safe_reverse("planning:board", workspace_id=workspace.id)
+        if plan_url:
+            commands.append({"group": "Go to", "label": "Plan", "url": plan_url})
     if workspace is not None:
         compose = _safe_reverse("composer:compose", workspace_id=workspace.id)
         if compose:
@@ -113,6 +118,7 @@ def shell(request):
         "shell_all_clients_url": all_clients_url,
         "shell_in_all_clients": workspace is None,
         "shell_commands": commands,
+        "shell_can_plan": can_plan,
     }
 
 

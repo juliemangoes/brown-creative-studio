@@ -1,0 +1,14 @@
+{# A post's history. Context: history (list of Event) #}
+<ol class="space-y-0">
+    {% for e in history %}
+    <li class="flex gap-4 py-3 border-b border-hairline last:border-b-0">
+        <time class="meta tabular-nums w-28 flex-shrink-0" datetime="{{ e.at|date:'c' }}">{{ e.at|date:"j M, H:i" }}</time>
+        <div class="min-w-0">
+            <p class="text-14 font-medium">{% if e.tone == "success" %}<span class="status status-success mr-1">✓</span>{% elif e.tone == "warning" %}<span class="status status-warning mr-1">!</span>{% elif e.tone == "danger" %}<span class="status status-danger mr-1">✕</span>{% endif %}{{ e.title }}{% if e.internal %} <span class="status status-neutral">Internal</span>{% endif %}</p>
+            {% if e.actor %}<p class="meta">{{ e.actor }}</p>{% endif %}
+            {% if e.detail %}<p class="text-14 text-ink-muted mt-1 whitespace-pre-line">{{ e.detail }}</p>{% endif %}
+        </div>
+    </li>
+    {% empty %}<li class="text-14 text-ink-muted py-3">No history yet.</li>
+    {% endfor %}
+</ol>

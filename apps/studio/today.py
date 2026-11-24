@@ -108,6 +108,8 @@ class Today:
     accounts: list[dict] = field(default_factory=list)
     overdue_tasks: list = field(default_factory=list)
     brand_signoffs: list = field(default_factory=list)
+    shoots: list[dict] = field(default_factory=list)  # upcoming shoot days and what is missing
+    needs_shoot: list = field(default_factory=list)  # planned posts needing a shot, on no shoot yet
 
     @property
     def attention_count(self) -> int:
@@ -185,7 +187,7 @@ def upcoming(workspace_ids, now, days=7):
     qs = (
         _platform_posts(workspace_ids)
         .filter(status__in=UPCOMING_STATUSES, scheduled_at__gte=now, scheduled_at__lt=now + timedelta(days=days))
-        .order_by("scheduled_at")
+        .order_by("scheduled_at", "created_at")  # platforms in the order they were added
     )
     by_day: OrderedDict = OrderedDict()
     count = 0
@@ -307,6 +309,47 @@ def brand_signoffs(workspace_ids, can_view_profile):
     )
 
 
+def upcoming_shoots(user, memberships, workspace_ids, today, days=14) -> list[dict]:
+    """Shoot days in the next two weeks this person can see, with what is still missing.
+
+    Contributors without ``manage_shoots`` see only the shoots they are crew on.
+    """
+    from apps.shoots import services as shoots
+    from apps.shoots.models import Shoot
+
+    rows = []
+    for m in memberships:
+        if m.workspace_id not in workspace_ids or not m.effective_permissions.get("view_shoots", False):
+            continue
+        qs = Shoot.objects.filter(
+            workspace_id=m.workspace_id, date__gte=today, date__lte=today + timedelta(days=days)
+        ).exclude(status__in=[Shoot.Status.CANCELLED, Shoot.Status.DONE])
+        if shoots.crew_only(m):
+            qs = qs.filter(crew=user)
+        for shoot in qs.select_related("workspace").prefetch_related("shots", "crew"):
+            rows.append(
+                {
+                    "shoot": shoot,
+                    "missing": shoots.readiness(shoot),
+                    "shots": len(shoot.shots.all()),
+                    "url": reverse("shoots:detail", kwargs={"workspace_id": shoot.workspace_id, "shoot_id": shoot.pk}),
+                }
+            )
+    return sorted(rows, key=lambda r: (r["shoot"].date, r["shoot"].call_time))
+
+
+def needs_shoot(memberships, workspace_ids, today):
+    """Posts marked "shot needed" soon that no upcoming shoot covers (only where the person can plan shoots)."""
+    from apps.shoots.services import posts_needing_shots
+
+    ids = [
+        m.workspace_id
+        for m in memberships
+        if m.workspace_id in workspace_ids and m.effective_permissions.get("manage_shoots", False)
+    ]
+    return posts_needing_shots(ids, today) if ids else []
+
+
 def account_problems(workspaces, profiles) -> list[dict]:
     from apps.social_accounts.models import SocialAccount
 
@@ -356,4 +399,6 @@ def build_today(user, organization, selected=None, now=None) -> Today:
         accounts=account_problems(scoped, profiles),
         overdue_tasks=overdue_tasks(user, organization, ids, timezone.localdate(now)),
         brand_signoffs=brand_signoffs(ids, can_view_profile),
+        shoots=upcoming_shoots(user, memberships, ids, timezone.localdate(now)),
+        needs_shoot=needs_shoot(memberships, ids, timezone.localdate(now)),
     )

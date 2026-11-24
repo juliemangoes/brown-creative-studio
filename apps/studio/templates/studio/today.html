@@ -14,12 +14,12 @@
     </header>
 
     {% if today.workspaces|length > 1 %}
-    <nav class="flex gap-2 mb-6 overflow-x-auto pb-1" aria-label="Show Today for">
-        <a href="{% url 'studio:today' %}" class="btn btn-sm flex-shrink-0 {% if not today.selected %}btn-secondary{% else %}btn-quiet{% endif %}"{% if not today.selected %} aria-current="page"{% endif %}>All clients</a>
+    <div class="mb-6"><nav class="segmented" aria-label="Show Today for">
+        <a href="{% url 'studio:today' %}" class="segment"{% if not today.selected %} aria-current="page"{% endif %}>All clients</a>
         {% for ws in today.workspaces %}
-        <a href="{% url 'studio:today_client' workspace_id=ws.id %}" class="btn btn-sm flex-shrink-0 {% if today.selected.id == ws.id %}btn-secondary{% else %}btn-quiet{% endif %}"{% if today.selected.id == ws.id %} aria-current="page"{% endif %}>{{ ws.name }}</a>
+        <a href="{% url 'studio:today_client' workspace_id=ws.id %}" class="segment"{% if today.selected.id == ws.id %} aria-current="page"{% endif %}>{{ ws.name }}</a>
         {% endfor %}
-    </nav>
+    </nav></div>
     {% endif %}
 
     {% if not today.workspaces %}
@@ -41,7 +41,7 @@
                 <ul class="divide-y divide-hairline">
                     {% for item in today.approvals %}
                     <li class="flex flex-wrap items-start justify-between gap-x-4 gap-y-2 px-5 py-3">
-                        <div class="min-w-0 flex-1">
+                        <div class="min-w-0 flex-1 basis-64">
                             {% if not today.selected %}<p class="meta">{{ item.workspace.name }}</p>{% endif %}
                             <a href="{{ item.edit_url }}" class="text-14 font-medium text-ink hover:underline">{{ item.post.title|default:item.post.caption|default:"Untitled post"|truncatechars:80 }}</a>
                             <p class="meta mt-0.5">
@@ -68,7 +68,7 @@
                 <ul class="divide-y divide-hairline">
                     {% for item in today.failed %}
                     <li class="flex flex-wrap items-start justify-between gap-x-4 gap-y-2 px-5 py-3">
-                        <div class="min-w-0 flex-1">
+                        <div class="min-w-0 flex-1 basis-64">
                             {% if not today.selected %}<p class="meta">{{ item.workspace.name }}</p>{% endif %}
                             <a href="{{ item.edit_url }}" class="text-14 font-medium text-ink hover:underline">{{ item.post.title|default:item.post.caption|default:"Untitled post"|truncatechars:80 }}</a>
                             <p class="meta mt-0.5">{{ item.platforms|join:", " }}{% if item.due %} · was due {{ item.due|date:"D j M, H:i" }}{% endif %}</p>
@@ -88,7 +88,7 @@
                 <ul class="divide-y divide-hairline">
                     {% for task in today.overdue_tasks %}
                     <li class="flex flex-wrap items-start justify-between gap-x-4 gap-y-1 px-5 py-3">
-                        <div class="min-w-0 flex-1">
+                        <div class="min-w-0 flex-1 basis-64">
                             <a href="{% url 'projects:task' workspace_id=task.workspace_id task_id=task.id %}" class="text-14 font-medium text-ink hover:underline">{{ task.title }}</a>
                             <p class="meta">{% if not today.selected %}{{ task.workspace.name }} · {% endif %}{{ task.project.name }}{% if task.assignee %} · {{ task.assignee.name|default:task.assignee.email }}{% else %} · not assigned{% endif %}</p>
                         </div>
@@ -153,6 +153,38 @@
                 <div class="panel-body text-14 text-ink-muted">Every active client has a full month planned.</div>
                 {% endif %}
             </section>
+
+            {# ── Shoot days ──────────────────────────────────────────── #}
+            {% if today.shoots or today.needs_shoot %}
+            <section class="panel" aria-labelledby="shoots-title">
+                <div class="panel-header">
+                    <h2 id="shoots-title" class="section-title">Shoot days, next 2 weeks</h2>
+                    <a href="{% if today.selected %}{% url 'shoots:list' workspace_id=today.selected.id %}{% else %}{% url 'shoots:all' %}{% endif %}" class="link text-13">Shoots</a>
+                </div>
+                <ul class="divide-y divide-hairline">
+                    {% for row in today.shoots %}
+                    <li class="px-5 py-3">
+                        <div class="flex items-center justify-between gap-3">
+                            <a href="{{ row.url }}" class="text-14 font-medium text-ink hover:underline min-w-0 truncate">{{ row.shoot.title }}</a>
+                            {% if row.missing %}<span class="status status-warning">{{ row.missing|length }} to sort</span>{% else %}<span class="status status-success">Ready</span>{% endif %}
+                        </div>
+                        <p class="meta mt-0.5">{% if not today.selected %}{{ row.shoot.workspace.name }} · {% endif %}{% if row.shoot.date == today_date %}Today{% else %}{{ row.shoot.date|date:"D j M" }}{% endif %}, call {{ row.shoot.call_time|time:"H:i" }} · {{ row.shots }} shot{{ row.shots|pluralize }}</p>
+                        {% if row.missing %}<p class="meta mt-0.5">Missing: {{ row.missing|join:"; " }}</p>{% endif %}
+                    </li>
+                    {% endfor %}
+                    {% if today.needs_shoot %}
+                    <li class="px-5 py-3">
+                        <p class="text-14 font-medium text-ink">Posts that need a shoot <span class="tabular-nums text-ink-muted font-normal">{{ today.needs_shoot|length }}</span></p>
+                        <ul class="mt-1 space-y-0.5">
+                            {% for plan in today.needs_shoot|slice:":5" %}
+                            <li class="meta"><a href="{% url 'planning:post' workspace_id=plan.workspace_id post_id=plan.post_id %}" class="link">{{ plan.post.title|default:"Untitled post"|truncatechars:50 }}</a>{% if not today.selected %} · {{ plan.workspace.name }}{% endif %} · for {{ plan.target_date|date:"j M" }}</li>
+                            {% endfor %}
+                        </ul>
+                    </li>
+                    {% endif %}
+                </ul>
+            </section>
+            {% endif %}
 
             {# ── Accounts to reconnect ───────────────────────────────── #}
             <section class="panel" aria-labelledby="accounts-title">

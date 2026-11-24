@@ -319,6 +319,15 @@ class _Builder:
         self._restaurant_posts(restaurant, [cm_ig, cm_fb], owner, team, freelancer, client_users)
         self._skincare_posts(skincare, [lu_ig], lu_tt, owner, team, client_users)
         self._client_setup(restaurant, skincare, realty, owner, team, freelancer, client_users)
+        self.cast = {
+            "restaurant": restaurant,
+            "skincare": skincare,
+            "owner": owner,
+            "team": team,
+            "freelancer": freelancer,
+            "clients": client_users,
+            "cm_accounts": [cm_ig, cm_fb],
+        }
         return self.result
 
     def _restaurant_posts(self, ws, accounts, owner, team, freelancer, client_users):
@@ -658,6 +667,226 @@ class _Builder:
             reminders_sent=3,
         )
 
+    # ── Phase 4: planning, shoots, rights, one post from idea to approval ──
+    def _photo(self, name, background, ink=(255, 255, 255)):
+        import io
+
+        from django.core.files.uploadedfile import SimpleUploadedFile
+        from PIL import Image, ImageDraw
+
+        image = Image.new("RGB", (1080, 1350), background)
+        ImageDraw.Draw(image).text((60, 1240), name, fill=ink)
+        buf = io.BytesIO()
+        image.save(buf, "PNG")
+        return SimpleUploadedFile(name, buf.getvalue(), content_type="image/png")
+
+    def content_operations(self):
+        """Run with the real review rules on (outside ``bypass``), each step at its own invented time."""
+        from unittest import mock
+
+        from apps.approvals import services as approvals
+        from apps.assets.models import AssetRights
+        from apps.clients.models import Contact
+        from apps.composer.models import Idea
+        from apps.media_library.services import create_asset
+        from apps.planning.models import Campaign, ContentPlan, KeyDate
+        from apps.planning.services import ensure_holidays, plan_idea, quick_plan
+        from apps.shoots import services as shoots
+        from apps.shoots.models import Shoot
+
+        c = self.cast
+        ws, luma, owner, team, freelancer = c["restaurant"], c["skincare"], c["owner"], c["team"], c["freelancer"]
+        ana = c["clients"]["ana"]
+        today = timezone.localdate(self.now)
+        td = timedelta
+
+        def at(days, hour=10, minute=0):
+            moment = min(self.at(days, hour, minute), self.now - td(minutes=5))  # never in the future
+            return mock.patch.object(timezone, "now", lambda: moment)
+
+        # Key dates and a campaign.
+        ensure_holidays(self.org, [today.year, today.year + 1])
+        KeyDate.objects.create(
+            organization=self.org, workspace=ws, date=today + td(days=18), title="Casa Maya turns 10", kind="client"
+        )
+        KeyDate.objects.create(
+            organization=self.org, workspace=luma, date=today + td(days=25), title="Night serum launch", kind="client"
+        )
+        Campaign.objects.create(
+            workspace=ws,
+            name="Christmas menu",
+            objective="Fill December dinner bookings.",
+            starts_on=today + td(days=4),
+            ends_on=today + td(days=34),
+            color="#8A6A4F",
+            created_by=owner,
+        )
+
+        # One post, idea to client approval, over the last eight days.
+        with at(-8, 9, 15):
+            idea = Idea.objects.create(
+                workspace=ws,
+                author=team,
+                title="Mole negro, step by step",
+                description="Rosa toasting the chiles, grinding, the first spoonful. A reel for the Christmas menu.",
+                tags=["menu", "chef"],
+            )
+        with at(-7, 11, 40):
+            plan = plan_idea(idea, team, target_date=today + td(days=6), format=ContentPlan.Format.REEL)
+            plan.hook = "Rosa's hands toasting the chiles"
+            plan.objective = ContentPlan.Objective.SALES
+            plan.save(update_fields=["hook", "objective"])
+        with at(-5, 16, 5):
+            done_shoot = Shoot.objects.create(
+                workspace=ws,
+                title="November menu shoot",
+                date=today - td(days=3),
+                call_time=time(8, 0),
+                wrap_time=time(12, 0),
+                locations=["Casa Maya kitchen"],
+                equipment=["Sony FX3", "Aputure 300d"],
+                talent=[{"name": "Rosa Chi", "role": "chef", "release": True}],
+                status=Shoot.Status.CONFIRMED,
+                prep_sent_at=self.now - td(days=5),
+                created_by=owner,
+            )
+            done_shoot.crew.add(owner, freelancer)
+            shot = shoots.shots_from_posts(done_shoot, [plan.post], owner)[0]
+            shoots.add_shot(done_shoot, description="Steam off the comal, slow motion", priority="nice", user=owner)
+        with at(-3, 9, 50):
+            shoots.apply_ops(done_shoot, freelancer, [{"op": "status", "shot": str(shot.id), "status": "captured"}])
+            shoots.apply_ops(
+                done_shoot,
+                freelancer,
+                [
+                    {
+                        "op": "idea",
+                        "id": str(uuid.uuid4()),
+                        "text": "Don Pedro tasting at the pass",
+                        "status": "captured",
+                    }
+                ],
+            )
+        with at(-2, 14, 20):
+            photo = self._photo(f"{shot.code}_mole-negro.png", (74, 44, 30))
+            matched, _, refused = shoots.upload_and_match(done_shoot, team, [photo])
+            if refused:  # a real scanner that is not reachable: the file was made here, so attach it directly
+                photo.seek(0)
+                asset = create_asset(self.org, ws, photo, team, title=photo.name, source="shoot")
+                AssetRights.objects.create(media_asset=asset, shoot=done_shoot, updated_by=team)
+                shoots.attach_to_shot(shot, asset, team)
+            done_shoot.status = Shoot.Status.DONE
+            done_shoot.save(update_fields=["status", "updated_at"])
+            AssetRights.objects.filter(shoot=done_shoot).update(talent_release=True, release_reference="Rosa Chi, 2026")
+        with at(-2, 16, 0):
+            plan.post.caption = (
+                "Three days, twenty-six ingredients, one pot. Rosa's mole negro is on the Christmas menu."
+            )
+            plan.post.save(update_fields=["caption", "updated_at"])
+            approvals.submit_for_review(plan.post, team, ws)
+        with at(-1, 10, 30):
+            approvals.approve_post(plan.post, owner, ws)
+        with at(0, 8, 45):
+            approvals.approve_post(plan.post, ana, ws)
+
+        # Planned posts still to shoot, and next week's shoot (not ready yet: prep not sent, a release missing).
+        needs = []
+        for days, title, fmt in (
+            (9, "Christmas table for six", ContentPlan.Format.PHOTO),
+            (12, "Kitchen at dawn", ContentPlan.Format.REEL),
+            (15, "Ponche, the family recipe", ContentPlan.Format.CAROUSEL),
+            (20, "Ten years of Casa Maya", ContentPlan.Format.REEL),
+        ):
+            needs.append(
+                quick_plan(
+                    ws,
+                    team,
+                    title=title,
+                    target_date=today + td(days=days),
+                    format=fmt,
+                    stage=ContentPlan.Stage.SHOT_NEEDED,
+                    accounts=c["cm_accounts"],
+                )
+            )
+        contact = Contact.objects.for_workspace(ws.id).filter(email=ana.email).first()
+        december = Shoot.objects.create(
+            workspace=ws,
+            title="December menu shoot",
+            date=today + td(days=4),
+            call_time=time(7, 30),
+            wrap_time=time(12, 30),
+            locations=["Casa Maya kitchen", "Patio"],
+            equipment=["Sony FX3", "Aputure 300d", "Tripod"],
+            talent=[{"name": "Rosa Chi", "role": "chef", "release": True}, {"name": "Don Pedro", "role": "owner"}],
+            run_of_show=[
+                {"time": "07:30", "item": "Set up in the kitchen"},
+                {"time": "08:00", "item": "Christmas table, overhead"},
+                {"time": "10:00", "item": "Patio, ponche pour"},
+            ],
+            prep_checklist=[
+                {"text": "Christmas table laid for six by 07:30", "done": False},
+                {"text": "Ponche made the night before", "done": False},
+            ],
+            client_contact=contact,
+            client_notes="Park behind the kitchen. Ana meets the crew at the side door.",
+            notes="Don Pedro's release still to sign. Ask Ana for the new menu card.",
+            created_by=owner,
+        )
+        december.crew.add(owner, freelancer)
+        shoots.shots_from_posts(december, [p.post for p in needs[:2]], owner)
+        shoots.add_shot(december, description="Menu card on the table", priority="nice", user=owner)
+
+        # A Luma shoot the same morning with the same camera and the owner: a booking conflict to resolve.
+        luma_shoot = Shoot.objects.create(
+            workspace=luma,
+            title="Night serum flat-lays",
+            date=today + td(days=4),
+            call_time=time(11, 0),
+            wrap_time=time(14, 0),
+            locations=["Studio table"],
+            equipment=["Sony FX3"],
+            created_by=owner,
+        )
+        luma_shoot.crew.add(owner)
+
+        # A licensed photo whose rights end before the post that uses it.
+        licensed = create_asset(
+            self.org,
+            ws,
+            self._photo("rosa-portrait-licensed.png", (122, 92, 70)),
+            owner,
+            title="Rosa portrait (licensed)",
+            tags=["licensed"],
+            source="upload",
+        )
+        AssetRights.objects.create(
+            media_asset=licensed,
+            source=AssetRights.Source.LICENSED,
+            usage=AssetRights.Usage.ORGANIC,
+            licence="Licensed from the photographer for organic posts until the date below.",
+            talent_release=True,
+            expires_on=today + td(days=10),
+            updated_by=owner,
+        )
+        quick_plan(
+            ws,
+            team,
+            title="Rosa, twenty years at the stove",
+            target_date=today + td(days=17),
+            format=ContentPlan.Format.PHOTO,
+            accounts=c["cm_accounts"][:1],
+            media_asset_ids=[licensed.id],
+        )
+
 
 def seed_demo(now=None) -> DemoResult:
-    return _Builder(now).build()
+    from apps.reviews.services import bypass
+
+    builder = _Builder(now)
+    # Demo posts are created directly in their final states (scheduled, published),
+    # which the review checks rightly refuse for real content.
+    with bypass():
+        result = builder.build()
+    # Phase 4's walk-through runs with the review rules on, like real work.
+    builder.content_operations()
+    return result

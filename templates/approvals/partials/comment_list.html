@@ -15,6 +15,7 @@
                 {% endif %}
                 <span class="text-12 text-ink-muted ml-auto">{{ comment.created_at|timesince }} ago</span>
             </div>
+            {% if comment.pin %}<p class="meta">{{ comment.pin.media_asset.filename }} · {{ comment.pin.label }}</p>{% endif %}{# Brown Creative Studio: pins (CHANGES.md) #}
             <p class="text-14 text-ink-muted leading-relaxed whitespace-pre-wrap">{{ comment.body }}</p>
 
             {% if comment.attachment %}

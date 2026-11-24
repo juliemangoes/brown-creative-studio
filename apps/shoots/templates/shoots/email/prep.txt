@@ -1,0 +1,13 @@
+Hello {{ contact.name }},
+
+We're getting ready for {{ shoot.title }} on {{ shoot.date|date:"l j F" }} (call {{ shoot.call_time|time:"H:i" }}).
+{% if shoot.prep_checklist %}
+Before the shoot, please:
+{% for item in shoot.prep_checklist %}- {{ item.text }}
+{% endfor %}{% endif %}
+The call sheet, with times, locations and the shot list:
+{{ url }}
+PDF: {{ pdf_url }}
+
+See you there,
+{{ site_name }}

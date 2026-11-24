@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+{% block title %}Shoots · {{ workspace.name }} · {{ SITE_NAME }}{% endblock %}
+{% block content %}
+<div class="w-full max-w-6xl mx-auto" x-data="{ panel: null }">
+    <header class="flex flex-wrap items-end justify-between gap-4 mb-6">
+        <div><p class="meta mb-1"><a href="{% url 'clients:detail' workspace_id=workspace.id %}" class="link">{{ workspace.name }}</a></p><h1 class="page-title">Shoots</h1></div>
+        {% if can_manage %}<button type="button" class="btn btn-primary" @click="panel = 'new'">Plan a shoot</button>{% endif %}
+    </header>
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div class="lg:col-span-2 space-y-6 min-w-0">
+            <section class="panel" aria-labelledby="up-title">
+                <div class="panel-header"><h2 id="up-title" class="section-title">Coming up</h2></div>
+                <ul class="divide-y divide-hairline">
+                    {% for s in upcoming %}
+                    <li class="px-5 py-3 flex items-center justify-between gap-3">
+                        <div><a href="{% url 'shoots:detail' workspace_id=workspace.id shoot_id=s.id %}" class="text-14 font-medium link">{{ s.title }}</a><p class="meta">{{ s.date|date:"D j M" }} · {{ s.call_time|time:"H:i" }} · {{ s.shots.all|length }} shot{{ s.shots.all|length|pluralize }}</p></div>
+                        <span class="status {% if s.status == 'confirmed' %}status-success{% else %}status-info{% endif %}">{{ s.get_status_display }}</span>
+                    </li>
+                    {% empty %}<li class="px-5 py-3 text-14 text-ink-muted">No shoots planned.</li>
+                    {% endfor %}
+                </ul>
+            </section>
+            {% if past %}
+            <section class="panel" aria-labelledby="past-title">
+                <div class="panel-header"><h2 id="past-title" class="section-title">Earlier</h2></div>
+                <ul class="divide-y divide-hairline">{% for s in past %}<li class="px-5 py-3 flex items-center justify-between gap-3"><a href="{% url 'shoots:detail' workspace_id=workspace.id shoot_id=s.id %}" class="text-14 link">{{ s.title }}, {{ s.date|date:"j M Y" }}</a><span class="status status-neutral">{{ s.get_status_display }}</span></li>{% endfor %}</ul>
+            </section>
+            {% endif %}
+        </div>
+        <aside class="space-y-6 min-w-0">
+            <section class="panel panel-body" aria-labelledby="runway-title">
+                <h2 id="runway-title" class="section-title mb-3">Content runway</h2>
+                {% if runway.total %}
+                <p class="text-24 font-semibold tabular-nums">{{ runway.covered }} <span class="text-14 font-normal text-ink-muted">of {{ runway.total }} planned posts have material</span></p>
+                <div class="meter mt-2" aria-hidden="true"{% if runway.uncovered == 0 %} data-tone="success"{% endif %}><span style="width: {% widthratio runway.covered runway.total 100 %}%"></span></div>
+                <p class="text-14 mt-3">{% if runway.uncovered == 0 %}Everything planned for the next 60 days is covered.{% else %}The first post without material goes out {{ runway.first_gap|date:"D j M" }}. Shoot by <span class="font-medium">{{ runway.needed_by|date:"D j M" }}</span>.{% endif %}</p>
+                {% if runway.next_shoot %}<p class="meta mt-1">Next shoot: {{ runway.next_shoot.date|date:"D j M" }}{% if runway.late %} <span class="text-danger font-medium">(too late for it)</span>{% endif %}</p>{% elif runway.uncovered %}<p class="text-14 text-danger mt-1">No shoot planned.</p>{% endif %}
+                {% else %}<p class="text-14 text-ink-muted">Nothing planned in the next 60 days.</p>{% endif %}
+            </section>
+        </aside>
+    </div>
+    {% if form %}
+    <template x-teleport="body">
+        <div x-show="panel !== null" x-cloak @keydown.escape.window="panel = null">
+            <div class="dialog-backdrop" @click="panel = null"></div>
+            <form method="post" action="{% url 'shoots:create' workspace_id=workspace.id %}" class="side-panel" role="dialog" aria-modal="true" aria-labelledby="new-title">
+                {% csrf_token %}
+                <div class="side-panel-header"><div><p class="meta">{{ workspace.name }}</p><h2 id="new-title" class="text-20 font-semibold">Plan a shoot</h2></div>
+                    <button type="button" class="btn-icon" @click="panel = null" aria-label="Close"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" aria-hidden="true"><path d="M18 6L6 18M6 6l12 12"/></svg></button></div>
+                <div class="side-panel-body space-y-4">{% include "shoots/_form_fields.html" %}</div>
+                <div class="side-panel-footer"><button type="button" class="btn btn-quiet" @click="panel = null">Cancel</button><button type="submit" class="btn btn-primary">Create shoot</button></div>
+            </form>
+        </div>
+    </template>
+    {% endif %}
+</div>
+{% endblock %}

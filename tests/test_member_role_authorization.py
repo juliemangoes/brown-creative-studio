@@ -95,6 +95,16 @@ class RoleAuthorizationBase(TestCase):
         pp = PlatformPost.objects.create(post=post, social_account=self.account, status=status)
         return post, pp
 
+    def _studio_approved(self, post):
+        """Brown Creative Studio (CHANGES.md): a real studio approval of the post's current content.
+
+        Scheduling now needs an approval record for the exact content, not just an
+        "approved" status written straight to the database.
+        """
+        from apps.approvals.models import ApprovalAction
+
+        ApprovalAction.objects.create(post=post, user=self.author, action=ApprovalAction.ActionType.APPROVED)
+
 
 # ---------------------------------------------------------------------------
 # Report 1 — workspace name/logo, and executable uploads on the app's origin
@@ -673,6 +683,7 @@ class TransitionFollowUpTests(RoleAuthorizationBase):
         self.ws.approval_workflow_mode = Workspace.ApprovalWorkflowMode.REQUIRED_INTERNAL
         self.ws.save(update_fields=["approval_workflow_mode"])
         post, pp = self._post(status="approved", proposed_publish_at=timezone.now() + timedelta(days=3))
+        self._studio_approved(post)
         self.client.force_login(self.author)
 
         response = self._transition(post, pp, "scheduled")
@@ -950,6 +961,7 @@ class ApprovalWorkflowGateTests(RoleAuthorizationBase):
     def test_an_approved_post_is_scheduled_by_its_author(self):
         contributor = self._as("contributor")
         post, pp = self._post(status="approved", author=contributor)
+        self._studio_approved(post)
 
         response = self._save("schedule", post)
 

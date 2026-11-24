@@ -37,6 +37,7 @@ STUDIO_WORKSPACE_KEYS: dict[str, str] = {
     "manage_billing": "Create and send invoices and record payments",
     "view_internal": "See internal notes and team comments",
     "manage_brand": "Edit the brand profile, brand files and brand stages",
+    "view_plan": "See the content plan, campaigns, key dates, asset rights and each post's review history",
 }
 # What a client may do in the portal. Studio roles never hold these.
 PORTAL_KEYS: dict[str, str] = {
@@ -68,13 +69,14 @@ ROLE_DEFAULTS: dict[str, dict[str, bool]] = {
         "manage_shoots": True,
         "view_internal": True,
         "manage_brand": True,
+        "view_plan": True,
     },
     # Freelancers: what they are assigned to (the projects and shoots apps
     # filter to assignments; these keys only open the sections).
     "contributor": {**_NONE, "view_projects": True, "view_shoots": True, "view_internal": True},
     # The built-in client role is the brief's "Client reviewer".
     "client": {**_NONE, "portal_view_content": True, "portal_approve": True},
-    "viewer": {**_NONE, "view_client_profile": True, "view_projects": True, "view_shoots": True},
+    "viewer": {**_NONE, "view_client_profile": True, "view_projects": True, "view_shoots": True, "view_plan": True},
 }
 
 # Client roles beyond the reviewer, created per organization as custom roles on

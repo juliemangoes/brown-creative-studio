@@ -13,7 +13,6 @@
     <link rel="manifest" href="{% static 'favicon/site.webmanifest' %}">
     <link rel="stylesheet" href="{% static 'css/dist/styles.css' %}">
     <link rel="preload" href="{% static 'fonts/geist/geist-latin-wght-normal.woff2' %}" as="font" type="font/woff2" crossorigin>
-    <link rel="preload" href="{% static 'fonts/instrument-serif/instrument-serif-latin-400-normal.woff2' %}" as="font" type="font/woff2" crossorigin>
     <link rel="stylesheet" href="{% static 'js/vendor/flatpickr-4.6.13.min.css' %}">
     <script nonce="{{ request.csp_nonce }}">
         // Set sidebar state class on <html> before first paint to prevent flash
@@ -290,7 +289,7 @@
         <aside class="flex flex-col flex-shrink-0 sidebar-initial
                       fixed inset-y-0 left-0 z-40 w-60 bg-surface
                       transition-transform duration-200
-                      lg:relative lg:z-auto lg:translate-x-0 lg:bg-canvas border-r border-hairline"
+                      lg:relative lg:z-auto lg:translate-x-0 lg:bg-canvas border-r border-hairline lg:border-r-0"
                aria-label="Studio navigation"
                :class="[
                    sidebarCollapsed ? 'lg:w-[60px] sidebar-collapsed' : 'lg:w-60',
@@ -663,7 +662,7 @@
         </aside>
 
         <!-- Main content area -->
-        <div class="flex-1 flex flex-col overflow-hidden">
+        <div class="app-frame flex-1 min-w-0 flex flex-col overflow-hidden">
             {% include "studio/shell/_topbar.html" %}
             <!-- Main content -->
             <main id="main" class="bg-surface flex-1 p-4 sm:p-6 lg:p-8 overflow-y-auto flex flex-col">

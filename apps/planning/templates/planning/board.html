@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+{% block title %}Plan · {{ workspace.name }} · {{ SITE_NAME }}{% endblock %}
+{% block content %}
+<div class="w-full max-w-6xl mx-auto" x-data="{ panel: null }">
+    <header class="flex flex-wrap items-end justify-between gap-4 mb-4">
+        <div><p class="meta mb-1"><a href="{% url 'clients:detail' workspace_id=workspace.id %}" class="link">{{ workspace.name }}</a></p><h1 class="page-title">Plan</h1>
+            <p class="text-14 text-ink-muted mt-1">Three months ahead: posts by week with their production stage and approval status, campaigns, key dates and what to watch.</p></div>
+        {% if can_plan %}<button type="button" class="btn btn-primary" @click="panel = 'add'">Plan a post</button>{% endif %}
+    </header>
+    {% include "planning/_nav.html" with nav="board" %}
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div class="lg:col-span-2 min-w-0">{% include "planning/_weeks.html" with show_client=False %}</div>
+        <aside class="space-y-6 min-w-0">
+            <section class="panel" aria-labelledby="warn-title">
+                <div class="panel-header"><h2 id="warn-title" class="section-title">To watch</h2><span class="meta tabular-nums">{{ warnings|length }}</span></div>
+                {% if warnings %}
+                <ul class="divide-y divide-hairline">{% for w in warnings %}<li class="px-5 py-3 text-14 flex gap-2"><span class="status status-{{ w.tone }} flex-shrink-0">{% if w.tone == "danger" %}Act now{% else %}Soon{% endif %}</span><span>{% if w.url %}<a href="{{ w.url }}" class="link">{{ w.text }}</a>{% else %}{{ w.text }}{% endif %}</span></li>{% endfor %}</ul>
+                {% else %}<p class="panel-body text-14 text-ink-muted">Nothing to worry about in this plan.</p>{% endif %}
+            </section>
+            <section class="panel panel-body" aria-labelledby="mix-title">
+                <h2 id="mix-title" class="section-title mb-3">Next 30 days</h2>
+                {% if mix_total %}
+                <h3 class="text-13 font-medium text-ink-muted mb-1">Pillars</h3>
+                <ul class="space-y-2 mb-4">{% for name, pair in pillar_mix %}<li><div class="flex justify-between text-13"><span>{{ name }}</span><span class="tabular-nums">{{ pair.1 }}</span></div><div class="meter mt-1" aria-hidden="true"><span style="width: {% widthratio pair.1 mix_total 100 %}%; background: {{ pair.0 }};"></span></div></li>{% empty %}<li class="text-13 text-ink-muted">No pillars set.</li>{% endfor %}</ul>
+                <h3 class="text-13 font-medium text-ink-muted mb-1">Formats</h3>
+                <ul class="space-y-2">{% for name, count in format_mix %}<li><div class="flex justify-between text-13"><span>{{ name }}</span><span class="tabular-nums">{{ count }}</span></div><div class="meter mt-1" aria-hidden="true"><span style="width: {% widthratio count mix_total 100 %}%;"></span></div></li>{% empty %}<li class="text-13 text-ink-muted">No formats set.</li>{% endfor %}</ul>
+                {% else %}<p class="text-14 text-ink-muted">Nothing planned in the next 30 days yet.</p>{% endif %}
+            </section>
+            <section class="panel" aria-labelledby="ideas-title">
+                <div class="panel-header"><h2 id="ideas-title" class="section-title">Idea bank</h2><a href="{% url 'composer:create_landing' workspace_id=workspace.id %}" class="link text-13">All ideas</a></div>
+                {% if ideas %}
+                <ul class="divide-y divide-hairline">
+                    {% for idea in ideas %}
+                    <li class="px-5 py-3" x-data="{ open: false }">
+                        <div class="flex items-center justify-between gap-2"><span class="text-14">{{ idea.title|default:"Untitled idea"|truncatechars:50 }}</span>{% if can_plan %}<button type="button" class="btn btn-quiet btn-sm" @click="open = !open" :aria-expanded="open">Plan<span class="sr-only"> {{ idea.title }}</span></button>{% endif %}</div>
+                        {% if can_plan %}
+                        <form method="post" action="{% url 'planning:plan_idea' workspace_id=workspace.id idea_id=idea.id %}" class="flex flex-wrap items-end gap-2 mt-2" x-show="open" x-cloak>{% csrf_token %}
+                            <div class="field"><label class="label" for="idea-date-{{ idea.id }}">Date</label><input id="idea-date-{{ idea.id }}" type="date" name="target_date" class="input" required></div>
+                            <div class="field"><label class="label" for="idea-format-{{ idea.id }}">Format</label><select id="idea-format-{{ idea.id }}" name="format" class="select"><option value="">Not decided</option><option value="photo">Photo</option><option value="carousel">Carousel</option><option value="reel">Reel</option><option value="story">Story</option><option value="video">Video</option><option value="text">Text</option></select></div>
+                            <button type="submit" class="btn btn-secondary btn-sm">Put on the calendar</button>
+                        </form>
+                        {% endif %}
+                    </li>
+                    {% endfor %}
+                </ul>
+                {% else %}<p class="panel-body text-14 text-ink-muted">No open ideas. Add them on the idea board.</p>{% endif %}
+            </section>
+        </aside>
+    </div>
+
+    {% if can_plan %}
+    <template x-teleport="body">
+        <div x-show="panel !== null" x-cloak @keydown.escape.window="panel = null">
+            <div class="dialog-backdrop" @click="panel = null"></div>
+            <form method="post" action="{% url 'planning:quick_add' workspace_id=workspace.id %}" class="side-panel" role="dialog" aria-modal="true" aria-labelledby="add-title">
+                {% csrf_token %}
+                <div class="side-panel-header"><div><p class="meta">{{ workspace.name }}</p><h2 id="add-title" class="text-20 font-semibold">Plan a post</h2></div>
+                    <button type="button" class="btn-icon" @click="panel = null" aria-label="Close"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" aria-hidden="true"><path d="M18 6L6 18M6 6l12 12"/></svg></button></div>
+                <div class="side-panel-body space-y-4"><p class="meta">A draft on the client's connected accounts, dated, ready to write in the composer or add to a shoot.</p>{% include "projects/_fields.html" %}</div>
+                <div class="side-panel-footer"><button type="button" class="btn btn-quiet" @click="panel = null">Cancel</button><button type="submit" class="btn btn-primary">Plan it</button></div>
+            </form>
+        </div>
+    </template>
+    {% endif %}
+</div>
+{% endblock %}

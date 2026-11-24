@@ -25,7 +25,7 @@
 
     <section aria-labelledby="sg-type" class="space-y-4">
         <h2 id="sg-type" class="section-title">Type</h2>
-        <p class="meta">Instrument Serif only for page titles, client names and report headlines. Geist for everything else, with tabular figures in tables, metrics and invoices. Body is 14 px in the studio and 16 px in the portal.</p>
+        <p class="meta">One family, Geist: hierarchy comes from size, weight and tight tracking on headings. Tabular figures in tables, metrics and invoices. Body is 14 px in the studio and 16 px in the portal.</p>
         <div class="panel divide-y divide-hairline">
             <div class="p-5"><p class="display-title">Casa Maya, March report</p><p class="meta mt-1">Display · 44 · report headline</p></div>
             <div class="p-5"><p class="page-title">Calendar</p><p class="meta mt-1">Display · 32 · page title</p></div>
@@ -39,7 +39,7 @@
 
     <section aria-labelledby="sg-buttons" class="space-y-4">
         <h2 id="sg-buttons" class="section-title">Buttons</h2>
-        <p class="meta">One primary action per screen. 6 px radius on every control.</p>
+        <p class="meta">One primary action per screen. 8 px radius on every control.</p>
         <div class="flex flex-wrap items-center gap-3">
             <button type="button" class="btn btn-primary">Send for approval</button>
             <button type="button" class="btn btn-secondary">Save draft</button>
@@ -92,10 +92,12 @@
             <a href="#sg-tabs" class="tab" role="tab" aria-selected="false">Drafts</a>
             <a href="#sg-tabs" class="tab" role="tab" aria-selected="false">Approvals <span class="sidebar-badge">3</span></a>
         </div>
-        <div class="flex flex-wrap gap-2" role="group" aria-label="Saved views">
-            <button type="button" class="btn btn-secondary btn-sm" aria-pressed="true">All posts</button>
-            <button type="button" class="btn btn-quiet btn-sm" aria-pressed="false">Due this week</button>
-            <button type="button" class="btn btn-quiet btn-sm" aria-pressed="false">Waiting on client</button>
+        <div class="flex flex-wrap items-center gap-2">
+            <div class="segmented" role="group" aria-label="Saved views">
+                <button type="button" class="segment" aria-pressed="true">All posts</button>
+                <button type="button" class="segment" aria-pressed="false">Due this week</button>
+                <button type="button" class="segment" aria-pressed="false">Waiting on client</button>
+            </div>
             <button type="button" class="btn btn-quiet btn-sm">Save this view</button>
         </div>
         <div class="panel overflow-x-auto">
@@ -113,9 +115,9 @@
 
     <section aria-labelledby="sg-surfaces" class="space-y-4">
         <h2 id="sg-surfaces" class="section-title">Panels, menus, side panel, dialog, toast</h2>
-        <p class="meta">Separate with space and hairlines; shadows only on menus and dialogs. Details open in a side panel so people keep their place.</p>
+        <p class="meta">White cards with a hairline and a soft shadow on the page; menus and dialogs float higher. Details open in a side panel so people keep their place.</p>
         <div class="grid sm:grid-cols-2 gap-4">
-            <div class="panel"><div class="panel-header"><h3 class="text-14 font-semibold">Panel</h3><span class="meta">10 px radius</span></div><div class="panel-body text-14 text-ink-muted">Surface on canvas, one hairline.</div></div>
+            <div class="panel"><div class="panel-header"><h3 class="text-14 font-semibold">Panel</h3><span class="meta">12 px radius</span></div><div class="panel-body text-14 text-ink-muted">Surface, one hairline, a soft shadow.</div></div>
             <div class="well text-14 text-ink-muted">A well: sunken background for grouped controls.</div>
             <div class="menu" role="menu" aria-label="Example menu">
                 <button type="button" class="menu-item" role="menuitem">Duplicate</button>
