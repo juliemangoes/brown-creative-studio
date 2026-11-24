@@ -20,6 +20,8 @@ _WORKFLOW_ORDER = [
     "pending_review",
     "pending_client",
     "approved",
+    # Brown Creative Studio (CHANGES.md): due, waiting for someone to post it by hand.
+    "manual_action",
     "scheduled",
     "publishing",
     "partially_published",

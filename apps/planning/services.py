@@ -25,8 +25,9 @@ POST_STATUS_LABELS = {
     "published": "Published",
     "failed": "Failed",
     "on_hold": "On hold",
+    "manual_action": "Manual action needed",
 }
-DONE_STATUSES = {"scheduled", "publishing", "published"}
+DONE_STATUSES = {"scheduled", "publishing", "published", "manual_action"}
 # Once a post is approved its production is finished: labels show the status alone.
 STAGE_HIDDEN_STATUSES = DONE_STATUSES | {"approved"}
 # Stages a post leaves automatically when it is sent for review.

@@ -45,6 +45,7 @@ STATUS_META = {
     "partially_published": _meta("Partially published", "warning"),
     "failed": _meta("Failed", "danger"),
     "on_hold": _meta("Hold requested", "neutral"),
+    "manual_action": _meta("Manual action needed", "warning"),
 }
 
 

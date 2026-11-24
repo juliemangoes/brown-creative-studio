@@ -390,7 +390,7 @@ def _validate_pinterest_board_selection(request, post, workspace):
 # resubmit only start a review, so they are not among them.
 _DIRECT_SCHEDULE_ACTIONS = frozenset({"schedule", "publish_now", "add_to_queue", "add_to_queue_priority"})
 # A child in one of these has been through review, or is already committed.
-_PAST_REVIEW_STATUSES = frozenset({"approved", "scheduled", "publishing", "published", "failed"})
+_PAST_REVIEW_STATUSES = frozenset({"approved", "scheduled", "publishing", "published", "failed", "manual_action"})
 
 
 def _approval_gate_rejection(request, workspace, post_id, action):
@@ -1478,6 +1478,16 @@ def transition_platform_post(request, workspace_id, post_id, platform_post_id):
             return JsonResponse(
                 {"error": "Pick a publish time in the composer before scheduling this post."}, status=400
             )
+
+    if (
+        target in ("scheduled", "publishing")
+        and pp.status == "failed"
+        and (pp.platform_extra or {}).get("outcome_unknown")
+    ):
+        # Brown Creative Studio (CHANGES.md): it may already be live; retry from Publishing after checking.
+        return JsonResponse(
+            {"error": "This post may already be live. Check the page, then retry it from Publishing."}, status=400
+        )
 
     if target in ("scheduled", "publishing") and pp.status != "failed":
         # Brown Creative Studio (CHANGES.md): the required approvals must cover this exact content.

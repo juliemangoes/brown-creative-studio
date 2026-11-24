@@ -97,6 +97,7 @@ urlpatterns = [
     path("assets/", include("apps.assets.urls")),
     path("billing/", include("apps.billing.urls")),
     path("messages/", include("apps.conversations.urls")),
+    path("publishing/", include("apps.publishing.urls")),
     path("invoice/", include("apps.billing.urls_public")),
     path("", include("apps.studio.urls")),
     path("", include("apps.accounts.urls_root")),

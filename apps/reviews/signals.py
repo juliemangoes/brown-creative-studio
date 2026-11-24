@@ -86,8 +86,12 @@ def _platform_post_guard(sender, instance, **kwargs):
     instance._reviews_reopen = bool(
         before
         and before["status"] in services.REOPEN_FROM
-        and any(before[f] != getattr(instance, f) for f in PP_FIELDS)
+        and any(_authored(f, before[f]) != _authored(f, getattr(instance, f)) for f in PP_FIELDS)
     )
+
+
+def _authored(field, value):
+    return services.strip_system_keys(value) if field == "platform_extra" else value
 
 
 @receiver(post_save, sender=PlatformPost)

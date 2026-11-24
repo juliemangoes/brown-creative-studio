@@ -488,6 +488,68 @@ class _Builder:
         )
         self.approval(scheduled, client_users["lia"], ApprovalAction.ActionType.APPROVED)
         self.post(ws, accounts, "Brand refresh sneak peek", "", self.at(14, 10), "draft", author=owner)
+        self._publishing(ws, accounts, tiktok, team, client_users)
+
+    # ── Phase 6: posting TikTok by hand, an uncertain Instagram failure ──
+    def _publishing(self, ws, accounts, tiktok, team, client_users):
+        from django.core.files.uploadedfile import SimpleUploadedFile
+
+        from apps.approvals.models import ApprovalAction
+        from apps.composer.models import PlatformPost, PostMedia
+        from apps.media_library.models import MediaAsset
+        from apps.publishing.models import ManualPublishTask
+        from apps.publishing.services import OUTCOME_UNKNOWN_MESSAGE
+
+        due = timezone.now() + timedelta(minutes=40)
+        layering = self.post(
+            ws,
+            [tiktok],
+            "How to layer serums",
+            "Thin to thick, always. Which order do you use? #skincare #serum",
+            due,
+            "manual_action",
+            author=team,
+        )
+        video = MediaAsset.objects.create(
+            organization=ws.organization,
+            workspace=ws,
+            file=SimpleUploadedFile("layering-demo.mp4", b"\x00\x00\x00\x18ftypmp42demo video"),
+            filename="layering-demo.mp4",
+            media_type="video",
+            mime_type="video/mp4",
+            processing_status="completed",
+        )
+        PostMedia.objects.create(post=layering, media_asset=video)
+        self.approval(layering, client_users["lia"], ApprovalAction.ActionType.APPROVED)
+        ManualPublishTask.objects.create(
+            workspace=ws, platform_post=layering.platform_posts.get(), assignee=team, due_at=due
+        )
+
+        uncertain = self.post(
+            ws,
+            accounts,
+            "Weekend glow giveaway",
+            "Win our full routine: follow, like and tag a friend.",
+            self.at(0, 9) - timedelta(hours=1),
+            "failed",
+            author=team,
+            error=OUTCOME_UNKNOWN_MESSAGE.format(platform="Instagram"),
+        )
+        PlatformPost.objects.filter(post=uncertain).update(platform_extra={"outcome_unknown": True})
+        self.approval(uncertain, client_users["lia"], ApprovalAction.ActionType.APPROVED)
+
+        posted = self.post(
+            ws,
+            [tiktok],
+            "Toner or essence?",
+            "The difference in 20 seconds.",
+            self.at(-2, 18),
+            "published",
+            author=team,
+        )
+        PlatformPost.objects.filter(post=posted).update(
+            platform_extra={"live_url": "https://www.tiktok.com/@lumaskincare/video/7300000000000000000"}
+        )
 
     # ── Phase 3: projects, brand work and onboarding ─────────────────────
     def _logo(self, name, background, ink, *, png=False):

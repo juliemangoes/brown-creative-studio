@@ -28,6 +28,9 @@ class EventType(models.TextChoices):
     CONTRACT_SIGNED = "contract_signed", "Client signed a contract"
     PAYMENT_SUBMITTED = "payment_submitted", "Client reported a payment"
     CLIENT_MESSAGE = "client_message", "New message from a client"
+    # Brown Creative Studio (CHANGES.md): publishing (Phase 6).
+    MANUAL_PUBLISH = "manual_publish", "A post needs posting by hand"
+    PUBLISH_CHECK = "publish_check", "A scheduled post has a problem"
 
 
 class Channel(models.TextChoices):

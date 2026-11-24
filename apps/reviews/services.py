@@ -22,7 +22,7 @@ import threading
 from django.db import transaction
 
 REQUIRED_MODES = {"required_internal", "required_internal_and_client"}
-REOPEN_FROM = ("approved", "pending_client", "scheduled", "failed", "on_hold")
+REOPEN_FROM = ("approved", "pending_client", "scheduled", "failed", "on_hold", "manual_action")
 _state = threading.local()
 
 
@@ -56,8 +56,16 @@ def bypassed() -> bool:
 # ── Fingerprints ─────────────────────────────────────────────────────────────
 
 
+# Keys the publisher writes about the outcome (apps.publishing), not settings anyone approves.
+SYSTEM_EXTRA_KEYS = frozenset({"live_url", "outcome_unknown"})
+
+
+def strip_system_keys(extra) -> dict:
+    return {k: v for k, v in (extra or {}).items() if k not in SYSTEM_EXTRA_KEYS}
+
+
 def _authored_extra(platform_post) -> dict:
-    extra = platform_post.platform_extra or {}
+    extra = strip_system_keys(platform_post.platform_extra)
     if platform_post.social_account_id and platform_post.social_account.platform == "youtube":
         from apps.social_accounts.youtube_compliance import authored_youtube_settings
 

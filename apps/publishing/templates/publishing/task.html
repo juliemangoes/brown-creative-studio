@@ -1,0 +1,91 @@
+{% extends "base.html" %}
+{% load ds %}
+{% block title %}Post by hand · {{ workspace.name }} · {{ SITE_NAME }}{% endblock %}
+{% block content %}
+<div class="w-full max-w-4xl mx-auto">
+    <header class="flex flex-wrap items-end justify-between gap-4 mb-6">
+        <div class="min-w-0">
+            <p class="meta mb-1"><a href="{% url 'publishing:client' workspace_id=workspace.id %}" class="link">{{ workspace.name }} · Publishing</a></p>
+            <h1 class="page-title">Post on {{ pp.social_account.get_platform_display }} by hand</h1>
+            <p class="text-14 text-ink-muted mt-1">{{ pp.post.title|default:"Untitled post" }} · {{ pp.social_account.account_name }}{% if pp.social_account.account_handle %} (@{{ pp.social_account.account_handle }}){% endif %}</p>
+        </div>
+        {% status "post" pp.status %}
+    </header>
+
+    {% if task.status == "done" %}
+    <section class="panel panel-body mb-6" aria-labelledby="done-title">
+        <h2 id="done-title" class="section-title">Posted</h2>
+        <p class="text-14 mt-1">{{ task.completed_by.name|default:task.completed_by.email }} marked it published {{ task.completed_at|date:"D j M, H:i" }}. <a href="{{ task.live_url }}" class="link" target="_blank" rel="noopener noreferrer">View the live post<span class="sr-only"> (opens in a new tab)</span></a></p>
+    </section>
+    {% elif task.status == "cancelled" %}
+    <section class="panel panel-body mb-6" role="status">
+        <h2 class="section-title">No longer needed</h2>
+        <p class="text-14 mt-1">{{ task.cancelled_reason|default:"This post was changed or sent back for review." }} Nothing to post.</p>
+    </section>
+    {% else %}
+    <p class="panel panel-body text-14 mb-6{% if late %} border-danger{% endif %}">
+        {% if late %}<span class="font-medium text-danger">Late:</span> it was due{% else %}Due{% endif %}
+        <span class="font-medium">{{ task.due_at|date:"l j M, H:i" }}</span> (client time).
+        {% if task.reason == "inbox" %}TikTok put this video in the account's inbox: open TikTok on the account's phone, finish the post from the inbox, then paste the link below.{% else %}Download the video, copy the caption, post it from the client's TikTok account, then paste the link below.{% endif %}
+        Assigned to <span class="font-medium">{% if task.assignee %}{{ task.assignee.name|default:task.assignee.email }}{% else %}nobody{% endif %}</span>.
+    </p>
+    {% endif %}
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
+        <section class="panel panel-body space-y-3" aria-labelledby="files-title">
+            <h2 id="files-title" class="section-title">1. Video</h2>
+            {% for a in attachments %}
+            <div class="flex items-center justify-between gap-3">
+                <span class="text-14 truncate">{{ a.media_asset.filename }}</span>
+                <a href="{% url 'publishing:task_download' workspace_id=workspace.id task_id=task.id attachment_id=a.id %}" class="btn btn-secondary btn-sm">Download<span class="sr-only"> {{ a.media_asset.filename }}</span></a>
+            </div>
+            {% empty %}
+            <p class="text-14 text-danger">This post has no file. Add the video in the composer first.</p>
+            {% endfor %}
+        </section>
+
+        <section class="panel panel-body space-y-3" aria-labelledby="caption-title" x-data="{ copied: '' }">
+            <h2 id="caption-title" class="section-title">2. Caption</h2>
+            <textarea id="caption" class="textarea" rows="6" readonly aria-labelledby="caption-title">{{ caption }}</textarea>
+            <button type="button" class="btn btn-secondary btn-sm" @click="navigator.clipboard.writeText(document.getElementById('caption').value).then(() => copied = 'caption')">Copy caption</button>
+            {% if first_comment %}
+            <label for="first-comment" class="label">First comment</label>
+            <textarea id="first-comment" class="textarea" rows="2" readonly>{{ first_comment }}</textarea>
+            <button type="button" class="btn btn-secondary btn-sm" @click="navigator.clipboard.writeText(document.getElementById('first-comment').value).then(() => copied = 'comment')">Copy first comment</button>
+            {% endif %}
+            <p class="meta" role="status" aria-live="polite" x-text="copied === 'caption' ? 'Caption copied.' : (copied === 'comment' ? 'First comment copied.' : '')"></p>
+        </section>
+    </div>
+
+    {% if task.status == "open" %}
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+        <section class="panel panel-body" aria-labelledby="link-title">
+            <h2 id="link-title" class="section-title mb-3">3. Paste the live link</h2>
+            {% if can_complete %}
+            <form method="post" action="{% url 'publishing:task_complete' workspace_id=workspace.id task_id=task.id %}" class="space-y-3">
+                {% csrf_token %}
+                <label for="live_url" class="label">Link to the post on {{ pp.social_account.get_platform_display }}</label>
+                <input id="live_url" name="live_url" type="url" required placeholder="https://www.tiktok.com/@account/video/…" class="input">
+                <button type="submit" class="btn btn-primary">Mark published</button>
+            </form>
+            {% else %}
+            <p class="text-14 text-ink-muted">Only the assigned person, or someone who can publish, can mark this posted.</p>
+            {% endif %}
+        </section>
+        {% if can_reassign %}
+        <section class="panel panel-body" aria-labelledby="assign-title">
+            <h2 id="assign-title" class="section-title mb-3">Who posts it</h2>
+            <form method="post" action="{% url 'publishing:task_reassign' workspace_id=workspace.id task_id=task.id %}" class="space-y-3">
+                {% csrf_token %}
+                <label for="assignee" class="label">Assigned to</label>
+                <select id="assignee" name="assignee" class="select">
+                    {% for u in staff %}<option value="{{ u.pk }}"{% if u.pk == task.assignee_id %} selected{% endif %}>{{ u.name|default:u.email }}</option>{% endfor %}
+                </select>
+                <button type="submit" class="btn btn-secondary">Reassign</button>
+            </form>
+        </section>
+        {% endif %}
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

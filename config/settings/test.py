@@ -67,3 +67,8 @@ DATABASES = {
         "PORT": env.int("DB_PORT", default=5432),  # noqa: F405
     },
 }
+
+# BrightBean's publisher tests exercise TikTok Direct Post through the API, which
+# stays in the code for when TikTok approves the app. Production defaults to
+# assisted posting (False); apps/publishing/tests switch it off explicitly.
+TIKTOK_DIRECT_POST_ENABLED = True
