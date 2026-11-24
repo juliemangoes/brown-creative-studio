@@ -5,6 +5,7 @@
     <p><a href="{% url 'billing_portal:index' %}" class="link">← {% translate "Billing" %}</a></p>
     <header><p class="eyebrow">{% translate "Proposal" %} {{ proposal.number }}</p><h1 class="display-title">{{ proposal.title }}</h1>
         <div class="flex flex-wrap items-center gap-2 mt-2">{% include "billing/_status.html" with obj=proposal %}{% if proposal.valid_until and proposal.is_open %}<span class="meta">{% blocktranslate with date=proposal.valid_until|date:"j F Y" %}Open until {{ date }}{% endblocktranslate %}</span>{% endif %}</div></header>
+    <p><a href="{% url 'conversations_portal:index' %}?about=proposal&amp;id={{ proposal.id }}" class="link">{% translate "Questions? Ask the studio about this proposal" %}</a></p>
     {% if proposal.introduction %}<p class="whitespace-pre-line text-16">{{ proposal.introduction }}</p>{% endif %}
     <section class="panel overflow-x-auto" aria-labelledby="what-title">
         <div class="panel-header"><h2 id="what-title" class="section-title">{% translate "What's included" %}</h2></div>

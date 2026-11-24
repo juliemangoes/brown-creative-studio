@@ -44,6 +44,9 @@ CLIENT_NAMESPACES = frozenset(
         "shoots_public",
         "billing_portal",
         "billing_public",
+        "shoots_portal",
+        "planning_portal",
+        "conversations_portal",
     }
 )
 CLIENT_VIEWS = frozenset(

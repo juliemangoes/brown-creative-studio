@@ -154,6 +154,22 @@
                 {% endif %}
             </section>
 
+            {# ── Money ───────────────────────────────────────────────── #}
+            {% if today.overdue_invoices or today.payments_to_confirm %}
+            <section class="panel" aria-labelledby="money-title">
+                <div class="panel-header"><h2 id="money-title" class="section-title">Invoices</h2><a href="{% if today.selected %}{% url 'billing:client' workspace_id=today.selected.id %}{% else %}{% url 'billing:index' %}{% endif %}" class="link text-13">Billing</a></div>
+                <ul class="divide-y divide-hairline">
+                    {% if today.payments_to_confirm %}<li class="px-5 py-3 flex items-center justify-between gap-3"><span class="text-14">Client payment{{ today.payments_to_confirm|pluralize }} to confirm</span><span class="status status-warning">{{ today.payments_to_confirm }}</span></li>{% endif %}
+                    {% for inv in today.overdue_invoices %}
+                    <li class="px-5 py-3">
+                        <div class="flex items-center justify-between gap-3"><a href="{% url 'billing:invoice' workspace_id=inv.workspace_id invoice_id=inv.id %}" class="text-14 font-medium text-ink hover:underline">{{ inv.number }}</a><span class="status status-danger">{{ inv.days_overdue }} d overdue</span></div>
+                        <p class="meta mt-0.5">{% if not today.selected %}{{ inv.workspace.name }} · {% endif %}{{ inv.currency }} {{ inv.balance }} unpaid</p>
+                    </li>
+                    {% endfor %}
+                </ul>
+            </section>
+            {% endif %}
+
             {# ── Shoot days ──────────────────────────────────────────── #}
             {% if today.shoots or today.needs_shoot %}
             <section class="panel" aria-labelledby="shoots-title">

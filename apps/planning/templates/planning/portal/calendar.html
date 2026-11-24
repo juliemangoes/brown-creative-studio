@@ -1,0 +1,30 @@
+{% extends "client_portal/portal_base.html" %}{% load i18n %}
+{% block title %}{% translate "Calendar" %} · {{ workspace.name }}{% endblock %}
+{% block content %}
+<div class="space-y-8">
+    <header><h1 class="display-title">{% translate "Calendar" %}</h1><p class="text-ink-muted mt-1">{% translate "Approved and scheduled content, and what went out recently. Posts waiting for you are in Approvals." %}</p></header>
+    <nav class="flex items-center justify-between gap-3" aria-label="{% translate 'Weeks' %}">
+        <a href="?from={{ prev }}" class="btn btn-quiet btn-sm">← {% translate "Earlier" %}</a>
+        <span class="tabular-nums text-ink-muted">{{ first|date:"j M" }} – {{ last|date:"j M Y" }}</span>
+        <a href="?from={{ next }}" class="btn btn-quiet btn-sm">{% translate "Later" %} →</a>
+    </nav>
+    {% for day, posts in days %}
+    <section aria-labelledby="d-{{ day|date:'Ymd' }}" class="space-y-2">
+        <h2 id="d-{{ day|date:'Ymd' }}" class="section-title">{% if day == today %}{% translate "Today" %}{% else %}{{ day|date:"l j F" }}{% endif %}</h2>
+        <ul class="panel divide-y divide-hairline">
+            {% for item in posts %}
+            <li class="px-5 py-3 flex items-start justify-between gap-3">
+                <div class="min-w-0 flex items-start gap-3">
+                    {% with media=item.post.media_attachments.all|first %}{% if media and media.media_asset.media_type == "image" %}<img src="{{ media.media_asset.file.url }}" alt="" class="w-12 h-12 rounded-control object-cover flex-shrink-0">{% endif %}{% endwith %}
+                    <div class="min-w-0"><p class="font-medium">{{ item.post.title|default:item.post.caption|truncatechars:70 }}</p><p class="meta">{{ item.time|time:"H:i" }} · {{ item.platforms|join:", " }}</p></div>
+                </div>
+                {% if item.status == "published" %}<span class="status status-success">{% translate "Published" %}</span>{% elif item.status == "approved" %}<span class="status status-info">{% translate "Approved" %}</span>{% else %}<span class="status status-accent">{% translate "Scheduled" %}</span>{% endif %}
+            </li>
+            {% endfor %}
+        </ul>
+    </section>
+    {% empty %}
+    {% include "ds/_state.html" with kind="empty" title=_("Nothing on the calendar these weeks") body=_("Approved and scheduled posts appear here. Look at earlier or later weeks, or at Approvals for posts waiting for you.") %}
+    {% endfor %}
+</div>
+{% endblock %}

@@ -1,0 +1,19 @@
+{% extends "client_portal/portal_base.html" %}{% load i18n %}
+{% block title %}{{ conversation.subject }} · {{ workspace.name }}{% endblock %}
+{% block content %}
+<div class="space-y-6">
+    <p><a href="{% url 'conversations_portal:index' %}" class="link">← {% translate "Messages" %}</a></p>
+    <header><h1 class="text-24 font-semibold tracking-tight">{{ conversation.subject }}</h1></header>
+    <ol class="space-y-4" aria-label="{% translate 'Messages' %}">
+        {% for m in messages_list %}
+        <li class="flex {% if m.from_client %}justify-end{% endif %}"><div class="max-w-[85%] rounded-panel px-4 py-3 {% if m.from_client %}bg-accent-soft{% else %}bg-surface border border-hairline{% endif %}">
+            <p class="meta mb-1">{% if m.from_client %}{{ m.author.name|default:m.author.email }}{% else %}{{ SITE_NAME }}{% endif %} · {{ m.created_at|date:"j M, H:i" }}</p>
+            <p class="whitespace-pre-line">{{ m.body }}</p></div></li>
+        {% endfor %}
+    </ol>
+    <form method="post" action="{% url 'conversations_portal:reply' conversation_id=conversation.id %}" class="panel panel-body space-y-3">{% csrf_token %}
+        <label class="label" for="r-body">{% translate "Reply" %}</label><textarea id="r-body" name="body" class="textarea" rows="3" required></textarea>
+        <button type="submit" class="btn btn-primary">{% translate "Send" %}</button>
+    </form>
+</div>
+{% endblock %}

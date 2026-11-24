@@ -28,6 +28,7 @@
         <a href="{% url 'social_accounts:list' workspace_id=workspace.id %}" class="tab">Connected accounts</a>
         <a href="{% url 'media_library:index' workspace_id=workspace.id %}" class="tab">Files</a>
         <a href="{% url 'analytics:index' workspace_id=workspace.id %}" class="tab">Reports</a>
+        <a href="{% url 'conversations:client' workspace_id=workspace.id %}" class="tab"{% if tab == "messages" %} aria-current="page"{% endif %}>Messages</a>
         <a href="{% url 'clients:activity' workspace_id=workspace.id %}" class="tab"{% if tab == "activity" %} aria-current="page"{% endif %}>Activity</a>
     </nav>
 </header>

@@ -1,0 +1,24 @@
+{% extends "client_portal/portal_base.html" %}{% load i18n %}
+{% block title %}{% translate "Messages" %} · {{ workspace.name }}{% endblock %}
+{% block content %}
+<div class="space-y-8">
+    <header><h1 class="display-title">{% translate "Messages" %}</h1><p class="text-ink-muted mt-1">{% translate "Write to the studio about anything: a post, an invoice, a shoot. Each conversation keeps its own thread." %}</p></header>
+    <form method="post" class="panel panel-body space-y-3" aria-labelledby="new-title">{% csrf_token %}
+        <h2 id="new-title" class="section-title">{% if about_label %}{% blocktranslate with label=about_label %}A question about {{ label }}{% endblocktranslate %}{% else %}{% translate "New message" %}{% endif %}</h2>
+        <input type="hidden" name="about" value="{{ about }}"><input type="hidden" name="about_id" value="{{ about_id }}">
+        <div class="field"><label class="label" for="m-subject">{% translate "Subject" %}</label><input id="m-subject" name="subject" class="input" value="{{ about_label }}"></div>
+        <div class="field"><label class="label" for="m-body">{% translate "Message" %}</label><textarea id="m-body" name="body" class="textarea" rows="4" required></textarea></div>
+        <button type="submit" class="btn btn-primary">{% translate "Send" %}</button>
+    </form>
+    <section class="space-y-2" aria-labelledby="list-title">
+        <h2 id="list-title" class="section-title">{% translate "Conversations" %}</h2>
+        <ul class="panel divide-y divide-hairline">
+            {% for c in conversations %}
+            <li><a href="{% url 'conversations_portal:thread' conversation_id=c.id %}" class="block px-5 py-3 hover:bg-sunken">
+                <div class="flex items-center justify-between gap-2"><span class="font-medium">{{ c.subject }}</span>{% if c.pk in unread %}<span class="status status-accent">{% translate "New reply" %}</span>{% endif %}</div>
+                <p class="meta">{% blocktranslate with t=c.last_message_at|timesince %}{{ t }} ago{% endblocktranslate %}</p></a></li>
+            {% empty %}<li class="px-5 py-3 text-ink-muted">{% translate "No conversations yet." %}</li>{% endfor %}
+        </ul>
+    </section>
+</div>
+{% endblock %}

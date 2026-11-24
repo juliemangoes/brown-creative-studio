@@ -27,6 +27,7 @@ from apps.studio.portal import (
     portal_permissions,
     register_notice,
     register_section,
+    register_upcoming,
 )
 
 KEY = "portal_view_billing"
@@ -334,3 +335,24 @@ def public_invoice_pdf(request, token):
     from apps.billing.views import pdf_response
 
     return pdf_response(_public(token))
+
+
+@register_upcoming
+def _coming_up(request):
+    from apps.studio.portal import UpcomingItem
+
+    if not portal_permissions(request).get(KEY):
+        return []
+    return [
+        UpcomingItem(
+            inv.due_date,
+            _("Invoice %(number)s due: %(currency)s %(balance)s")
+            % {"number": inv.number, "currency": inv.currency, "balance": inv.balance},
+            reverse("billing_portal:invoice", kwargs={"invoice_id": inv.id}),
+            "invoice",
+        )
+        for inv in _visible_invoices(request.portal_workspace)
+        .filter(status__in=Invoice.OPEN_STATUSES, kind=Invoice.Kind.INVOICE)
+        .exclude(due_date=None)
+        .order_by("due_date")[:3]
+    ]

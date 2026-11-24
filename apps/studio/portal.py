@@ -20,6 +20,7 @@ from django.core.exceptions import PermissionDenied
 
 _SECTIONS: list[Callable] = []
 _NOTICES: list[Callable] = []
+_UPCOMING: list[Callable] = []
 
 
 @dataclass
@@ -47,6 +48,32 @@ def register_notice(func):
     """``func(request) -> PortalNotice | None``. Shown at the top of portal pages."""
     _NOTICES.append(func)
     return func
+
+
+@dataclass
+class UpcomingItem:
+    when: object  # date or datetime, in the client's time
+    label: str
+    url: str
+    kind: str  # shoot | post | invoice | …
+
+
+def register_upcoming(func):
+    """``func(request) -> list[UpcomingItem]``. Shown on the portal home under "Coming up"."""
+    _UPCOMING.append(func)
+    return func
+
+
+def upcoming(request, limit=8) -> list[UpcomingItem]:
+    from datetime import date, datetime
+
+    items = [i for f in _UPCOMING for i in (f(request) or [])]
+
+    def key(item):
+        w = item.when
+        return w.date() if isinstance(w, datetime) else w if isinstance(w, date) else date.max
+
+    return sorted(items, key=key)[:limit]
 
 
 def portal_permissions(request) -> dict:

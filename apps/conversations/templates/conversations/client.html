@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% block title %}Messages · {{ workspace.name }} · {{ SITE_NAME }}{% endblock %}
+{% block content %}
+<div class="w-full max-w-6xl mx-auto">
+    {% include "clients/_header.html" %}
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <section class="panel min-w-0" aria-labelledby="threads-title">
+            <div class="panel-header"><h2 id="threads-title" class="section-title">Conversations</h2></div>
+            <ul class="divide-y divide-hairline">
+                {% for c in conversations %}
+                <li><a href="{% url 'conversations:thread' workspace_id=workspace.id conversation_id=c.id %}" class="block px-5 py-3 hover:bg-sunken{% if current.id == c.id %} bg-sunken{% endif %}"{% if current.id == c.id %} aria-current="page"{% endif %}>
+                    <div class="flex items-center justify-between gap-2"><span class="font-medium truncate">{{ c.subject }}</span>{% if c.pk in unread %}<span class="status status-accent">New</span>{% elif c.is_closed %}<span class="status status-neutral">Closed</span>{% endif %}</div>
+                    <p class="meta">{% if c.about != "general" %}{{ c.get_about_display }}: {{ c.about_label }} · {% endif %}{{ c.last_message_at|timesince }} ago</p></a></li>
+                {% empty %}<li class="px-5 py-3 text-14 text-ink-muted">No messages yet. Clients write from the portal, about a post, invoice or shoot.</li>{% endfor %}
+            </ul>
+            <form method="post" action="{% url 'conversations:start' workspace_id=workspace.id %}" class="panel-body border-t border-hairline space-y-2">{% csrf_token %}
+                <p class="font-medium">Write to the client</p>
+                <label class="label" for="new-subject">Subject</label><input id="new-subject" name="subject" class="input" required>
+                <label class="label" for="new-body">Message</label><textarea id="new-body" name="body" class="textarea" rows="3" required></textarea>
+                <button type="submit" class="btn btn-secondary btn-sm">Send</button>
+            </form>
+        </section>
+        <section class="lg:col-span-2 min-w-0" aria-live="polite">
+            {% if current %}
+            <article class="panel" aria-labelledby="thread-title">
+                <div class="panel-header"><div><h2 id="thread-title" class="section-title">{{ current.subject }}</h2>{% if current.about != "general" %}<p class="meta">{{ current.get_about_display }}: {{ current.about_label }}</p>{% endif %}</div>
+                    {% if not current.is_closed %}<form method="post" action="{% url 'conversations:reply' workspace_id=workspace.id conversation_id=current.id %}">{% csrf_token %}<input type="hidden" name="close" value="1"><button type="submit" class="btn btn-quiet btn-sm">Close</button></form>{% endif %}</div>
+                <ol class="panel-body space-y-4">
+                    {% for m in messages_list %}
+                    <li class="flex {% if not m.from_client %}justify-end{% endif %}"><div class="max-w-[85%] rounded-panel px-4 py-3 {% if m.from_client %}bg-sunken{% else %}bg-accent-soft{% endif %}">
+                        <p class="meta mb-1">{{ m.author.name|default:m.author.email }}{% if m.from_client %} · client{% endif %} · {{ m.created_at|date:"j M, H:i" }}</p>
+                        <p class="whitespace-pre-line">{{ m.body }}</p></div></li>
+                    {% endfor %}
+                </ol>
+                <form method="post" action="{% url 'conversations:reply' workspace_id=workspace.id conversation_id=current.id %}" class="panel-body border-t border-hairline space-y-2">{% csrf_token %}
+                    <label class="label" for="reply-body">Reply</label><textarea id="reply-body" name="body" class="textarea" rows="3" required></textarea>
+                    <p class="help">The client sees everything in this conversation. Team notes belong in internal comments.</p>
+                    <button type="submit" class="btn btn-primary">Send reply</button>
+                </form>
+            </article>
+            {% else %}
+            {% include "ds/_state.html" with kind="empty" title="Pick a conversation" body="Messages from the client's portal show here, each tied to the post, invoice or shoot it is about." %}
+            {% endif %}
+        </section>
+    </div>
+</div>
+{% endblock %}

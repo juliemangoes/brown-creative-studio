@@ -1,0 +1,10 @@
+{% load i18n %}{% if portal_upcoming %}
+<section class="panel mb-8" aria-labelledby="coming-title">
+    <div class="panel-header"><h2 id="coming-title" class="section-title">{% translate "Coming up" %}</h2></div>
+    <ul class="divide-y divide-hairline">
+        {% for item in portal_upcoming %}
+        <li><a href="{{ item.url }}" class="flex items-center justify-between gap-3 px-5 py-3 hover:bg-sunken"><span>{{ item.label }}</span><span class="meta tabular-nums whitespace-nowrap">{{ item.when|date:"D j M" }}</span></a></li>
+        {% endfor %}
+    </ul>
+</section>
+{% endif %}

@@ -133,7 +133,28 @@ def accounts_signal(workspace) -> Signal | None:
     return Signal("accounts", "Accounts", "success", f"{len(accounts)} connected.", url)
 
 
-def client_health(workspace, now=None) -> Health:
+def invoices_signal(workspace, today=None) -> Signal | None:
+    """Unpaid invoices (apps.billing). Only for people who may see billing."""
+    from apps.billing.models import Invoice
+
+    open_invoices = list(
+        Invoice.objects.filter(workspace=workspace, kind=Invoice.Kind.INVOICE, status__in=Invoice.OPEN_STATUSES)
+    )
+    if not open_invoices:
+        return None
+    url = reverse("billing:client", kwargs={"workspace_id": workspace.id})
+    overdue = [i for i in open_invoices if i.status == Invoice.Status.OVERDUE]
+    currency = open_invoices[0].currency
+    if overdue:
+        owed = sum((i.balance for i in overdue), 0)
+        return Signal("invoices", "Invoices", "danger", f"{len(overdue)} overdue, {currency} {owed:,.2f} unpaid.", url)
+    owed = sum((i.balance for i in open_invoices), 0)
+    return Signal(
+        "invoices", "Invoices", "neutral", f"{len(open_invoices)} open, {currency} {owed:,.2f} not yet due.", url
+    )
+
+
+def client_health(workspace, now=None, *, include_billing=False) -> Health:
     from apps.clients.models import ClientProfile, Retainer
 
     now = now or timezone.now()
@@ -155,4 +176,8 @@ def client_health(workspace, now=None) -> Health:
     account = accounts_signal(workspace)
     if account:
         signals.append(account)
+    if include_billing:
+        invoices = invoices_signal(workspace)
+        if invoices:
+            signals.append(invoices)
     return Health(signals=signals)

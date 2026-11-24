@@ -5,6 +5,7 @@
     <p><a href="{% url 'billing_portal:index' %}" class="link">← {% translate "Billing" %}</a></p>
     <header><p class="eyebrow">{% translate "Contract" %}</p><h1 class="display-title">{{ contract.title }}</h1><div class="mt-2">{% include "billing/_status.html" with obj=contract %}</div></header>
     <article class="panel panel-body"><div class="whitespace-pre-line leading-7">{{ contract.body }}</div></article>
+    <p><a href="{% url 'conversations_portal:index' %}?about=contract&amp;id={{ contract.id }}" class="link">{% translate "Questions? Ask the studio about this contract" %}</a></p>
     {% if contract.is_open %}
     <section class="panel panel-body space-y-3" aria-labelledby="sign-title">
         <h2 id="sign-title" class="section-title">{% translate "Sign" %}</h2>
