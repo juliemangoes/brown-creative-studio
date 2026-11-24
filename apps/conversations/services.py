@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import logging
+from typing import Any
 
 from django.db import transaction
 from django.utils import timezone
@@ -14,7 +15,7 @@ log = logging.getLogger(__name__)
 MAX_BODY = 5000
 
 
-def resolve_about(workspace, about: str, about_id) -> tuple[str, object | None, str]:
+def resolve_about(workspace, about: str, about_id) -> tuple[str, Any, str]:
     """The item a conversation is about, if it exists in this client and is visible to clients. (about, obj, label)."""
     if about not in Conversation.About.values or about == Conversation.About.GENERAL or not about_id:
         return Conversation.About.GENERAL, None, ""

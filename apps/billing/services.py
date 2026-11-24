@@ -1130,10 +1130,11 @@ def send_reminders(today: date | None = None, grace_days: int = 3) -> int:
         .select_related("workspace__organization")
     ):
         schedule = settings_for(invoice.workspace.organization).reminder_days or []
+        due = invoice.due_date
+        if due is None:
+            continue
         due_offsets = [
-            d
-            for d in schedule
-            if today - timedelta(days=grace_days) <= invoice.due_date + timedelta(days=int(d)) <= today
+            d for d in schedule if today - timedelta(days=grace_days) <= due + timedelta(days=int(d)) <= today
         ]
         if not due_offsets:
             continue

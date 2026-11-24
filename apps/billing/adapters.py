@@ -119,7 +119,7 @@ class MockTaxProvider(TaxProvider):
         return TaxIssue(f"TEST-{invoice.number}-{secrets.token_hex(3).upper()}", timezone.now(), "Mock: not valid.")
 
 
-PROVIDERS = {
+PROVIDERS: dict[str, dict[str, type]] = {
     "payment": {"none": PaymentProvider, "mock": MockPaymentProvider},
     "signature": {"builtin": SignatureProvider, "mock": MockSignatureProvider},
     "tax": {"none": TaxProvider, "mock": MockTaxProvider},

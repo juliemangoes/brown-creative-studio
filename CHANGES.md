@@ -9,6 +9,66 @@ live in new Django apps and new files; those are listed per entry but need no
 merge care. See [docs/fork/README.md](docs/fork/README.md) for the working rules
 and the upstream merge procedure.
 
+## 2026-11-24 · Phase 5: portal and billing
+
+### Upstream files changed by hand
+
+| File | Change | Reason |
+|---|---|---|
+| `config/settings/base.py` | `apps.billing`, `apps.conversations` in `LOCAL_APPS`; the `i18n` context processor; `PublicLinkRateLimitMiddleware` and `LanguageMiddleware` after `ClientScopeMiddleware`. | New apps; per-person language; rate limits on links that work without signing in. |
+| `config/urls.py` | `/portal/billing/`, `/portal/shoots/`, `/portal/calendar/`, `/portal/messages/` (before the portal's catch-all token pattern), `/billing/`, `/messages/`, `/invoice/` (public share links). | New pages. |
+| `apps/notifications/models.py` (+ migration `0006`) | Event types `proposal_accepted`, `contract_signed`, `payment_submitted`, `client_message`. | The brief: extend notifications for the new modules. |
+| `apps/client_portal/services.py` | The magic-link email's subject and body render in the client's language (`apps.studio.languages.for_user`). | Spanish portal and emails. |
+| `templates/client_portal/portal_base.html` | `{% load i18n %}`, `lang` from the active language, every label translatable, the English/Español switch in the header (and at the foot on phones). | Spanish portal. |
+| `templates/client_portal/dashboard.html` | Translatable strings; one include, `studio/portal/_coming_up.html` (next shoots, scheduled posts, invoices due). | Spanish portal; Home shows what is coming next. |
+| `templates/client_portal/_client_card.html`, `approval_queue.html`, `published.html`, `activity.html`, `reports.html`, `magic_link_confirm.html`, `magic_link_expired.html`, `email/magic_link.txt`, `email/magic_link.html` | Strings wrapped for translation; dates day-first (`j M Y`, 24-hour time). | Spanish portal; Belize and Guatemala write dates day-first. |
+| `Dockerfile` | Installs `gettext` and runs `compilemessages` before `collectstatic`. | Compiled translations in the image (`.mo` files are not committed). |
+| `.github/workflows/ci.yml` | Compiles translations before pytest. | Language tests need the compiled catalog. |
+| `.env.example` | `BILLING_PAYMENT_PROVIDER`, `BILLING_SIGNATURE_PROVIDER`, `BILLING_TAX_PROVIDER`. | Documented settings. |
+
+Fork files changed in earlier apps: email subjects in `apps/brand/services.py` and
+`apps/client_onboarding/services.py` render in the recipient's language; `apps/brand/portal.py`
+strings are translatable; `apps/shoots/templates/shoots/call_sheet.html` uses a shared,
+translated `_sheet.html`; the client header gains Billing (with `view_billing`) and Messages tabs;
+client health gains an Invoices signal (only for people with `view_billing`); Today gains overdue
+invoices and payments to confirm; the rail's Billing section needs `view_billing`.
+
+### Behaviour changes to watch on upstream merges
+
+- **Language per request.** `LanguageMiddleware` activates the person's language (their choice,
+  else the studio's portal language for that client, else the browser's, else English). Studio
+  screens from BrightBean are still English; dates and numbers follow the language
+  (`config/formats/es`: decimal point and comma thousands, as in Belize and Guatemala).
+- **Public links are rate-limited**: 60 requests a minute per IP, for signed-out visitors on
+  `/call-sheet/`, `/invoice/` and `/portal/` (magic links).
+- `ClientScopeMiddleware` client namespaces add `billing_portal`, `billing_public`, `shoots_portal`,
+  `planning_portal`, `conversations_portal`; `studio:set_language` is a client view.
+
+### New files
+
+- `apps/billing/`: service catalog; proposal and contract templates; proposals (accept or
+  decline in the portal); contracts (typed signature with name, email, time, IP and a SHA-256 of
+  the text; e-signature adapter with a mock); invoices and credit notes (deposits, milestones,
+  one-time, retainers, extras, line and invoice discounts, taxes, several currencies with the
+  exchange rate stored); payments (recorded by the studio, receipts uploaded by the client and
+  confirmed, online card payments behind an adapter with a mock); certified tax documents behind
+  an adapter (never made up); statuses Draft, Sent, Viewed, Partly paid, Paid, Overdue, Void;
+  reminders on an editable schedule; monthly retainer drafts; the finance view; invoice PDFs that
+  say they are not certified tax documents. Accepting a proposal creates the contract, the
+  deposit invoice, the service lines and retainer, and onboarding (or projects for an existing
+  client); signing and paying the deposit tick the onboarding steps.
+- `apps/conversations/`: messages between client and studio, each tied to an item (invoice,
+  proposal, contract, shoot, post…); billing topics only for people who see billing.
+- Portal sections: Calendar (`apps/planning/portal.py`), Shoots with a preparation checklist the
+  client can tick (`apps/shoots/portal.py`), Billing, Messages, and "Coming up" on Home.
+- `apps/studio/languages.py`, `Preference` model (language per person, not a new User column),
+  `studio/_language_choice.html`, `locale/es/LC_MESSAGES/django.po` (portal and emails in Spanish).
+- Docs: [docs/fork/portal-and-billing.md](docs/fork/portal-and-billing.md).
+
+### Changed test expectations
+
+None. BrightBean's tests pass unchanged.
+
 ## 2026-11-23 · Phase 4: content operations
 
 ### Upstream files changed by hand

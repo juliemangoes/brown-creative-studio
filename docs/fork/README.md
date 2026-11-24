@@ -14,6 +14,7 @@ django-background-tasks) and under its license (AGPL-3.0).
 | [`clients-and-roles.md`](clients-and-roles.md) | Roles and permission keys, how client data is kept apart, audit log, Today, demo data |
 | [`client-setup.md`](client-setup.md) | Onboarding, projects and tasks, brand profile and Brand Hub, private files and malware scanning |
 | [`content-operations.md`](content-operations.md) | Planning, shoots and on-set mode, asset rights, approvals and a post's full history |
+| [`portal-and-billing.md`](portal-and-billing.md) | The client portal's sections, English and Spanish, proposals, contracts, invoices, payments and messages |
 
 ## Rules that keep upstream merges cheap
 

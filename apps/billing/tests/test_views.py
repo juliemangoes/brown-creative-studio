@@ -271,3 +271,17 @@ def test_client_signs_approves_views_an_invoice_and_pays(client, studio):
     run_steps = dict(ws.onboardingruns.get().steps.values_list("key", "status"))
     assert run_steps["proposal"] == run_steps["contract"] == run_steps["deposit"] == "done"
     assert Proposal.objects.get(pk=proposal.pk).status == "accepted"
+
+
+def test_finance_shows_retainer_delivery(client, studio):
+    """Regression: the finance view crashed when a client had a retainer with a monthly post count."""
+    from datetime import date
+
+    from apps.clients.models import Retainer
+
+    Retainer.objects.create(
+        workspace=studio["restaurant"], monthly_fee=Decimal("1800"), posts_per_month=12, starts_on=date(2026, 1, 1)
+    )
+    client.force_login(studio["owner"])
+    response = client.get(reverse("billing:index"))
+    assert response.status_code == 200 and "of 12 posts" in response.content.decode()

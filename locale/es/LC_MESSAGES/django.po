@@ -871,7 +871,7 @@ msgstr "En curso"
 #: apps/brand/templates/brand/portal/hub.html:44
 #: apps/studio/templates/studio/portal/_coming_up.html:3
 msgid "Coming up"
-msgstr "Próximamente"
+msgstr "Lo que viene"
 
 #: apps/brand/templates/brand/portal/hub.html:54
 msgid "Strategy"

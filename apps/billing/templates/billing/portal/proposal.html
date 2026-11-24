@@ -15,8 +15,8 @@
             <div class="flex justify-between"><dt>{% translate "One-off total" %}</dt><dd class="font-semibold">{{ proposal.currency }} {{ proposal.one_off_total }}</dd></div>
             {% if proposal.monthly_total %}<div class="flex justify-between"><dt>{% translate "Each month" %}</dt><dd class="font-semibold">{{ proposal.currency }} {{ proposal.monthly_total }}</dd></div>{% endif %}
             {% if proposal.deposit_amount %}<div class="flex justify-between text-ink-muted"><dt>{% blocktranslate with p=proposal.deposit_percent|floatformat:"-2" %}Deposit on acceptance ({{ p }}%){% endblocktranslate %}</dt><dd>{{ proposal.currency }} {{ proposal.deposit_amount }}</dd></div>{% endif %}
-            <p class="meta">{% translate "Taxes, if any, are added on the invoice." %}</p>
         </dl>
+        <p class="panel-body pt-0 meta">{% translate "Taxes, if any, are added on the invoice." %}</p>
     </section>
     {% if proposal.is_open %}
     <section class="panel panel-body space-y-3" aria-labelledby="accept-title">

@@ -69,6 +69,8 @@ INTERFACE_LANGUAGES = [("en", "English"), ("es", "Español")]
 LANGUAGES = INTERFACE_LANGUAGES
 LANGUAGE_CODE = "en"
 LOCALE_PATHS = [_BASE_DIR / "locale"]
+# Spanish number formats as in Central America (config/formats/es).
+FORMAT_MODULE_PATH = ["config.formats"]
 # Today flags a client still in Onboarding after this many days.
 STUDIO_ONBOARDING_STALL_DAYS = _env.int("STUDIO_ONBOARDING_STALL_DAYS", default=14)
 # …or when nobody on the client's side has done anything for this many days.

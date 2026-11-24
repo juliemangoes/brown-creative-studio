@@ -46,8 +46,8 @@
         {% if invoice.amount_paid %}<div class="flex justify-between"><dt class="text-ink-muted">{% translate "Paid" %}</dt><dd>−{{ invoice.amount_paid }}</dd></div>{% endif %}
         <div class="flex justify-between font-semibold text-16"><dt>{% translate "Balance due" %}</dt><dd>{{ invoice.currency }} {{ invoice.balance }}</dd></div>
         {% endif %}
-        {% if invoice.base_currency != invoice.currency %}<p class="meta text-right">{% blocktranslate with c=invoice.currency r=invoice.exchange_rate|floatformat:"-6" b=invoice.base_currency %}Rate used: 1 {{ c }} = {{ r }} {{ b }}{% endblocktranslate %}</p>{% endif %}
     </dl>
+    {% if invoice.base_currency != invoice.currency %}<p class="meta text-right">{% blocktranslate with c=invoice.currency r=invoice.exchange_rate|floatformat:"-6" b=invoice.base_currency %}Rate used: 1 {{ c }} = {{ r }} {{ b }}{% endblocktranslate %}</p>{% endif %}
     {% if invoice.notes %}<div><p class="eyebrow mb-1">{% translate "Notes" %}</p><p class="whitespace-pre-line">{{ invoice.notes }}</p></div>{% endif %}
     <p class="meta">{% if tax_document and tax_document.status == "issued" and not tax_document.is_test %}{% blocktranslate with number=tax_document.official_number %}Certified tax document {{ number }}.{% endblocktranslate %}{% else %}{% translate "This document is not a certified tax document." %}{% endif %}</p>
 </article>
