@@ -7,4 +7,4 @@ class PlanningConfig(AppConfig):
     verbose_name = "Planning"
 
     def ready(self):
-        from apps.planning import signals  # noqa: F401
+        from apps.planning import portal, signals  # noqa: F401  (portal calendar; stage follows submission)

@@ -8,10 +8,10 @@ from django.contrib.auth.decorators import login_required
 from django.core import signing
 from django.core.exceptions import PermissionDenied
 from django.http import FileResponse, Http404, HttpResponseRedirect
-from django.shortcuts import get_object_or_404, render
+from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
 from django.utils.http import content_disposition_header
-from django.views.decorators.http import require_GET
+from django.views.decorators.http import require_GET, require_POST
 
 from apps.members.models import WorkspaceMembership
 from apps.studio.decorators import in_studio_time, studio_staff_required
@@ -90,3 +90,22 @@ def private_file(request, token):
     response["Content-Security-Policy"] = "sandbox; default-src 'none'; img-src 'self'; style-src 'unsafe-inline'"
     response["Cache-Control"] = "private, no-store"
     return response
+
+
+@require_POST
+def set_language(request):
+    """Remember the person's interface language (signed in: on their account; otherwise for this browser)."""
+    from django.utils.http import url_has_allowed_host_and_scheme
+
+    from apps.studio.languages import SUPPORTED
+    from apps.studio.languages import set_language as save
+
+    language = request.POST.get("language", "")
+    if language in SUPPORTED:
+        if request.user.is_authenticated:
+            save(request.user, language)
+        request.session["language"] = language
+    nxt = request.POST.get("next", "")
+    if not url_has_allowed_host_and_scheme(nxt, allowed_hosts={request.get_host()}, require_https=request.is_secure()):
+        nxt = "/"
+    return redirect(nxt)

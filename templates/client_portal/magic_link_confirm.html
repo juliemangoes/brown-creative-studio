@@ -1,10 +1,10 @@
-{% load static %}
+{% load static i18n %}
 <!DOCTYPE html>
-<html lang="en">
+{% get_current_language as LANG %}<html lang="{{ LANG }}">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sign in to {{ workspace.name }}</title>
+    <title>{% blocktranslate with name=workspace.name %}Sign in to {{ name }}{% endblocktranslate %}</title>
     <link rel="icon" href="{% static 'favicon/favicon.ico' %}" sizes="any">
     <link rel="icon" type="image/svg+xml" href="{% static 'favicon/favicon.svg' %}">
     <link rel="icon" type="image/png" sizes="96x96" href="{% static 'favicon/favicon-96x96.png' %}">
@@ -21,17 +21,17 @@
             </div>
 
             <h1 class="text-16 font-bold tracking-tight mb-2" style="color: var(--text-primary); font-family: var(--font-display);">
-                Sign in to {{ workspace.name }}
+                {% blocktranslate with name=workspace.name %}Sign in to {{ name }}{% endblocktranslate %}
             </h1>
             <p class="text-14 leading-relaxed mb-6" style="color: var(--text-secondary);">
-                Continue to review and approve scheduled posts for {{ workspace.name }}.
+                {% blocktranslate with name=workspace.name %}Continue to review and approve scheduled posts for {{ name }}.{% endblocktranslate %}
             </p>
 
             <form method="post" action="{% url 'client_portal:magic_link_entry' token=token %}">
                 {% csrf_token %}
                 <button type="submit"
                         class="btn btn-primary btn-block">
-                    Continue to portal
+                    {% translate "Continue to portal" %}
                 </button>
             </form>
         </div>

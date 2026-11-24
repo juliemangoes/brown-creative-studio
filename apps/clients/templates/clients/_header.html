@@ -1,4 +1,4 @@
-{# Client page header and tabs. Later phases add Shoots and Invoices tabs. #}
+{# Client page header and tabs. #}
 <header class="mb-6">
     <div class="flex flex-wrap items-start justify-between gap-4">
         <div class="flex items-center gap-4 min-w-0">
@@ -24,9 +24,11 @@
         <a href="{% url 'clients:services' workspace_id=workspace.id %}" class="tab"{% if tab == "services" %} aria-current="page"{% endif %}>Services and retainer</a>
         <a href="{% url 'brand:profile' workspace_id=workspace.id %}" class="tab"{% if tab == "brand" %} aria-current="page"{% endif %}>Brand</a>
         <a href="{% url 'projects:list' workspace_id=workspace.id %}" class="tab">Projects</a>
+        {% if request.workspace_membership.effective_permissions.view_billing %}<a href="{% url 'billing:client' workspace_id=workspace.id %}" class="tab"{% if tab == "billing" %} aria-current="page"{% endif %}>Billing</a>{% endif %}
         <a href="{% url 'social_accounts:list' workspace_id=workspace.id %}" class="tab">Connected accounts</a>
         <a href="{% url 'media_library:index' workspace_id=workspace.id %}" class="tab">Files</a>
         <a href="{% url 'analytics:index' workspace_id=workspace.id %}" class="tab">Reports</a>
+        <a href="{% url 'conversations:client' workspace_id=workspace.id %}" class="tab"{% if tab == "messages" %} aria-current="page"{% endif %}>Messages</a>
         <a href="{% url 'clients:activity' workspace_id=workspace.id %}" class="tab"{% if tab == "activity" %} aria-current="page"{% endif %}>Activity</a>
     </nav>
 </header>

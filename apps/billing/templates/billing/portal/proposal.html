@@ -1,0 +1,40 @@
+{% extends "client_portal/portal_base.html" %}{% load i18n billing %}
+{% block title %}{{ proposal.title }} · {{ workspace.name }}{% endblock %}
+{% block content %}
+<div class="space-y-6" x-data="{ declining: false }">
+    <p><a href="{% url 'billing_portal:index' %}" class="link">← {% translate "Billing" %}</a></p>
+    <header><p class="eyebrow">{% translate "Proposal" %} {{ proposal.number }}</p><h1 class="display-title">{{ proposal.title }}</h1>
+        <div class="flex flex-wrap items-center gap-2 mt-2">{% include "billing/_status.html" with obj=proposal %}{% if proposal.valid_until and proposal.is_open %}<span class="meta">{% blocktranslate with date=proposal.valid_until|date:"j F Y" %}Open until {{ date }}{% endblocktranslate %}</span>{% endif %}</div></header>
+    <p><a href="{% url 'conversations_portal:index' %}?about=proposal&amp;id={{ proposal.id }}" class="link">{% translate "Questions? Ask the studio about this proposal" %}</a></p>
+    {% if proposal.introduction %}<p class="whitespace-pre-line text-16">{{ proposal.introduction }}</p>{% endif %}
+    <section class="panel overflow-x-auto" aria-labelledby="what-title">
+        <div class="panel-header"><h2 id="what-title" class="section-title">{% translate "What's included" %}</h2></div>
+        <table class="table min-w-[460px]"><thead><tr><th>{% translate "Service" %}</th><th class="num">{% translate "Amount" %}</th><th>{% translate "Billed" %}</th></tr></thead>
+        <tbody>{% for line in lines %}<tr><td>{{ line.description }}{% if line.quantity != 1 %} <span class="meta">× {{ line.quantity|floatformat:"-2" }}</span>{% endif %}{% if line.discount_percent %} <span class="meta">(−{{ line.discount_percent|floatformat:"-2" }}%)</span>{% endif %}</td><td class="num">{{ proposal.currency }} {{ line.total }}</td><td>{% if line.recurring %}{% translate "Monthly" %}{% else %}{% translate "Once" %}{% endif %}</td></tr>{% endfor %}</tbody></table>
+        <dl class="panel-body space-y-1 tabular-nums">
+            <div class="flex justify-between"><dt>{% translate "One-off total" %}</dt><dd class="font-semibold">{{ proposal.currency }} {{ proposal.one_off_total }}</dd></div>
+            {% if proposal.monthly_total %}<div class="flex justify-between"><dt>{% translate "Each month" %}</dt><dd class="font-semibold">{{ proposal.currency }} {{ proposal.monthly_total }}</dd></div>{% endif %}
+            {% with pk=proposal.package %}{% if pk.posts %}<div class="flex justify-between text-ink-muted"><dt>{% translate "Included each month" %}</dt><dd>{% blocktranslate count counter=pk.posts %}{{ counter }} post{% plural %}{{ counter }} posts{% endblocktranslate %}{% if pk.reels %} · {% blocktranslate count counter=pk.reels %}{{ counter }} reel{% plural %}{{ counter }} reels{% endblocktranslate %}{% endif %}{% if pk.shoot_days %} · {% blocktranslate count counter=pk.shoot_days %}{{ counter }} shoot day{% plural %}{{ counter }} shoot days{% endblocktranslate %}{% endif %}</dd></div>{% endif %}{% endwith %}
+            {% if proposal.deposit_amount %}<div class="flex justify-between text-ink-muted"><dt>{% blocktranslate with p=proposal.deposit_percent|floatformat:"-2" %}Deposit on acceptance ({{ p }}%){% endblocktranslate %}</dt><dd>{{ proposal.currency }} {{ proposal.deposit_amount }}</dd></div>{% endif %}
+        </dl>
+        <p class="panel-body pt-0 meta">{% translate "Taxes, if any, are added on the invoice." %}</p>
+    </section>
+    {% if proposal.is_open %}
+    <section class="panel panel-body space-y-3" aria-labelledby="accept-title">
+        <h2 id="accept-title" class="section-title">{% translate "Accept this proposal" %}</h2>
+        <p class="text-ink-muted">{% translate "Accepting sends you the contract to sign and the deposit invoice. Nothing is charged automatically." %}</p>
+        <form method="post" action="{% url 'billing_portal:proposal_accept' proposal_id=proposal.id %}" class="space-y-3" x-show="!declining">{% csrf_token %}
+            <div class="field"><label class="label" for="acc-name">{% translate "Your full name" %}</label><input id="acc-name" name="name" class="input" autocomplete="name" required value="{{ request.user.name }}"></div>
+            <label class="flex items-start gap-2"><input type="checkbox" name="agree" class="checkbox mt-1" required> <span>{% blocktranslate with client=workspace.name %}I accept this proposal on behalf of {{ client }}.{% endblocktranslate %}</span></label>
+            <div class="flex flex-wrap gap-2"><button type="submit" class="btn btn-primary">{% translate "Accept proposal" %}</button><button type="button" class="btn btn-quiet" @click="declining = true">{% translate "Decline" %}</button></div>
+        </form>
+        <form method="post" action="{% url 'billing_portal:proposal_decline' proposal_id=proposal.id %}" class="space-y-3" x-show="declining" x-cloak>{% csrf_token %}
+            <div class="field"><label class="label" for="dec-reason">{% translate "Anything you'd like the studio to know? (optional)" %}</label><textarea id="dec-reason" name="reason" class="textarea" rows="3"></textarea></div>
+            <div class="flex gap-2"><button type="submit" class="btn btn-danger-quiet">{% translate "Decline proposal" %}</button><button type="button" class="btn btn-quiet" @click="declining = false">{% translate "Back" %}</button></div>
+        </form>
+    </section>
+    {% elif proposal.status == "accepted" %}
+    <div class="alert-success" role="status">{% blocktranslate with name=proposal.accepted_name date=proposal.decided_at|date:"j F Y" %}Accepted by {{ name }} on {{ date }}.{% endblocktranslate %}</div>
+    {% endif %}
+</div>
+{% endblock %}

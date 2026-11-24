@@ -59,8 +59,18 @@ STUDIO_COUNTRY = _env("STUDIO_COUNTRY", default="BZ").strip()
 # Currencies invoices may use; the first is the default. Add USD with
 # BILLING_CURRENCIES=BZD,USD.
 BILLING_CURRENCIES = [c.strip().upper() for c in _env.list("BILLING_CURRENCIES", default=["BZD"]) if c.strip()]
+# Billing providers (apps/billing/adapters.py). Bank transfer with proof-of-payment
+# upload always works; "mock" providers are for testing and say so on screen.
+BILLING_PAYMENT_PROVIDER = _env("BILLING_PAYMENT_PROVIDER", default="none").strip().lower()
+BILLING_SIGNATURE_PROVIDER = _env("BILLING_SIGNATURE_PROVIDER", default="builtin").strip().lower()
+BILLING_TAX_PROVIDER = _env("BILLING_TAX_PROVIDER", default="none").strip().lower()
 # Languages a person can choose for the interface.
 INTERFACE_LANGUAGES = [("en", "English"), ("es", "Español")]
+LANGUAGES = INTERFACE_LANGUAGES
+LANGUAGE_CODE = "en"
+LOCALE_PATHS = [_BASE_DIR / "locale"]
+# Spanish number formats as in Central America (config/formats/es).
+FORMAT_MODULE_PATH = ["config.formats"]
 # Today flags a client still in Onboarding after this many days.
 STUDIO_ONBOARDING_STALL_DAYS = _env.int("STUDIO_ONBOARDING_STALL_DAYS", default=14)
 # …or when nobody on the client's side has done anything for this many days.

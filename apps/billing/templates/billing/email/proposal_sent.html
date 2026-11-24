@@ -1,0 +1,4 @@
+{% extends "billing/email/base.html" %}{% load i18n %}
+{% block content %}<p style="margin:0 0 12px;font-size:16px;line-height:24px;">{% blocktranslate with title=proposal.title %}{{ site_name }} has sent you a proposal: {{ title }}.{% endblocktranslate %}</p>
+{% if proposal.valid_until %}<p style="margin:0;font-size:15px;color:#5F5750;">{% blocktranslate with date=proposal.valid_until|date:"j F Y" %}It is open until {{ date }}.{% endblocktranslate %}</p>{% endif %}{% endblock %}
+{% block action %}{% translate "Read the proposal" %}{% endblock %}

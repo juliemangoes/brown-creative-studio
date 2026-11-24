@@ -79,9 +79,15 @@ def generate_magic_link(workspace, client_user, created_by):
         "app_url": app_url,
     }
 
-    subject = f"{workspace.name} - Posts ready for your review"
-    text_content = render_to_string("client_portal/email/magic_link.txt", context)
-    html_content = render_to_string("client_portal/email/magic_link.html", context)
+    # Brown Creative Studio (CHANGES.md): in the client's language.
+    from django.utils.translation import gettext
+
+    from apps.studio.languages import for_user
+
+    with for_user(client_user, workspace):
+        subject = gettext("%(client)s: posts ready for your review") % {"client": workspace.name}
+        text_content = render_to_string("client_portal/email/magic_link.txt", context)
+        html_content = render_to_string("client_portal/email/magic_link.html", context)
 
     msg = EmailMultiAlternatives(
         subject=subject,

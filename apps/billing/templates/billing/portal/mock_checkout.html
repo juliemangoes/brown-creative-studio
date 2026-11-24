@@ -1,0 +1,13 @@
+{% extends "client_portal/portal_base.html" %}{% load i18n %}
+{% block title %}{% translate "Test payment" %}{% endblock %}
+{% block content %}
+<div class="max-w-md mx-auto space-y-4">
+    <div class="alert-info" role="note"><p class="font-semibold">{% translate "Test payment page" %}</p><p>{% translate "This studio has not connected a real payment provider yet. Paying here records a test payment so the flow can be tried. No card is charged and no money moves." %}</p></div>
+    <section class="panel panel-body space-y-3">
+        <p class="text-ink-muted">{{ invoice.number }}</p>
+        <p class="display-title tabular-nums">{{ invoice.currency }} {{ invoice.balance }}</p>
+        <form method="post">{% csrf_token %}<input type="hidden" name="ref" value="{{ reference }}"><button type="submit" class="btn btn-primary btn-block">{% translate "Record test payment" %}</button></form>
+        <a href="{% url 'billing_portal:invoice' invoice_id=invoice.id %}" class="btn btn-quiet btn-block">{% translate "Cancel" %}</a>
+    </section>
+</div>
+{% endblock %}

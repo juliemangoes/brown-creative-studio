@@ -1,0 +1,8 @@
+{% load i18n %}{% if user %}{% blocktranslate with name=user.name|default:_("there") %}Hello {{ name }},{% endblocktranslate %}{% else %}{% translate "Hello," %}{% endif %}
+
+{% blocktranslate with title=proposal.title %}{{ site_name }} has sent you a proposal: {{ title }}.{% endblocktranslate %}
+{% if proposal.valid_until %}{% blocktranslate with date=proposal.valid_until|date:"j F Y" %}It is open until {{ date }}.{% endblocktranslate %}{% endif %}
+
+{% if portal_url %}{{ portal_url }}{% else %}{% translate "Sign in to the client portal to read and accept it." %}{% endif %}
+
+{{ site_name }}

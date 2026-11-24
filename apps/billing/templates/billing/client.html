@@ -1,0 +1,91 @@
+{% extends "base.html" %}
+{% block title %}Billing · {{ workspace.name }} · {{ SITE_NAME }}{% endblock %}
+{% block content %}
+<div class="w-full max-w-6xl mx-auto" x-data="{ panel: null }">
+    {% include "clients/_header.html" %}
+
+    {% if pending %}
+    <div class="alert-info mb-6" role="status"><p class="font-semibold">Payments to confirm</p>
+        <ul class="mt-1 space-y-0.5">{% for p in pending %}<li>{{ p.currency }} {{ p.amount }} for <a href="{% url 'billing:invoice' workspace_id=workspace.id invoice_id=p.invoice_id %}" class="link">{{ p.invoice.number }}</a>, uploaded {{ p.created_at|timesince }} ago</li>{% endfor %}</ul>
+    </div>
+    {% endif %}
+
+    <div class="flex flex-wrap items-center justify-between gap-3 mb-4">
+        <h2 class="section-title">Invoices</h2>
+        {% if can_manage %}<div class="flex gap-2"><button type="button" class="btn btn-secondary" @click="panel = 'proposal'">New proposal</button><button type="button" class="btn btn-primary" @click="panel = 'invoice'">New invoice</button></div>{% endif %}
+    </div>
+    <section class="panel mb-8 overflow-x-auto" aria-label="Invoices">
+        {% if invoices %}
+        <table class="table min-w-[640px]">
+            <thead><tr><th>Number</th><th>For</th><th>Issued</th><th>Due</th><th class="num">Total</th><th class="num">Balance</th><th>Status</th></tr></thead>
+            <tbody>
+            {% for inv in invoices %}
+            <tr>
+                <td><a href="{% url 'billing:invoice' workspace_id=workspace.id invoice_id=inv.id %}" class="link">{{ inv.number|default:"Draft" }}</a>{% if inv.is_credit_note %} <span class="meta">credit note</span>{% endif %}</td>
+                <td>{{ inv.title|default:inv.get_purpose_display }}</td>
+                <td class="tabular-nums">{{ inv.issue_date|date:"j M Y"|default:"—" }}</td>
+                <td class="tabular-nums">{% if inv.is_credit_note %}—{% else %}{{ inv.due_date|date:"j M Y"|default:"—" }}{% endif %}</td>
+                <td class="num">{{ inv.currency }} {{ inv.total }}</td>
+                <td class="num">{% if inv.is_credit_note %}—{% else %}{{ inv.balance }}{% endif %}</td>
+                <td>{% include "billing/_status.html" with obj=inv %}</td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <div class="panel-body">{% include "ds/_state.html" with kind="empty" title="No invoices yet" body="Invoices for deposits, milestones, retainers and extras show here with what is still owed. Accepting a proposal creates the deposit invoice." %}</div>
+        {% endif %}
+    </section>
+
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <section class="panel" aria-labelledby="proposals-title">
+            <div class="panel-header"><h2 id="proposals-title" class="section-title">Proposals</h2></div>
+            <ul class="divide-y divide-hairline">
+                {% for p in proposals %}
+                <li class="px-5 py-3 flex items-center justify-between gap-3">
+                    <div class="min-w-0"><a href="{% url 'billing:proposal' workspace_id=workspace.id proposal_id=p.id %}" class="link text-14 font-medium">{{ p.title }}</a><p class="meta">{{ p.number|default:"Draft" }}{% if p.sent_at %} · sent {{ p.sent_at|date:"j M" }}{% endif %} · {{ p.currency }} {{ p.one_off_total }}{% if p.monthly_total %} + {{ p.monthly_total }}/month{% endif %}</p></div>
+                    {% include "billing/_status.html" with obj=p %}
+                </li>
+                {% empty %}<li class="px-5 py-3 text-14 text-ink-muted">No proposals yet.</li>{% endfor %}
+            </ul>
+        </section>
+        <section class="panel" aria-labelledby="contracts-title">
+            <div class="panel-header"><h2 id="contracts-title" class="section-title">Contracts</h2>
+                {% if can_manage %}<form method="post" action="{% url 'billing:contract_new' workspace_id=workspace.id %}">{% csrf_token %}<button type="submit" class="btn btn-quiet btn-sm">New contract</button></form>{% endif %}</div>
+            <ul class="divide-y divide-hairline">
+                {% for c in contracts %}
+                <li class="px-5 py-3 flex items-center justify-between gap-3">
+                    <div class="min-w-0"><a href="{% url 'billing:contract' workspace_id=workspace.id contract_id=c.id %}" class="link text-14 font-medium">{{ c.title }}</a><p class="meta">{% if c.signed_at %}Signed by {{ c.signer_name }} on {{ c.signed_at|date:"j M Y" }}{% elif c.sent_at %}Sent {{ c.sent_at|date:"j M" }}{% else %}Draft{% endif %}</p></div>
+                    {% include "billing/_status.html" with obj=c %}
+                </li>
+                {% empty %}<li class="px-5 py-3 text-14 text-ink-muted">No contracts yet.</li>{% endfor %}
+            </ul>
+        </section>
+    </div>
+
+    {% if can_manage %}
+    <div x-show="panel" x-cloak class="dialog-backdrop" @click="panel = null"></div>
+    <aside x-show="panel === 'invoice'" x-cloak class="side-panel" role="dialog" aria-modal="true" aria-labelledby="new-invoice-title" @keydown.escape.window="panel = null">
+        <form method="post" action="{% url 'billing:invoice_new' workspace_id=workspace.id %}" class="contents">{% csrf_token %}
+            <div class="side-panel-header"><h2 id="new-invoice-title" class="section-title">New invoice</h2><button type="button" class="btn-icon" @click="panel = null" aria-label="Close">✕</button></div>
+            <div class="side-panel-body space-y-4">
+                <div class="field"><label class="label" for="inv-purpose">For</label><select id="inv-purpose" name="purpose" class="select">{% for v, l in purposes %}<option value="{{ v }}">{{ l }}</option>{% endfor %}</select></div>
+                <div class="field"><label class="label" for="inv-title">Title (optional)</label><input id="inv-title" name="title" class="input" placeholder="December extras"></div>
+                <div class="field"><label class="label" for="inv-currency">Currency</label><select id="inv-currency" name="currency" class="select">{% for c in currencies %}<option>{{ c }}</option>{% endfor %}</select></div>
+                <div class="field"><label class="label" for="inv-rate">Exchange rate</label><input id="inv-rate" name="exchange_rate" class="input" inputmode="decimal" placeholder="Only for another currency"><p class="help">How many of the studio's currency one unit is worth, on the day you issue it.</p></div>
+                <div class="field"><label class="label" for="inv-notes">Note to the client</label><textarea id="inv-notes" name="notes" class="textarea" rows="2"></textarea></div>
+                <p class="help">You add lines on the next page; nothing is sent until you choose Send.</p>
+            </div>
+            <div class="side-panel-footer"><button type="button" class="btn btn-quiet" @click="panel = null">Cancel</button><button type="submit" class="btn btn-primary">Create draft</button></div>
+        </form>
+    </aside>
+    <aside x-show="panel === 'proposal'" x-cloak class="side-panel" role="dialog" aria-modal="true" aria-labelledby="new-proposal-title" @keydown.escape.window="panel = null">
+        <form method="post" action="{% url 'billing:proposal_new' workspace_id=workspace.id %}" class="contents">{% csrf_token %}
+            <div class="side-panel-header"><h2 id="new-proposal-title" class="section-title">New proposal</h2><button type="button" class="btn-icon" @click="panel = null" aria-label="Close">✕</button></div>
+            <div class="side-panel-body space-y-4"><div class="field"><label class="label" for="prop-title">Title</label><input id="prop-title" name="title" class="input" required placeholder="Social media and brand refresh"></div><p class="help">Add services from the catalog on the next page.</p></div>
+            <div class="side-panel-footer"><button type="button" class="btn btn-quiet" @click="panel = null">Cancel</button><button type="submit" class="btn btn-primary">Create draft</button></div>
+        </form>
+    </aside>
+    {% endif %}
+</div>
+{% endblock %}

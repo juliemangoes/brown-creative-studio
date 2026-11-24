@@ -1,0 +1,19 @@
+{% extends "base.html" %}{% load billing %}
+{% block title %}Service catalog · {{ SITE_NAME }}{% endblock %}
+{% block content %}
+<div class="w-full max-w-5xl mx-auto">
+    <header class="mb-6"><p class="meta mb-1"><a href="{% url 'billing:settings' %}" class="link">Billing settings</a></p><h1 class="page-title">Service catalog</h1></header>
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <section class="lg:col-span-2 panel overflow-x-auto" aria-label="Services">
+            {% if items %}<table class="table min-w-[520px]"><thead><tr><th>Service</th><th class="num">Price</th><th>Unit</th><th>Status</th></tr></thead>
+            <tbody>{% for i in items %}<tr><td><a href="{% url 'billing:catalog_item' item_id=i.id %}" class="link">{{ i.name }}</a>{% if i.recurring %} <span class="meta">monthly{% if i.posts_per_month %} · {{ i.posts_per_month }} posts{% endif %}{% if i.reels_per_month %} · {{ i.reels_per_month }} reels{% endif %}{% if i.shoot_days_per_month %} · {{ i.shoot_days_per_month }} shoot day{{ i.shoot_days_per_month|pluralize }}{% endif %}</span>{% endif %}</td><td class="num">{{ i.currency }} {{ i.unit_price }}</td><td>{{ i.get_unit_display }}</td><td>{% if i.is_active %}<span class="status status-success">Active</span>{% else %}<span class="status status-neutral">Archived</span>{% endif %}</td></tr>{% endfor %}</tbody></table>
+            {% else %}<div class="panel-body">{% include "ds/_state.html" with kind="empty" title="No services yet" body="Add the services you sell, with their usual price. Proposals and invoices pick them from here." %}</div>{% endif %}
+        </section>
+        <form method="post" class="panel panel-body space-y-3">{% csrf_token %}
+            <h2 class="section-title">{% if item %}Edit {{ item.name }}{% else %}Add a service{% endif %}</h2>
+            {% for field in form %}<div class="field">{% if field.field.widget.input_type == "checkbox" %}<label class="flex items-center gap-2">{{ field }} {{ field.label }}</label>{% else %}<label class="label" for="{{ field.id_for_label }}">{{ field.label }}</label>{{ field }}{% endif %}{% for e in field.errors %}<p class="field-error">{{ e }}</p>{% endfor %}</div>{% endfor %}
+            <div class="flex gap-2"><button type="submit" class="btn btn-primary">Save</button>{% if item %}<a href="{% url 'billing:catalog' %}" class="btn btn-quiet">New</a>{% endif %}</div>
+        </form>
+    </div>
+</div>
+{% endblock %}

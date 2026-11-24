@@ -1,0 +1,2095 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-11-24 19:34+0000\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: es\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: apps/billing/models.py:82
+msgid "per month"
+msgstr "al mes"
+
+#: apps/billing/models.py:83
+msgid "per project"
+msgstr "por proyecto"
+
+#: apps/billing/models.py:84
+msgid "per day"
+msgstr "por día"
+
+#: apps/billing/models.py:85
+msgid "each"
+msgstr "cada uno"
+
+#: apps/billing/models.py:86
+msgid "per hour"
+msgstr "por hora"
+
+#: apps/billing/models.py:116
+#: apps/billing/templates/billing/portal/proposal.html:6
+msgid "Proposal"
+msgstr "Propuesta"
+
+#: apps/billing/models.py:117
+#: apps/billing/templates/billing/portal/contract.html:6
+msgid "Contract"
+msgstr "Contrato"
+
+#: apps/billing/models.py:140 apps/billing/models.py:231
+#: apps/billing/models.py:281 apps/billing/templates/billing/_document.html:10
+msgid "Draft"
+msgstr "Borrador"
+
+#: apps/billing/models.py:141 apps/billing/models.py:282
+msgid "Sent"
+msgstr "Enviada"
+
+#: apps/billing/models.py:142 apps/billing/models.py:233
+#: apps/billing/models.py:283
+msgid "Viewed"
+msgstr "Vista"
+
+#: apps/billing/models.py:143
+msgid "Accepted"
+msgstr "Aceptada"
+
+#: apps/billing/models.py:144
+msgid "Declined"
+msgstr "Rechazada"
+
+#: apps/billing/models.py:145
+msgid "Withdrawn"
+msgstr "Retirada"
+
+#: apps/billing/models.py:232
+msgid "Sent for signature"
+msgstr "Enviado para firma"
+
+#: apps/billing/models.py:234
+msgid "Signed"
+msgstr "Firmado"
+
+#: apps/billing/models.py:235 apps/billing/models.py:287
+msgid "Void"
+msgstr "Anulada"
+
+#: apps/billing/models.py:277
+#: apps/billing/templates/billing/portal/index.html:29
+msgid "Invoice"
+msgstr "Factura"
+
+#: apps/billing/models.py:278
+msgid "Credit note"
+msgstr "Nota de crédito"
+
+#: apps/billing/models.py:284
+msgid "Partly paid"
+msgstr "Pago parcial"
+
+#: apps/billing/models.py:285 apps/billing/templates/billing/_document.html:46
+#: apps/billing/templates/billing/portal/index.html:28
+msgid "Paid"
+msgstr "Pagado"
+
+#: apps/billing/models.py:286
+msgid "Overdue"
+msgstr "Vencida"
+
+#: apps/billing/models.py:290
+msgid "Deposit"
+msgstr "Anticipo"
+
+#: apps/billing/models.py:291
+msgid "Milestone"
+msgstr "Hito"
+
+#: apps/billing/models.py:292
+msgid "One-time"
+msgstr "Pago único"
+
+#: apps/billing/models.py:293
+msgid "Monthly retainer"
+msgstr "Iguala mensual"
+
+#: apps/billing/models.py:294
+msgid "Extras"
+msgstr "Adicionales"
+
+#: apps/billing/models.py:413
+#: apps/billing/templates/billing/portal/_pay.html:17
+msgid "Bank transfer"
+msgstr "Transferencia bancaria"
+
+#: apps/billing/models.py:414
+msgid "Cash"
+msgstr "Efectivo"
+
+#: apps/billing/models.py:415
+msgid "Cheque"
+msgstr "Cheque"
+
+#: apps/billing/models.py:416
+msgid "Card (online)"
+msgstr "Tarjeta (en línea)"
+
+#: apps/billing/models.py:417
+msgid "Other"
+msgstr "Otro"
+
+#: apps/billing/models.py:420
+msgid "Waiting for the studio to confirm"
+msgstr "Esperando la confirmación del estudio"
+
+#: apps/billing/models.py:421 apps/shoots/models.py:24
+#: apps/shoots/templates/shoots/portal/index.html:11
+msgid "Confirmed"
+msgstr "Confirmada"
+
+#: apps/billing/models.py:422
+msgid "Not received"
+msgstr "No recibido"
+
+#: apps/billing/models.py:478
+msgid "Requested"
+msgstr "Solicitado"
+
+#: apps/billing/models.py:479
+msgid "Issued"
+msgstr "Emitido"
+
+#: apps/billing/models.py:480
+msgid "Failed"
+msgstr "Falló"
+
+#: apps/billing/models.py:481 apps/shoots/models.py:26
+msgid "Cancelled"
+msgstr "Cancelada"
+
+#: apps/billing/portal.py:54
+#: apps/billing/templates/billing/portal/contract.html:5
+#: apps/billing/templates/billing/portal/index.html:2
+#: apps/billing/templates/billing/portal/index.html:5
+#: apps/billing/templates/billing/portal/invoice.html:5
+#: apps/billing/templates/billing/portal/proposal.html:5
+msgid "Billing"
+msgstr "Facturación"
+
+#: apps/billing/portal.py:66
+#, python-format
+msgid "Your proposal “%(title)s” is ready to review."
+msgstr "Su propuesta “%(title)s” está lista para revisar."
+
+#: apps/billing/portal.py:68
+#: apps/billing/templates/billing/portal/index.html:9 apps/brand/portal.py:67
+#: apps/reviews/templates/reviews/portal/batch.html:3
+#: apps/reviews/templates/reviews/portal/batch.html:8
+msgid "Review"
+msgstr "Revisar"
+
+#: apps/billing/portal.py:73
+#: apps/billing/templates/billing/email/contract_sent.html:2
+#: apps/billing/templates/billing/email/contract_sent.txt:3
+#, python-format
+msgid "%(title)s is ready for your signature."
+msgstr "%(title)s está listo para su firma."
+
+#: apps/billing/portal.py:75
+#: apps/billing/templates/billing/portal/contract.html:11
+msgid "Sign"
+msgstr "Firmar"
+
+#: apps/billing/portal.py:80
+#, python-format
+msgid "Invoice %(number)s is overdue."
+msgstr "La factura %(number)s está vencida."
+
+#: apps/billing/portal.py:82
+msgid "Pay"
+msgstr "Pagar"
+
+#: apps/billing/portal.py:149
+msgid "Enter the amount you paid, e.g. 1500.00."
+msgstr "Escriba el monto que pagó, por ejemplo 1500.00."
+
+#: apps/billing/portal.py:159
+msgid "Attach the transfer receipt (a photo, screenshot or PDF)."
+msgstr ""
+"Adjunte el comprobante de la transferencia (una foto, captura de pantalla o "
+"PDF)."
+
+#: apps/billing/portal.py:172
+msgid "Thank you. The studio will confirm the payment once it arrives."
+msgstr "Gracias. El estudio confirmará el pago cuando lo reciba."
+
+#: apps/billing/portal.py:210
+msgid "Test payment recorded. No money moved."
+msgstr "Pago de prueba registrado. No se movió dinero."
+
+#: apps/billing/portal.py:252
+msgid "Thank you for accepting. Here is what happens next."
+msgstr "Gracias por aceptar. Esto es lo que sigue."
+
+#: apps/billing/portal.py:267
+msgid "We've let the studio know."
+msgstr "Le avisamos al estudio."
+
+#: apps/billing/portal.py:310
+msgid "Signed. A copy stays here in Billing."
+msgstr "Firmado. Una copia queda aquí, en Facturación."
+
+#: apps/billing/portal.py:349
+#, python-format
+msgid "Invoice %(number)s due: %(currency)s %(balance)s"
+msgstr "Factura %(number)s por vencer: %(currency)s %(balance)s"
+
+#: apps/billing/services.py:415
+#, python-format
+msgid "%(studio)s: credit note %(number)s"
+msgstr "%(studio)s: nota de crédito %(number)s"
+
+#: apps/billing/services.py:415
+#, python-format
+msgid "%(studio)s: invoice %(number)s"
+msgstr "%(studio)s: factura %(number)s"
+
+#: apps/billing/services.py:805
+#, python-format
+msgid "%(studio)s: proposal %(number)s"
+msgstr "%(studio)s: propuesta %(number)s"
+
+#: apps/billing/services.py:1051
+#, python-format
+msgid "%(studio)s: a contract to sign"
+msgstr "%(studio)s: un contrato para firmar"
+
+#: apps/billing/services.py:1155
+#, python-format
+msgid "%(studio)s: invoice %(number)s is due today"
+msgstr "%(studio)s: la factura %(number)s vence hoy"
+
+#: apps/billing/services.py:1157
+#, python-format
+msgid "%(studio)s: invoice %(number)s is due on %(date)s"
+msgstr "%(studio)s: la factura %(number)s vence el %(date)s"
+
+#: apps/billing/services.py:1159
+#, python-format
+msgid "%(studio)s: invoice %(number)s is overdue"
+msgstr "%(studio)s: la factura %(number)s está vencida"
+
+#: apps/billing/templates/billing/_document.html:7
+#: apps/billing/templates/billing/_document.html:20
+msgid "Tax ID"
+msgstr "NIT / ID fiscal"
+
+#: apps/billing/templates/billing/_document.html:11
+#, python-format
+msgid "Issued %(date)s"
+msgstr "Emitida el %(date)s"
+
+#: apps/billing/templates/billing/_document.html:12
+#: apps/billing/templates/billing/portal/index.html:20
+#, python-format
+msgid "Due %(date)s"
+msgstr "Vence el %(date)s"
+
+#: apps/billing/templates/billing/_document.html:13
+#, python-format
+msgid "Credits %(number)s"
+msgstr "Acredita %(number)s"
+
+#: apps/billing/templates/billing/_document.html:17
+msgid "Bill to"
+msgstr "Facturar a"
+
+#: apps/billing/templates/billing/_document.html:24
+msgid "Description"
+msgstr "Descripción"
+
+#: apps/billing/templates/billing/_document.html:24
+msgid "Qty"
+msgstr "Cant."
+
+#: apps/billing/templates/billing/_document.html:24
+msgid "Price"
+msgstr "Precio"
+
+#: apps/billing/templates/billing/_document.html:24
+#: apps/billing/templates/billing/portal/index.html:29
+#: apps/billing/templates/billing/portal/proposal.html:12
+msgid "Amount"
+msgstr "Importe"
+
+#: apps/billing/templates/billing/_document.html:24
+msgid "Remove"
+msgstr "Quitar"
+
+#: apps/billing/templates/billing/_document.html:28
+msgid "Tax"
+msgstr "Impuesto"
+
+#: apps/billing/templates/billing/_document.html:34
+msgid "No lines yet."
+msgstr "Todavía no hay líneas."
+
+#: apps/billing/templates/billing/_document.html:40
+msgid "Subtotal"
+msgstr "Subtotal"
+
+#: apps/billing/templates/billing/_document.html:41
+msgid "Discounts"
+msgstr "Descuentos"
+
+#: apps/billing/templates/billing/_document.html:43
+msgid "Total"
+msgstr "Total"
+
+#: apps/billing/templates/billing/_document.html:45
+msgid "Credited"
+msgstr "Acreditado"
+
+#: apps/billing/templates/billing/_document.html:47
+msgid "Balance due"
+msgstr "Saldo pendiente"
+
+#: apps/billing/templates/billing/_document.html:50
+#, python-format
+msgid "Rate used: 1 %(c)s = %(r)s %(b)s"
+msgstr "Tipo de cambio usado: 1 %(c)s = %(r)s %(b)s"
+
+#: apps/billing/templates/billing/_document.html:51
+#: apps/shoots/templates/shoots/_sheet.html:14
+msgid "Notes"
+msgstr "Notas"
+
+#: apps/billing/templates/billing/_document.html:52
+#, python-format
+msgid "Certified tax document %(number)s."
+msgstr "Documento tributario certificado %(number)s."
+
+#: apps/billing/templates/billing/_document.html:52
+msgid "This document is not a certified tax document."
+msgstr "Este documento no es un documento tributario certificado."
+
+#: apps/billing/templates/billing/email/base.html:4
+#: apps/billing/templates/billing/email/contract_sent.txt:1
+#: apps/billing/templates/billing/email/invoice_sent.txt:1
+#: apps/billing/templates/billing/email/proposal_sent.txt:1
+#: apps/billing/templates/billing/email/reminder.txt:1
+#: apps/conversations/templates/conversations/email/reply.txt:1
+msgid "there"
+msgstr "estimado cliente"
+
+#: apps/billing/templates/billing/email/base.html:4
+#: apps/billing/templates/billing/email/contract_sent.txt:1
+#: apps/billing/templates/billing/email/invoice_sent.txt:1
+#: apps/billing/templates/billing/email/proposal_sent.txt:1
+#: apps/billing/templates/billing/email/reminder.txt:1
+#: apps/conversations/templates/conversations/email/reply.txt:1
+#, python-format
+msgid "Hello %(name)s,"
+msgstr "Hola, %(name)s:"
+
+#: apps/billing/templates/billing/email/base.html:4
+#: apps/billing/templates/billing/email/contract_sent.txt:1
+#: apps/billing/templates/billing/email/invoice_sent.txt:1
+#: apps/billing/templates/billing/email/proposal_sent.txt:1
+#: apps/billing/templates/billing/email/reminder.txt:1
+msgid "Hello,"
+msgstr "Hola:"
+
+#: apps/billing/templates/billing/email/base.html:7
+msgid ""
+"This link signs you in once and expires; you can always ask the studio for a"
+" new one."
+msgstr ""
+"Este enlace inicia su sesión una sola vez y luego vence; siempre puede "
+"pedirle uno nuevo al estudio."
+
+#: apps/billing/templates/billing/email/base.html:8
+msgid "View the invoice"
+msgstr "Ver la factura"
+
+#: apps/billing/templates/billing/email/contract_sent.html:3
+#: apps/billing/templates/billing/email/contract_sent.txt:4
+msgid "Read it in the portal and sign by typing your name."
+msgstr "Léalo en el portal y fírmelo escribiendo su nombre."
+
+#: apps/billing/templates/billing/email/contract_sent.html:4
+#: apps/billing/templates/billing/portal/index.html:13
+msgid "Read and sign"
+msgstr "Leer y firmar"
+
+#: apps/billing/templates/billing/email/contract_sent.txt:6
+msgid "Sign in to the client portal to sign it."
+msgstr "Inicie sesión en el portal de clientes para firmarlo."
+
+#: apps/billing/templates/billing/email/invoice_sent.html:2
+#: apps/billing/templates/billing/email/invoice_sent.txt:3
+#, python-format
+msgid "%(site_name)s has issued %(kind)s %(number)s for %(client)s."
+msgstr "%(site_name)s emitió %(kind)s %(number)s para %(client)s."
+
+#: apps/billing/templates/billing/email/invoice_sent.html:4
+#: apps/billing/templates/billing/email/invoice_sent.txt:4
+#, python-format
+msgid "Due %(due)s."
+msgstr "Vence el %(due)s."
+
+#: apps/billing/templates/billing/email/invoice_sent.html:5
+#: apps/billing/templates/billing/email/reminder.html:5
+msgid "View and pay"
+msgstr "Ver y pagar"
+
+#: apps/billing/templates/billing/email/proposal_sent.html:2
+#: apps/billing/templates/billing/email/proposal_sent.txt:3
+#, python-format
+msgid "%(site_name)s has sent you a proposal: %(title)s."
+msgstr "%(site_name)s le envió una propuesta: %(title)s."
+
+#: apps/billing/templates/billing/email/proposal_sent.html:3
+#: apps/billing/templates/billing/email/proposal_sent.txt:4
+#, python-format
+msgid "It is open until %(date)s."
+msgstr "Está abierta hasta el %(date)s."
+
+#: apps/billing/templates/billing/email/proposal_sent.html:4
+msgid "Read the proposal"
+msgstr "Leer la propuesta"
+
+#: apps/billing/templates/billing/email/proposal_sent.txt:6
+msgid "Sign in to the client portal to read and accept it."
+msgstr "Inicie sesión en el portal de clientes para leerla y aceptarla."
+
+#: apps/billing/templates/billing/email/reminder.html:2
+#: apps/billing/templates/billing/email/reminder.txt:3
+#, python-format
+msgid "A reminder that invoice %(number)s is due on %(due)s."
+msgstr "Le recordamos que la factura %(number)s vence el %(due)s."
+
+#: apps/billing/templates/billing/email/reminder.html:2
+#: apps/billing/templates/billing/email/reminder.txt:3
+#, python-format
+msgid "Invoice %(number)s is due today."
+msgstr "La factura %(number)s vence hoy."
+
+#: apps/billing/templates/billing/email/reminder.html:2
+#: apps/billing/templates/billing/email/reminder.txt:3
+#, python-format
+msgid "Invoice %(number)s was due on %(due)s and still shows a balance."
+msgstr "La factura %(number)s venció el %(due)s y todavía tiene saldo."
+
+#: apps/billing/templates/billing/email/reminder.html:3
+#: apps/billing/templates/billing/email/reminder.txt:4
+#, python-format
+msgid "Balance: %(currency)s %(balance)s"
+msgstr "Saldo: %(currency)s %(balance)s"
+
+#: apps/billing/templates/billing/email/reminder.html:4
+#: apps/billing/templates/billing/email/reminder.txt:5
+msgid ""
+"If you have already paid, upload the transfer receipt in the portal and we "
+"will confirm it."
+msgstr ""
+"Si ya pagó, suba el comprobante de la transferencia en el portal y lo "
+"confirmaremos."
+
+#: apps/billing/templates/billing/portal/_pay.html:4
+msgid "Payments"
+msgstr "Pagos"
+
+#: apps/billing/templates/billing/portal/_pay.html:5
+msgid "test payment"
+msgstr "pago de prueba"
+
+#: apps/billing/templates/billing/portal/_pay.html:8
+#, python-format
+msgid "The studio could not find your payment of %(currency)s %(amount)s:"
+msgstr "El estudio no encontró su pago de %(currency)s %(amount)s:"
+
+#: apps/billing/templates/billing/portal/_pay.html:12
+msgid "How to pay"
+msgstr "Cómo pagar"
+
+#: apps/billing/templates/billing/portal/_pay.html:14
+#, python-format
+msgid "Pay %(currency)s %(balance)s by card"
+msgstr "Pagar %(currency)s %(balance)s con tarjeta"
+
+#: apps/billing/templates/billing/portal/_pay.html:14
+msgid "Test mode: no money moves"
+msgstr "Modo de prueba: no se mueve dinero"
+
+#: apps/billing/templates/billing/portal/_pay.html:19
+#, python-format
+msgid "Use %(number)s as the reference."
+msgstr "Use %(number)s como referencia."
+
+#: apps/billing/templates/billing/portal/_pay.html:23
+msgid "Already paid? Send us the receipt"
+msgstr "¿Ya pagó? Envíenos el comprobante"
+
+#: apps/billing/templates/billing/portal/_pay.html:25
+#, python-format
+msgid "Amount paid (%(currency)s)"
+msgstr "Monto pagado (%(currency)s)"
+
+#: apps/billing/templates/billing/portal/_pay.html:26
+msgid "Bank reference (optional)"
+msgstr "Referencia bancaria (opcional)"
+
+#: apps/billing/templates/billing/portal/_pay.html:28
+msgid "Receipt: a photo, screenshot or PDF"
+msgstr "Comprobante: una foto, captura de pantalla o PDF"
+
+#: apps/billing/templates/billing/portal/_pay.html:29
+msgid "Send receipt"
+msgstr "Enviar comprobante"
+
+#: apps/billing/templates/billing/portal/contract.html:8
+msgid "Questions? Ask the studio about this contract"
+msgstr "¿Preguntas? Consulte al estudio sobre este contrato"
+
+#: apps/billing/templates/billing/portal/contract.html:13
+msgid "Type your full name as your signature"
+msgstr "Escriba su nombre completo como firma"
+
+#: apps/billing/templates/billing/portal/contract.html:14
+#, python-format
+msgid ""
+"I have read this contract and sign it on behalf of %(client)s. My typed name"
+" is my signature."
+msgstr ""
+"He leído este contrato y lo firmo en nombre de %(client)s. Mi nombre escrito"
+" es mi firma."
+
+#: apps/billing/templates/billing/portal/contract.html:15
+msgid ""
+"We record your name, email, the time, your IP address and a fingerprint of "
+"the text you signed."
+msgstr ""
+"Registramos su nombre, correo, la hora, su dirección IP y una huella del "
+"texto que firmó."
+
+#: apps/billing/templates/billing/portal/contract.html:16
+msgid "Sign contract"
+msgstr "Firmar contrato"
+
+#: apps/billing/templates/billing/portal/contract.html:20
+#, python-format
+msgid "Signed by %(name)s on %(date)s."
+msgstr "Firmado por %(name)s el %(date)s."
+
+#: apps/billing/templates/billing/portal/contract.html:21
+#, python-format
+msgid "Next: the deposit invoice %(number)s"
+msgstr "Siguiente: la factura del anticipo %(number)s"
+
+#: apps/billing/templates/billing/portal/index.html:5
+msgid "Proposals, contracts, invoices and receipts."
+msgstr "Propuestas, contratos, facturas y recibos."
+
+#: apps/billing/templates/billing/portal/index.html:9
+msgid "Proposal to review"
+msgstr "Propuesta por revisar"
+
+#: apps/billing/templates/billing/portal/index.html:13
+msgid "Contract to sign"
+msgstr "Contrato por firmar"
+
+#: apps/billing/templates/billing/portal/index.html:17
+msgid "To pay"
+msgstr "Por pagar"
+
+#: apps/billing/templates/billing/portal/index.html:23
+msgid "Nothing to pay right now."
+msgstr "No hay nada por pagar en este momento."
+
+#: apps/billing/templates/billing/portal/index.html:29
+msgid "Paid on"
+msgstr "Pagada el"
+
+#: apps/billing/templates/billing/portal/index.html:29
+#: apps/brand/templates/brand/portal/hub.html:116
+msgid "Download"
+msgstr "Descargar"
+
+#: apps/billing/templates/billing/portal/index.html:31
+msgid "Receipts"
+msgstr "Recibos"
+
+#: apps/billing/templates/billing/portal/index.html:36
+msgid "Credit notes"
+msgstr "Notas de crédito"
+
+#: apps/billing/templates/billing/portal/index.html:39
+msgid "Proposals and contracts"
+msgstr "Propuestas y contratos"
+
+#: apps/billing/templates/billing/portal/index.html:43
+msgid "None yet."
+msgstr "Todavía no hay ninguno."
+
+#: apps/billing/templates/billing/portal/invoice.html:8
+msgid "Ask about this invoice"
+msgstr "Consultar sobre esta factura"
+
+#: apps/billing/templates/billing/portal/invoice.html:8
+#: apps/billing/templates/billing/public_invoice.html:5
+#: apps/shoots/templates/shoots/call_sheet.html:9
+msgid "Download PDF"
+msgstr "Descargar PDF"
+
+#: apps/billing/templates/billing/portal/mock_checkout.html:2
+msgid "Test payment"
+msgstr "Pago de prueba"
+
+#: apps/billing/templates/billing/portal/mock_checkout.html:5
+msgid "Test payment page"
+msgstr "Página de pago de prueba"
+
+#: apps/billing/templates/billing/portal/mock_checkout.html:5
+msgid ""
+"This studio has not connected a real payment provider yet. Paying here "
+"records a test payment so the flow can be tried. No card is charged and no "
+"money moves."
+msgstr ""
+"Este estudio todavía no conectó un proveedor de pagos real. Pagar aquí "
+"registra un pago de prueba para probar el proceso. No se cobra ninguna "
+"tarjeta ni se mueve dinero."
+
+#: apps/billing/templates/billing/portal/mock_checkout.html:9
+msgid "Record test payment"
+msgstr "Registrar pago de prueba"
+
+#: apps/billing/templates/billing/portal/mock_checkout.html:10
+#: apps/brand/templates/brand/portal/hub.html:29
+#: templates/client_portal/_client_card.html:104
+#: templates/oauth2_provider/authorize.html:40
+msgid "Cancel"
+msgstr "Cancelar"
+
+#: apps/billing/templates/billing/portal/proposal.html:7
+#, python-format
+msgid "Open until %(date)s"
+msgstr "Abierta hasta el %(date)s"
+
+#: apps/billing/templates/billing/portal/proposal.html:8
+msgid "Questions? Ask the studio about this proposal"
+msgstr "¿Preguntas? Consulte al estudio sobre esta propuesta"
+
+#: apps/billing/templates/billing/portal/proposal.html:11
+msgid "What's included"
+msgstr "Qué incluye"
+
+#: apps/billing/templates/billing/portal/proposal.html:12
+msgid "Service"
+msgstr "Servicio"
+
+#: apps/billing/templates/billing/portal/proposal.html:12
+msgid "Billed"
+msgstr "Se cobra"
+
+#: apps/billing/templates/billing/portal/proposal.html:13
+msgid "Monthly"
+msgstr "Mensual"
+
+#: apps/billing/templates/billing/portal/proposal.html:13
+msgid "Once"
+msgstr "Una vez"
+
+#: apps/billing/templates/billing/portal/proposal.html:15
+msgid "One-off total"
+msgstr "Total único"
+
+#: apps/billing/templates/billing/portal/proposal.html:16
+msgid "Each month"
+msgstr "Cada mes"
+
+#: apps/billing/templates/billing/portal/proposal.html:17
+#| msgid "Each month"
+msgid "Included each month"
+msgstr "Incluye cada mes"
+
+#: apps/billing/templates/billing/portal/proposal.html:17
+#, python-format
+msgid "%(counter)s post"
+msgid_plural "%(counter)s posts"
+msgstr[0] "%(counter)s publicación"
+msgstr[1] "%(counter)s publicaciones"
+
+#: apps/billing/templates/billing/portal/proposal.html:17
+#, python-format
+msgid "%(counter)s reel"
+msgid_plural "%(counter)s reels"
+msgstr[0] "%(counter)s reel"
+msgstr[1] "%(counter)s reels"
+
+#: apps/billing/templates/billing/portal/proposal.html:17
+#, python-format
+msgid "%(counter)s shoot day"
+msgid_plural "%(counter)s shoot days"
+msgstr[0] "%(counter)s día de grabación"
+msgstr[1] "%(counter)s días de grabación"
+
+#: apps/billing/templates/billing/portal/proposal.html:18
+#, python-format
+msgid "Deposit on acceptance (%(p)s%%)"
+msgstr "Anticipo al aceptar (%(p)s%%)"
+
+#: apps/billing/templates/billing/portal/proposal.html:20
+msgid "Taxes, if any, are added on the invoice."
+msgstr "Los impuestos, si corresponden, se agregan en la factura."
+
+#: apps/billing/templates/billing/portal/proposal.html:24
+msgid "Accept this proposal"
+msgstr "Aceptar esta propuesta"
+
+#: apps/billing/templates/billing/portal/proposal.html:25
+msgid ""
+"Accepting sends you the contract to sign and the deposit invoice. Nothing is"
+" charged automatically."
+msgstr ""
+"Al aceptar, recibirá el contrato para firmar y la factura del anticipo. No "
+"se cobra nada automáticamente."
+
+#: apps/billing/templates/billing/portal/proposal.html:27
+msgid "Your full name"
+msgstr "Su nombre completo"
+
+#: apps/billing/templates/billing/portal/proposal.html:28
+#, python-format
+msgid "I accept this proposal on behalf of %(client)s."
+msgstr "Acepto esta propuesta en nombre de %(client)s."
+
+#: apps/billing/templates/billing/portal/proposal.html:29
+msgid "Accept proposal"
+msgstr "Aceptar propuesta"
+
+#: apps/billing/templates/billing/portal/proposal.html:29
+msgid "Decline"
+msgstr "Rechazar"
+
+#: apps/billing/templates/billing/portal/proposal.html:32
+msgid "Anything you'd like the studio to know? (optional)"
+msgstr "¿Algo que quiera decirle al estudio? (opcional)"
+
+#: apps/billing/templates/billing/portal/proposal.html:33
+msgid "Decline proposal"
+msgstr "Rechazar propuesta"
+
+#: apps/billing/templates/billing/portal/proposal.html:33
+msgid "Back"
+msgstr "Volver"
+
+#: apps/billing/templates/billing/portal/proposal.html:37
+#, python-format
+msgid "Accepted by %(name)s on %(date)s."
+msgstr "Aceptada por %(name)s el %(date)s."
+
+#: apps/brand/portal.py:47 apps/brand/templates/brand/portal/hub.html:3
+#: apps/brand/templates/brand/portal/hub.html:7
+msgid "Brand Hub"
+msgstr "Centro de marca"
+
+#: apps/brand/portal.py:65
+#, python-format
+msgid "%(stage)s is ready for your sign-off."
+msgstr "%(stage)s está listo para su aprobación."
+
+#: apps/brand/portal.py:112
+#, python-format
+msgid "Thank you. %(stage)s is signed off."
+msgstr "Gracias. %(stage)s quedó aprobado."
+
+#: apps/brand/portal.py:122
+msgid "Tell the studio what you'd like changed."
+msgstr "Dígale al estudio qué le gustaría cambiar."
+
+#: apps/brand/portal.py:125
+msgid ""
+"Thanks. The studio has your notes and will come back with a new version."
+msgstr ""
+"Gracias. El estudio tiene sus comentarios y le enviará una nueva versión."
+
+#: apps/brand/services.py:82
+#, python-format
+msgid "%(client)s: %(stage)s is ready for your sign-off"
+msgstr "%(client)s: %(stage)s está listo para su aprobación"
+
+#: apps/brand/templates/brand/portal/hub.html:8
+#, python-format
+msgid ""
+"Everything about the %(name)s brand in one place: what it stands for, how it"
+" looks and sounds, and the files to use."
+msgstr ""
+"Todo sobre la marca %(name)s en un solo lugar: qué representa, cómo se ve y "
+"cómo suena, y los archivos para usar."
+
+#: apps/brand/templates/brand/portal/hub.html:13
+#: apps/brand/templates/brand/portal/hub.html:44
+msgid "Waiting for your sign-off"
+msgstr "Esperando su aprobación"
+
+#: apps/brand/templates/brand/portal/hub.html:16
+#, python-format
+msgid "Sent %(date)s"
+msgstr "Enviado el %(date)s"
+
+#: apps/brand/templates/brand/portal/hub.html:23
+msgid "Sign off"
+msgstr "Aprobar"
+
+#: apps/brand/templates/brand/portal/hub.html:24
+#: apps/reviews/templates/reviews/portal/batch.html:80
+msgid "Ask for changes"
+msgstr "Pedir cambios"
+
+#: apps/brand/templates/brand/portal/hub.html:28
+msgid "What would you like changed?"
+msgstr "¿Qué le gustaría cambiar?"
+
+#: apps/brand/templates/brand/portal/hub.html:29
+#: apps/reviews/templates/reviews/portal/batch.html:85
+msgid "Send to the studio"
+msgstr "Enviar al estudio"
+
+#: apps/brand/templates/brand/portal/hub.html:38
+msgid "Brand project"
+msgstr "Proyecto de marca"
+
+#: apps/brand/templates/brand/portal/hub.html:44
+#, python-format
+msgid "Signed off %(date)s"
+msgstr "Aprobado el %(date)s"
+
+#: apps/brand/templates/brand/portal/hub.html:44
+msgid "The studio is working on your changes"
+msgstr "El estudio está trabajando en sus cambios"
+
+#: apps/brand/templates/brand/portal/hub.html:44
+msgid "In progress"
+msgstr "En curso"
+
+#: apps/brand/templates/brand/portal/hub.html:44
+#: apps/studio/templates/studio/portal/_coming_up.html:3
+msgid "Coming up"
+msgstr "Lo que viene"
+
+#: apps/brand/templates/brand/portal/hub.html:54
+msgid "Strategy"
+msgstr "Estrategia"
+
+#: apps/brand/templates/brand/portal/hub.html:56
+msgid "Purpose"
+msgstr "Propósito"
+
+#: apps/brand/templates/brand/portal/hub.html:57
+msgid "Positioning"
+msgstr "Posicionamiento"
+
+#: apps/brand/templates/brand/portal/hub.html:58
+msgid "Values"
+msgstr "Valores"
+
+#: apps/brand/templates/brand/portal/hub.html:59
+msgid "Personality"
+msgstr "Personalidad"
+
+#: apps/brand/templates/brand/portal/hub.html:60
+msgid "Who we speak to"
+msgstr "A quién le hablamos"
+
+#: apps/brand/templates/brand/portal/hub.html:66
+msgid "Identity"
+msgstr "Identidad"
+
+#: apps/brand/templates/brand/portal/hub.html:70
+msgid "Logos"
+msgstr "Logotipos"
+
+#: apps/brand/templates/brand/portal/hub.html:76
+msgid "Download formats"
+msgstr "Formatos de descarga"
+
+#: apps/brand/templates/brand/portal/hub.html:76
+msgid "download"
+msgstr "descargar"
+
+#: apps/brand/templates/brand/portal/hub.html:82
+msgid "Colours"
+msgstr "Colores"
+
+#: apps/brand/templates/brand/portal/hub.html:84
+msgid "Fonts"
+msgstr "Tipografías"
+
+#: apps/brand/templates/brand/portal/hub.html:94
+msgid "Voice and messaging"
+msgstr "Voz y mensajes"
+
+#: apps/brand/templates/brand/portal/hub.html:97
+msgid "How we sound"
+msgstr "Cómo sonamos"
+
+#: apps/brand/templates/brand/portal/hub.html:100
+msgid "We say"
+msgstr "Decimos"
+
+#: apps/brand/templates/brand/portal/hub.html:101
+msgid "We don't say"
+msgstr "No decimos"
+
+#: apps/brand/templates/brand/portal/hub.html:104
+msgid "Key messages"
+msgstr "Mensajes clave"
+
+#: apps/brand/templates/brand/portal/hub.html:105
+msgid "In a few sentences"
+msgstr "En pocas palabras"
+
+#: apps/brand/templates/brand/portal/hub.html:113
+msgid "Templates, guidelines and examples"
+msgstr "Plantillas, guías y ejemplos"
+
+#: apps/brand/templates/brand/portal/hub.html:123
+msgid "Nothing here yet"
+msgstr "Todavía no hay nada aquí"
+
+#: apps/brand/templates/brand/portal/hub.html:123
+msgid "The studio will share your brand here as the work comes together."
+msgstr "El estudio compartirá su marca aquí a medida que avance el trabajo."
+
+#: apps/client_onboarding/portal.py:52
+#: apps/client_onboarding/templates/client_onboarding/portal/overview.html:3
+#: apps/client_onboarding/templates/client_onboarding/portal/overview.html:7
+msgid "Getting started"
+msgstr "Primeros pasos"
+
+#: apps/client_onboarding/portal.py:64
+#, python-format
+msgid "Let's finish setting up: %(done)s of %(total)s steps done."
+msgstr "Terminemos la configuración: %(done)s de %(total)s pasos listos."
+
+#: apps/client_onboarding/portal.py:66
+#: apps/client_onboarding/templates/client_onboarding/portal/overview.html:30
+msgid "Continue"
+msgstr "Continuar"
+
+#: apps/client_onboarding/portal.py:131
+msgid "Onboarding is finished; nothing more to fill in."
+msgstr "La incorporación terminó; no hay nada más que completar."
+
+#: apps/client_onboarding/portal.py:194
+msgid "Thanks, your details are saved."
+msgstr "Gracias, sus datos quedaron guardados."
+
+#: apps/client_onboarding/portal.py:204
+msgid "Saved. You can come back and finish any time."
+msgstr "Guardado. Puede volver y terminar cuando quiera."
+
+#: apps/client_onboarding/portal.py:207
+#, python-format
+msgid "A few answers are still needed: %(list)s"
+msgstr "Todavía faltan algunas respuestas: %(list)s"
+
+#: apps/client_onboarding/portal.py:209
+msgid "Thank you, that's really helpful."
+msgstr "Gracias, nos ayuda mucho."
+
+#: apps/client_onboarding/portal.py:253
+msgid "Kickoff booked. See you then!"
+msgstr "Reunión de inicio agendada. ¡Nos vemos!"
+
+#: apps/client_onboarding/portal.py:255
+msgid "That time isn't available any more. Please choose another."
+msgstr "Ese horario ya no está disponible. Elija otro, por favor."
+
+#: apps/client_onboarding/portal.py:273
+msgid "Choose at least one file."
+msgstr "Elija al menos un archivo."
+
+#: apps/client_onboarding/portal.py:280
+#, python-format
+msgid "%(n)s file(s) uploaded. Thank you!"
+msgstr "%(n)s archivo(s) subido(s). ¡Gracias!"
+
+#: apps/client_onboarding/services.py:141
+#, python-format
+msgid "Let's get started: %(client)s and %(studio)s"
+msgstr "Empecemos: %(client)s y %(studio)s"
+
+#: apps/client_onboarding/services.py:448
+#, python-format
+msgid "A reminder from %(studio)s: %(count)d onboarding step left"
+msgid_plural "A reminder from %(studio)s: %(count)d onboarding steps left"
+msgstr[0] ""
+"Un recordatorio de %(studio)s: queda %(count)d paso de incorporación"
+msgstr[1] ""
+"Un recordatorio de %(studio)s: quedan %(count)d pasos de incorporación"
+
+#: apps/client_onboarding/templates/client_onboarding/portal/overview.html:7
+msgid "You're all set"
+msgstr "Todo listo"
+
+#: apps/client_onboarding/templates/client_onboarding/portal/overview.html:9
+msgid ""
+"Thank you. Onboarding is complete and the studio has everything it needs to "
+"start."
+msgstr ""
+"Gracias. La incorporación está completa y el estudio tiene todo lo que "
+"necesita para empezar."
+
+#: apps/client_onboarding/templates/client_onboarding/portal/overview.html:17
+msgid "Your steps"
+msgstr "Sus pasos"
+
+#: apps/client_onboarding/templates/client_onboarding/portal/overview.html:18
+#, python-format
+msgid "%(done)s of %(total)s done"
+msgstr "%(done)s de %(total)s listos"
+
+#: apps/client_onboarding/templates/client_onboarding/portal/overview.html:28
+#: apps/client_onboarding/templates/client_onboarding/portal/step.html:10
+#: apps/projects/templates/projects/portal/list.html:23
+#: apps/shoots/models.py:25
+msgid "Done"
+msgstr "Listo"
+
+#: apps/client_onboarding/templates/client_onboarding/portal/overview.html:28
+#: apps/client_onboarding/templates/client_onboarding/portal/step.html:10
+#: apps/shoots/models.py:76
+msgid "Skipped"
+msgstr "Omitido"
+
+#: apps/client_onboarding/templates/client_onboarding/portal/overview.html:28
+msgid "The studio takes care of this"
+msgstr "El estudio se encarga de esto"
+
+#: apps/client_onboarding/templates/client_onboarding/portal/overview.html:28
+msgid "Started — finish when you're ready"
+msgstr "Empezado: termine cuando pueda"
+
+#: apps/client_onboarding/templates/client_onboarding/portal/overview.html:28
+msgid "To do"
+msgstr "Por hacer"
+
+#: apps/client_onboarding/templates/client_onboarding/portal/overview.html:30
+msgid "Start"
+msgstr "Empezar"
+
+#: apps/client_onboarding/templates/client_onboarding/portal/overview.html:39
+msgid "What happens next"
+msgstr "Qué sigue"
+
+#: apps/client_onboarding/templates/client_onboarding/portal/step.html:6
+msgid "All steps"
+msgstr "Todos los pasos"
+
+#: apps/client_onboarding/templates/client_onboarding/portal/step.html:8
+#, python-format
+msgid "Step %(n)s of %(total)s"
+msgstr "Paso %(n)s de %(total)s"
+
+#: apps/client_onboarding/templates/client_onboarding/portal/step.html:17
+msgid "Let's start"
+msgstr "Empecemos"
+
+#: apps/client_onboarding/templates/client_onboarding/portal/step.html:22
+msgid ""
+"The studio sends your proposal separately. Once you've accepted it, they'll "
+"mark this step done."
+msgstr ""
+"El estudio le envía su propuesta por separado. Cuando la acepte, marcarán "
+"este paso como listo."
+
+#: apps/client_onboarding/templates/client_onboarding/portal/step.html:23
+msgid ""
+"Your contract comes from the studio for signature. This step is marked done "
+"once it's signed."
+msgstr ""
+"El estudio le envía su contrato para firmar. Este paso se marca como listo "
+"cuando esté firmado."
+
+#: apps/client_onboarding/templates/client_onboarding/portal/step.html:24
+msgid ""
+"The studio sends the deposit or first invoice separately, with bank transfer"
+" details. This step is marked done once the payment arrives."
+msgstr ""
+"El estudio le envía el anticipo o la primera factura por separado, con los "
+"datos para la transferencia. Este paso se marca como listo cuando llegue el "
+"pago."
+
+#: apps/client_onboarding/templates/client_onboarding/portal/step.html:26
+msgid "Nothing to do here for now."
+msgstr "Por ahora no hay nada que hacer aquí."
+
+#: apps/client_onboarding/templates/client_onboarding/portal/step.html:32
+msgid "These go on invoices and contracts. We only ask once."
+msgstr "Estos datos van en facturas y contratos. Solo los pedimos una vez."
+
+#: apps/client_onboarding/templates/client_onboarding/portal/step.html:37
+msgid "Anyone else we'll work with?"
+msgstr "¿Alguien más con quien trabajaremos?"
+
+#: apps/client_onboarding/templates/client_onboarding/portal/step.html:41
+msgid "Name"
+msgstr "Nombre"
+
+#: apps/client_onboarding/templates/client_onboarding/portal/step.html:42
+msgid "Email"
+msgstr "Correo electrónico"
+
+#: apps/client_onboarding/templates/client_onboarding/portal/step.html:43
+msgid "Role"
+msgstr "Cargo"
+
+#: apps/client_onboarding/templates/client_onboarding/portal/step.html:44
+msgid "Approves our work"
+msgstr "Aprueba nuestro trabajo"
+
+#: apps/client_onboarding/templates/client_onboarding/portal/step.html:47
+msgid "Add a person"
+msgstr "Agregar una persona"
+
+#: apps/client_onboarding/templates/client_onboarding/portal/step.html:50
+msgid "Save details"
+msgstr "Guardar datos"
+
+#: apps/client_onboarding/templates/client_onboarding/portal/step.html:56
+msgid ""
+"Answer in your own words; short is fine. Everything saves, and anyone on "
+"your team can add to it."
+msgstr ""
+"Responda con sus propias palabras; algo breve está bien. Todo se guarda y "
+"cualquier persona de su equipo puede agregar información."
+
+#: apps/client_onboarding/templates/client_onboarding/portal/step.html:59
+msgid "required"
+msgstr "obligatorio"
+
+#: apps/client_onboarding/templates/client_onboarding/portal/step.html:62
+msgid "Choose one"
+msgstr "Elija una opción"
+
+#: apps/client_onboarding/templates/client_onboarding/portal/step.html:68
+#, python-format
+msgid "Last answered by %(name)s"
+msgstr "Respondido por última vez por %(name)s"
+
+#: apps/client_onboarding/templates/client_onboarding/portal/step.html:73
+msgid "Send answers"
+msgstr "Enviar respuestas"
+
+#: apps/client_onboarding/templates/client_onboarding/portal/step.html:74
+msgid "Save and finish later"
+msgstr "Guardar y terminar después"
+
+#: apps/client_onboarding/templates/client_onboarding/portal/step.html:81
+msgid ""
+"Send us what you have: logos in any format, font files, photos of your "
+"products, place and team, and anything you've used before. Files are private"
+" and checked for viruses."
+msgstr ""
+"Envíenos lo que tenga: logotipos en cualquier formato, archivos de "
+"tipografías, fotos de sus productos, su local y su equipo, y cualquier "
+"material que haya usado antes. Los archivos son privados y se revisan contra"
+" virus."
+
+#: apps/client_onboarding/templates/client_onboarding/portal/step.html:86
+msgid "Upload"
+msgstr "Subir"
+
+#: apps/client_onboarding/templates/client_onboarding/portal/step.html:90
+msgid "Received"
+msgstr "Recibido"
+
+#: apps/client_onboarding/templates/client_onboarding/portal/step.html:94
+msgid "That's everything"
+msgstr "Eso es todo"
+
+#: apps/client_onboarding/templates/client_onboarding/portal/step.html:95
+msgid "We don't have any of these yet"
+msgstr "Todavía no tenemos ninguno de estos"
+
+#: apps/client_onboarding/templates/client_onboarding/portal/step.html:102
+msgid ""
+"Connect the accounts we'll post to. You sign in on each platform's own page;"
+" we never see your password, and you can remove access at any time."
+msgstr ""
+"Conecte las cuentas en las que publicaremos. Usted inicia sesión en la "
+"página de cada plataforma; nunca vemos su contraseña y puede quitar el "
+"acceso cuando quiera."
+
+#: apps/client_onboarding/templates/client_onboarding/portal/step.html:106
+msgid "Connect accounts"
+msgstr "Conectar cuentas"
+
+#: apps/client_onboarding/templates/client_onboarding/portal/step.html:108
+msgid "Connected"
+msgstr "Conectada"
+
+#: apps/client_onboarding/templates/client_onboarding/portal/step.html:111
+msgid "Done connecting"
+msgstr "Terminé de conectar"
+
+#: apps/client_onboarding/templates/client_onboarding/portal/step.html:111
+msgid "We'll do this later"
+msgstr "Lo haremos más tarde"
+
+#: apps/client_onboarding/templates/client_onboarding/portal/step.html:118
+#, python-format
+msgid "Your kickoff is booked for %(when)s."
+msgstr "Su reunión de inicio está agendada para el %(when)s."
+
+#: apps/client_onboarding/templates/client_onboarding/portal/step.html:120
+msgid "Choose a time for our kickoff call (about an hour):"
+msgstr ""
+"Elija un horario para nuestra reunión de inicio (alrededor de una hora):"
+
+#: apps/client_onboarding/templates/client_onboarding/portal/step.html:122
+msgid "Available times"
+msgstr "Horarios disponibles"
+
+#: apps/client_onboarding/templates/client_onboarding/portal/step.html:125
+msgid "Book this time"
+msgstr "Reservar este horario"
+
+#: apps/client_onboarding/templates/client_onboarding/portal/step.html:128
+msgid ""
+"Pick a time that suits you on our booking page, then come back and tell us "
+"it's done."
+msgstr ""
+"Elija el horario que le convenga en nuestra página de reservas y luego "
+"vuelva para decirnos que ya está."
+
+#: apps/client_onboarding/templates/client_onboarding/portal/step.html:129
+msgid "Open the booking page"
+msgstr "Abrir la página de reservas"
+
+#: apps/client_onboarding/templates/client_onboarding/portal/step.html:130
+msgid "I've booked it"
+msgstr "Ya lo reservé"
+
+#: apps/client_onboarding/templates/client_onboarding/portal/step.html:132
+msgid "The studio will offer times for the kickoff call here shortly."
+msgstr ""
+"El estudio ofrecerá aquí los horarios para la reunión de inicio en breve."
+
+#: apps/client_portal/services.py:88
+#, python-format
+msgid "%(client)s: posts ready for your review"
+msgstr "%(client)s: publicaciones listas para su revisión"
+
+#: apps/conversations/portal.py:32
+#: apps/conversations/templates/conversations/portal/index.html:2
+#: apps/conversations/templates/conversations/portal/index.html:5
+#: apps/conversations/templates/conversations/portal/thread.html:5
+#: apps/conversations/templates/conversations/portal/thread.html:7
+msgid "Messages"
+msgstr "Mensajes"
+
+#: apps/conversations/portal.py:62 apps/conversations/portal.py:104
+msgid "Write a message first."
+msgstr "Primero escriba un mensaje."
+
+#: apps/conversations/portal.py:64
+msgid "Sent. The studio usually replies within a working day."
+msgstr "Enviado. El estudio suele responder en un día hábil."
+
+#: apps/conversations/services.py:131
+#, python-format
+msgid "New message: %(subject)s"
+msgstr "Nuevo mensaje: %(subject)s"
+
+#: apps/conversations/templates/conversations/email/reply.html:2
+#: apps/conversations/templates/conversations/email/reply.txt:3
+#, python-format
+msgid "The studio replied in “%(subject)s”:"
+msgstr "El estudio respondió en “%(subject)s”:"
+
+#: apps/conversations/templates/conversations/email/reply.html:4
+msgid "Read and reply"
+msgstr "Leer y responder"
+
+#: apps/conversations/templates/conversations/portal/index.html:5
+msgid ""
+"Write to the studio about anything: a post, an invoice, a shoot. Each "
+"conversation keeps its own thread."
+msgstr ""
+"Escríbale al estudio sobre lo que necesite: una publicación, una factura, "
+"una sesión de fotos. Cada conversación tiene su propio hilo."
+
+#: apps/conversations/templates/conversations/portal/index.html:7
+#, python-format
+msgid "A question about %(label)s"
+msgstr "Una pregunta sobre %(label)s"
+
+#: apps/conversations/templates/conversations/portal/index.html:7
+msgid "New message"
+msgstr "Nuevo mensaje"
+
+#: apps/conversations/templates/conversations/portal/index.html:9
+msgid "Subject"
+msgstr "Asunto"
+
+#: apps/conversations/templates/conversations/portal/index.html:10
+msgid "Message"
+msgstr "Mensaje"
+
+#: apps/conversations/templates/conversations/portal/index.html:11
+#: apps/conversations/templates/conversations/portal/thread.html:16
+msgid "Send"
+msgstr "Enviar"
+
+#: apps/conversations/templates/conversations/portal/index.html:14
+msgid "Conversations"
+msgstr "Conversaciones"
+
+#: apps/conversations/templates/conversations/portal/index.html:18
+msgid "New reply"
+msgstr "Nueva respuesta"
+
+#: apps/conversations/templates/conversations/portal/index.html:19
+#: templates/client_portal/activity.html:46
+#, python-format
+msgid "%(t)s ago"
+msgstr "hace %(t)s"
+
+#: apps/conversations/templates/conversations/portal/index.html:20
+msgid "No conversations yet."
+msgstr "Todavía no hay conversaciones."
+
+#: apps/conversations/templates/conversations/portal/thread.html:15
+msgid "Reply"
+msgstr "Responder"
+
+#: apps/planning/portal.py:33
+#: apps/planning/templates/planning/portal/calendar.html:2
+#: apps/planning/templates/planning/portal/calendar.html:5
+msgid "Calendar"
+msgstr "Calendario"
+
+#: apps/planning/templates/planning/portal/calendar.html:5
+msgid ""
+"Approved and scheduled content, and what went out recently. Posts waiting "
+"for you are in Approvals."
+msgstr ""
+"Contenido aprobado y programado, y lo que se publicó hace poco. Las "
+"publicaciones que esperan su aprobación están en Aprobaciones."
+
+#: apps/planning/templates/planning/portal/calendar.html:6
+msgid "Weeks"
+msgstr "Semanas"
+
+#: apps/planning/templates/planning/portal/calendar.html:7
+msgid "Earlier"
+msgstr "Antes"
+
+#: apps/planning/templates/planning/portal/calendar.html:9
+msgid "Later"
+msgstr "Después"
+
+#: apps/planning/templates/planning/portal/calendar.html:13
+msgid "Today"
+msgstr "Hoy"
+
+#: apps/planning/templates/planning/portal/calendar.html:21
+#: templates/client_portal/portal_base.html:46
+#: templates/client_portal/published.html:3
+msgid "Published"
+msgstr "Publicado"
+
+#: apps/planning/templates/planning/portal/calendar.html:21
+msgid "Approved"
+msgstr "Aprobado"
+
+#: apps/planning/templates/planning/portal/calendar.html:21
+msgid "Scheduled"
+msgstr "Programado"
+
+#: apps/planning/templates/planning/portal/calendar.html:27
+msgid "Nothing on the calendar these weeks"
+msgstr "No hay nada en el calendario estas semanas"
+
+#: apps/planning/templates/planning/portal/calendar.html:27
+msgid ""
+"Approved and scheduled posts appear here. Look at earlier or later weeks, or"
+" at Approvals for posts waiting for you."
+msgstr ""
+"Aquí aparecen las publicaciones aprobadas y programadas. Revise semanas "
+"anteriores o posteriores, o Aprobaciones para ver lo que espera su "
+"respuesta."
+
+#: apps/projects/portal.py:22
+#: apps/projects/templates/projects/portal/list.html:3
+#: apps/projects/templates/projects/portal/list.html:7
+msgid "Projects"
+msgstr "Proyectos"
+
+#: apps/projects/templates/projects/portal/list.html:8
+msgid "Where each piece of work is, and what's coming next."
+msgstr "En qué punto está cada trabajo y qué viene después."
+
+#: apps/projects/templates/projects/portal/list.html:14
+#, python-format
+msgid "%(p)s%% done"
+msgstr "%(p)s%% listo"
+
+#: apps/projects/templates/projects/portal/list.html:23
+#, python-format
+msgid "Planned for %(d)s"
+msgstr "Previsto para el %(d)s"
+
+#: apps/projects/templates/projects/portal/list.html:30
+msgid "No projects to show yet"
+msgstr "Todavía no hay proyectos para mostrar"
+
+#: apps/projects/templates/projects/portal/list.html:30
+msgid "When the studio starts work for you, its progress shows here."
+msgstr ""
+"Cuando el estudio empiece a trabajar para usted, el avance aparecerá aquí."
+
+#: apps/reviews/portal.py:36
+#, python-format
+msgid "%(n)s posts are waiting. Review them a week or a month at a time."
+msgstr "Hay %(n)s publicaciones esperando. Revíselas por semana o por mes."
+
+#: apps/reviews/portal.py:38
+msgid "Review by week"
+msgstr "Revisar por semana"
+
+#: apps/reviews/portal.py:125
+msgid "Nothing to approve here any more."
+msgstr "Aquí ya no hay nada que aprobar."
+
+#: apps/reviews/portal.py:129
+#, python-format
+msgid "Approved %(n)s post(s). Thank you!"
+msgstr "Aprobó %(n)s publicación(es). ¡Gracias!"
+
+#: apps/reviews/portal.py:145
+msgid "Approved."
+msgstr "Aprobado."
+
+#: apps/reviews/portal.py:148
+msgid "Thanks, the studio has your notes."
+msgstr "Gracias, el estudio tiene sus comentarios."
+
+#: apps/reviews/portal.py:166
+msgid "Write a comment first."
+msgstr "Primero escriba un comentario."
+
+#: apps/reviews/portal.py:172
+msgid "Comment added."
+msgstr "Comentario agregado."
+
+#: apps/reviews/templates/reviews/portal/batch.html:7
+#: templates/client_portal/approval_queue.html:3
+#: templates/client_portal/portal_base.html:45
+msgid "Approvals"
+msgstr "Aprobaciones"
+
+#: apps/reviews/templates/reviews/portal/batch.html:9
+#, python-format
+msgid "%(n)s post is waiting for you."
+msgid_plural "%(n)s posts are waiting for you."
+msgstr[0] "%(n)s publicación lo está esperando."
+msgstr[1] "%(n)s publicaciones lo están esperando."
+
+#: apps/reviews/templates/reviews/portal/batch.html:12
+msgid "Period"
+msgstr "Período"
+
+#: apps/reviews/templates/reviews/portal/batch.html:13
+msgid "Week"
+msgstr "Semana"
+
+#: apps/reviews/templates/reviews/portal/batch.html:14
+msgid "Month"
+msgstr "Mes"
+
+#: apps/reviews/templates/reviews/portal/batch.html:15
+msgid "Everything waiting"
+msgstr "Todo lo pendiente"
+
+#: apps/reviews/templates/reviews/portal/batch.html:18
+msgid "Previous"
+msgstr "Anterior"
+
+#: apps/reviews/templates/reviews/portal/batch.html:20
+msgid "Next"
+msgstr "Siguiente"
+
+#: apps/reviews/templates/reviews/portal/batch.html:26
+msgid "Approve every post shown here?"
+msgstr "¿Aprobar todas las publicaciones que se muestran aquí?"
+
+#: apps/reviews/templates/reviews/portal/batch.html:29
+#, python-format
+msgid "Happy with this %(n)s post?"
+msgid_plural "Happy with all %(n)s posts shown?"
+msgstr[0] "¿Le gusta esta publicación?"
+msgstr[1] "¿Le gustan las %(n)s publicaciones que se muestran?"
+
+#: apps/reviews/templates/reviews/portal/batch.html:30
+#, python-format
+msgid "Approve %(n)s post"
+msgid_plural "Approve all %(n)s"
+msgstr[0] "Aprobar %(n)s publicación"
+msgstr[1] "Aprobar las %(n)s"
+
+#: apps/reviews/templates/reviews/portal/batch.html:39
+msgid "Planned for"
+msgstr "Previsto para"
+
+#: apps/reviews/templates/reviews/portal/batch.html:39
+#, python-format
+msgid "please reply by %(d)s"
+msgstr "responda antes del %(d)s, por favor"
+
+#: apps/reviews/templates/reviews/portal/batch.html:47
+msgid "Comment at this moment"
+msgstr "Comentar en este momento"
+
+#: apps/reviews/templates/reviews/portal/batch.html:54
+msgid "Tap the image to leave a note on a spot."
+msgstr "Toque la imagen para dejar una nota en un punto."
+
+#: apps/reviews/templates/reviews/portal/batch.html:64
+msgid "note"
+msgstr "nota"
+
+#: apps/reviews/templates/reviews/portal/batch.html:72
+msgid "Comment"
+msgstr "Comentario"
+
+#: apps/reviews/templates/reviews/portal/batch.html:72
+msgid "(on the spot you tapped)"
+msgstr "(en el punto que tocó)"
+
+#: apps/reviews/templates/reviews/portal/batch.html:74
+msgid "Add comment"
+msgstr "Agregar comentario"
+
+#: apps/reviews/templates/reviews/portal/batch.html:79
+#: templates/client_portal/_client_card.html:64
+msgid "Approve"
+msgstr "Aprobar"
+
+#: apps/reviews/templates/reviews/portal/batch.html:84
+msgid "What should change?"
+msgstr "¿Qué debería cambiar?"
+
+#: apps/reviews/templates/reviews/portal/batch.html:91
+msgid "Nothing waiting in this period"
+msgstr "No hay nada pendiente en este período"
+
+#: apps/reviews/templates/reviews/portal/batch.html:91
+msgid "Try another week or month, or see everything waiting."
+msgstr "Pruebe otra semana u otro mes, o vea todo lo pendiente."
+
+#: apps/shoots/models.py:23
+msgid "Planned"
+msgstr "Planificada"
+
+#: apps/shoots/models.py:73
+msgid "To shoot"
+msgstr "Por grabar"
+
+#: apps/shoots/models.py:74
+msgid "Captured"
+msgstr "Grabada"
+
+#: apps/shoots/models.py:75
+msgid "Retake"
+msgstr "Repetir"
+
+#: apps/shoots/models.py:79
+msgid "Must have"
+msgstr "Indispensable"
+
+#: apps/shoots/models.py:80
+msgid "Nice to have"
+msgstr "Deseable"
+
+#: apps/shoots/portal.py:42 apps/shoots/templates/shoots/portal/index.html:2
+#: apps/shoots/templates/shoots/portal/index.html:5
+msgid "Shoots"
+msgstr "Sesiones de fotos"
+
+#: apps/shoots/portal.py:83
+msgid "Checklist saved. The studio can see it."
+msgstr "Lista guardada. El estudio puede verla."
+
+#: apps/shoots/portal.py:97
+#, python-format
+msgid "Shoot: %(title)s"
+msgstr "Sesión: %(title)s"
+
+#: apps/shoots/templates/shoots/_sheet.html:2
+msgid "Where"
+msgstr "Dónde"
+
+#: apps/shoots/templates/shoots/_sheet.html:3
+#, python-format
+msgid "On site for %(client)s"
+msgstr "En el lugar por %(client)s"
+
+#: apps/shoots/templates/shoots/_sheet.html:4
+msgid "Run of show"
+msgstr "Programa del día"
+
+#: apps/shoots/templates/shoots/_sheet.html:5
+msgid "Before the shoot, please"
+msgstr "Antes de la sesión, por favor"
+
+#: apps/shoots/templates/shoots/_sheet.html:6
+msgid "Save checklist"
+msgstr "Guardar lista"
+
+#: apps/shoots/templates/shoots/_sheet.html:9
+msgid "Wardrobe"
+msgstr "Vestuario"
+
+#: apps/shoots/templates/shoots/_sheet.html:10
+msgid "Props"
+msgstr "Utilería"
+
+#: apps/shoots/templates/shoots/_sheet.html:11
+msgid "Talent"
+msgstr "Talento"
+
+#: apps/shoots/templates/shoots/_sheet.html:12
+msgid "Permits"
+msgstr "Permisos"
+
+#: apps/shoots/templates/shoots/_sheet.html:13
+msgid "Release forms"
+msgstr "Autorizaciones de imagen"
+
+#: apps/shoots/templates/shoots/_sheet.html:15
+msgid "Shot list"
+msgstr "Lista de tomas"
+
+#: apps/shoots/templates/shoots/call_sheet.html:2
+msgid "Call sheet"
+msgstr "Hoja de llamado"
+
+#: apps/shoots/templates/shoots/call_sheet.html:8
+#, python-format
+msgid "call %(t)s"
+msgstr "llegada %(t)s"
+
+#: apps/shoots/templates/shoots/call_sheet.html:8
+#, python-format
+msgid "wrap %(t)s"
+msgstr "cierre %(t)s"
+
+#: apps/shoots/templates/shoots/portal/index.html:5
+msgid "When we come to shoot, what to have ready, and the plan for the day."
+msgstr "Cuándo vamos a grabar, qué tener listo y el plan del día."
+
+#: apps/shoots/templates/shoots/portal/index.html:11
+#, python-format
+msgid "Crew arrives %(t)s"
+msgstr "El equipo llega a las %(t)s"
+
+#: apps/shoots/templates/shoots/portal/index.html:11
+#, python-format
+msgid "done by %(t)s"
+msgstr "terminamos a las %(t)s"
+
+#: apps/shoots/templates/shoots/portal/index.html:14
+msgid "Ask about this shoot"
+msgstr "Consultar sobre esta sesión"
+
+#: apps/shoots/templates/shoots/portal/index.html:17
+msgid "No shoots coming up"
+msgstr "No hay sesiones próximas"
+
+#: apps/shoots/templates/shoots/portal/index.html:17
+msgid ""
+"When the studio plans a shoot with you, the date and what to prepare appear "
+"here."
+msgstr ""
+"Cuando el estudio planifique una sesión con usted, aquí aparecerán la fecha "
+"y lo que debe preparar."
+
+#: apps/shoots/templates/shoots/portal/index.html:19
+msgid "Recent shoots"
+msgstr "Sesiones recientes"
+
+#: apps/studio/templates/studio/_language_choice.html:2
+msgid "Language"
+msgstr "Idioma"
+
+#: templates/account/signup_closed.html:16
+msgid "Sign-up is closed"
+msgstr "El registro está cerrado"
+
+#: templates/account/signup_closed.html:22
+msgid ""
+"Your invitation has expired or was already used. Ask the person who invited "
+"you to send a new one."
+msgstr ""
+"Su invitación venció o ya se usó. Pídale a quien lo invitó que le envíe una "
+"nueva."
+
+#: templates/account/signup_closed.html:24
+msgid ""
+"New accounts need an invitation. If you have one, open the invitation link "
+"in this browser, then sign up."
+msgstr ""
+"Las cuentas nuevas necesitan una invitación. Si tiene una, abra el enlace de"
+" la invitación en este navegador y luego regístrese."
+
+#: templates/account/signup_closed.html:26
+msgid ""
+"This installation does not accept new accounts. Ask an administrator to "
+"create one for you."
+msgstr ""
+"Esta instalación no acepta cuentas nuevas. Pídale a un administrador que le "
+"cree una."
+
+#: templates/account/signup_closed.html:33
+msgid "Back to sign in"
+msgstr "Volver a iniciar sesión"
+
+#: templates/client_portal/_client_card.html:21
+msgid "Proposed"
+msgstr "Propuesta para"
+
+#: templates/client_portal/_client_card.html:43
+msgid "the team"
+msgstr "el equipo"
+
+#: templates/client_portal/_client_card.html:43
+#, python-format
+msgid "by %(name)s · %(client)s"
+msgstr "por %(name)s · %(client)s"
+
+#: templates/client_portal/_client_card.html:51
+msgid "From the team"
+msgstr "Del equipo"
+
+#: templates/client_portal/_client_card.html:66
+msgid "Request changes"
+msgstr "Pedir cambios"
+
+#: templates/client_portal/_client_card.html:68
+msgid "Reject"
+msgstr "Rechazar"
+
+#: templates/client_portal/_client_card.html:72
+msgid "On hold. The team has been notified."
+msgstr "En pausa. El equipo ya fue notificado."
+
+#: templates/client_portal/_client_card.html:77
+msgid "You approved this. It is scheduled to publish."
+msgstr "Usted aprobó esto. Está programado para publicarse."
+
+#: templates/client_portal/_client_card.html:82
+msgid "Put on hold"
+msgstr "Poner en pausa"
+
+#: templates/client_portal/_client_card.html:90
+msgid "What changes would you like?"
+msgstr "¿Qué cambios le gustaría?"
+
+#: templates/client_portal/_client_card.html:90
+msgid "Why are you rejecting this?"
+msgstr "¿Por qué lo rechaza?"
+
+#: templates/client_portal/_client_card.html:90
+msgid ""
+"Why put this on hold? The team is notified, and nothing publishes while "
+"held."
+msgstr ""
+"¿Por qué ponerlo en pausa? El equipo recibe un aviso y nada se publica "
+"mientras esté en pausa."
+
+#: templates/client_portal/_client_card.html:92
+msgid "e.g. Legal wants to double-check the figures…"
+msgstr "p. ej., el área legal quiere revisar las cifras…"
+
+#: templates/client_portal/_client_card.html:92
+msgid "Add a note…"
+msgstr "Agregue una nota…"
+
+#: templates/client_portal/_client_card.html:97
+msgid "Submit feedback"
+msgstr "Enviar comentarios"
+
+#: templates/client_portal/_client_card.html:100
+msgid "Reject post"
+msgstr "Rechazar publicación"
+
+#: templates/client_portal/_client_card.html:103
+msgid "Request hold"
+msgstr "Pedir pausa"
+
+#: templates/client_portal/activity.html:3
+#: templates/client_portal/portal_base.html:47
+msgid "Activity"
+msgstr "Actividad"
+
+#: templates/client_portal/activity.html:8
+msgid "Your activity"
+msgstr "Su actividad"
+
+#: templates/client_portal/activity.html:9
+msgid "Your review history and actions"
+msgstr "Su historial de revisiones y acciones"
+
+#: templates/client_portal/activity.html:51
+msgid "No activity yet"
+msgstr "Todavía no hay actividad"
+
+#: templates/client_portal/activity.html:52
+msgid "Your review actions will be logged here"
+msgstr "Aquí se registrarán sus revisiones"
+
+#: templates/client_portal/approval_queue.html:11
+msgid "Posts for your review"
+msgstr "Publicaciones para su revisión"
+
+#: templates/client_portal/approval_queue.html:12
+msgid "Approve or request changes before anything goes live."
+msgstr "Apruebe o pida cambios antes de que algo se publique."
+
+#: templates/client_portal/approval_queue.html:19
+msgid "Needs your approval"
+msgstr "Necesita su aprobación"
+
+#: templates/client_portal/approval_queue.html:30
+msgid "Approved and scheduled"
+msgstr "Aprobado y programado"
+
+#: templates/client_portal/approval_queue.html:42
+msgid "All caught up"
+msgstr "Todo al día"
+
+#: templates/client_portal/approval_queue.html:43
+msgid "No posts are waiting for your review right now"
+msgstr "No hay publicaciones esperando su revisión en este momento"
+
+#: templates/client_portal/approval_queue.html:48
+#, python-format
+msgid "Secure approval link from %(studio)s"
+msgstr "Enlace de aprobación seguro de %(studio)s"
+
+#: templates/client_portal/dashboard.html:2
+#: templates/client_portal/portal_base.html:44
+msgid "Home"
+msgstr "Inicio"
+
+#: templates/client_portal/dashboard.html:9
+msgid "Welcome back"
+msgstr "Bienvenido de nuevo"
+
+#: templates/client_portal/dashboard.html:12
+#, python-format
+msgid "Here's what's happening with %(name)s"
+msgstr "Esto es lo que pasa con %(name)s"
+
+#: templates/client_portal/dashboard.html:34
+msgid "Posts awaiting your review"
+msgstr "Publicaciones esperando su revisión"
+
+#: templates/client_portal/dashboard.html:45
+msgid "Recently published"
+msgstr "Publicado recientemente"
+
+#: templates/client_portal/dashboard.html:56
+msgid "Recent actions"
+msgstr "Acciones recientes"
+
+#: templates/client_portal/dashboard.html:65
+#, python-format
+msgid "You have %(counter)s post waiting for review"
+msgid_plural "You have %(counter)s posts waiting for review"
+msgstr[0] "Tiene %(counter)s publicación esperando su revisión"
+msgstr[1] "Tiene %(counter)s publicaciones esperando su revisión"
+
+#: templates/client_portal/dashboard.html:66
+msgid "Review and approve content before it's published"
+msgstr "Revise y apruebe el contenido antes de que se publique"
+
+#: templates/client_portal/dashboard.html:70
+msgid "Review now"
+msgstr "Revisar ahora"
+
+#: templates/client_portal/email/magic_link.html:21
+#: templates/client_portal/email/magic_link.txt:1
+#, python-format
+msgid "Hi %(name)s,"
+msgstr "Hola, %(name)s:"
+
+#: templates/client_portal/email/magic_link.html:24
+#, python-format
+msgid ""
+"%(by)s has shared content for your review. Open your portal to approve or "
+"give feedback on scheduled posts."
+msgstr ""
+"%(by)s compartió contenido para su revisión. Abra su portal para aprobar o "
+"comentar las publicaciones programadas."
+
+#: templates/client_portal/email/magic_link.html:32
+msgid "Review posts"
+msgstr "Revisar publicaciones"
+
+#: templates/client_portal/email/magic_link.html:38
+#: templates/client_portal/email/magic_link.txt:9
+msgid ""
+"This link is valid for 30 days. If it expires, ask your account manager for "
+"a new one."
+msgstr ""
+"Este enlace es válido por 30 días. Si vence, pídale uno nuevo a su ejecutivo"
+" de cuenta."
+
+#: templates/client_portal/email/magic_link.html:46
+#, python-format
+msgid "You're receiving this because you're a client of %(client)s."
+msgstr "Recibe este correo porque es cliente de %(client)s."
+
+#: templates/client_portal/email/magic_link.txt:3
+#, python-format
+msgid "%(by)s has shared content for your review in %(client)s."
+msgstr "%(by)s compartió contenido para su revisión en %(client)s."
+
+#: templates/client_portal/email/magic_link.txt:5
+msgid ""
+"Open the link below to go to your portal and approve or give feedback on "
+"scheduled posts:"
+msgstr ""
+"Abra el enlace de abajo para ir a su portal y aprobar o comentar las "
+"publicaciones programadas:"
+
+#: templates/client_portal/magic_link_confirm.html:7
+#: templates/client_portal/magic_link_confirm.html:24
+#, python-format
+msgid "Sign in to %(name)s"
+msgstr "Iniciar sesión en %(name)s"
+
+#: templates/client_portal/magic_link_confirm.html:27
+#, python-format
+msgid "Continue to review and approve scheduled posts for %(name)s."
+msgstr ""
+"Continúe para revisar y aprobar las publicaciones programadas de %(name)s."
+
+#: templates/client_portal/magic_link_confirm.html:34
+msgid "Continue to portal"
+msgstr "Continuar al portal"
+
+#: templates/client_portal/magic_link_expired.html:7
+msgid "Link expired"
+msgstr "Enlace vencido"
+
+#: templates/client_portal/magic_link_expired.html:24
+msgid "This link has expired"
+msgstr "Este enlace venció"
+
+#: templates/client_portal/magic_link_expired.html:27
+msgid ""
+"Sign-in links are valid for 30 days. Ask your account manager for a new "
+"link."
+msgstr ""
+"Los enlaces de inicio de sesión son válidos por 30 días. Pídale uno nuevo a "
+"su ejecutivo de cuenta."
+
+#: templates/client_portal/magic_link_expired.html:31
+msgid "Need a new link?"
+msgstr "¿Necesita un enlace nuevo?"
+
+#: templates/client_portal/magic_link_expired.html:33
+msgid "Ask the studio to send you a fresh sign-in link."
+msgstr "Pídale al estudio que le envíe un enlace de inicio de sesión nuevo."
+
+#: templates/client_portal/portal_base.html:38
+#, python-format
+msgid "with <span class=\"font-display text-16 text-ink\">%(studio)s</span>"
+msgstr "con <span class=\"font-display text-16 text-ink\">%(studio)s</span>"
+
+#: templates/client_portal/portal_base.html:40
+msgid "Log out"
+msgstr "Cerrar sesión"
+
+#: templates/client_portal/portal_base.html:43
+msgid "Portal"
+msgstr "Portal"
+
+#: templates/client_portal/published.html:8
+msgid "Published content"
+msgstr "Contenido publicado"
+
+#: templates/client_portal/published.html:9
+msgid "Posts that have been published to your social channels"
+msgstr "Publicaciones que ya salieron en sus redes sociales"
+
+#: templates/client_portal/published.html:44
+msgid "No published posts yet"
+msgstr "Todavía no hay publicaciones"
+
+#: templates/client_portal/published.html:45
+msgid "Published content will appear here"
+msgstr "Aquí aparecerá el contenido publicado"
+
+#: templates/client_portal/reports.html:2
+#: templates/client_portal/reports.html:7
+msgid "Reports"
+msgstr "Informes"
+
+#: templates/client_portal/reports.html:8
+msgid "Performance reports shared with you"
+msgstr "Informes de resultados compartidos con usted"
+
+#: templates/client_portal/reports.html:15
+msgid "Reports coming soon"
+msgstr "Informes próximamente"
+
+#: templates/client_portal/reports.html:16
+msgid ""
+"Your team will be able to share performance reports with you here. Check "
+"back soon!"
+msgstr ""
+"Su equipo podrá compartir aquí sus informes de resultados. ¡Vuelva pronto!"
+
+#: templates/oauth2_provider/authorize.html:14
+#, python-format
+msgid "Authorize %(name)s?"
+msgstr "¿Autorizar a %(name)s?"
+
+#: templates/oauth2_provider/authorize.html:15
+#, python-format
+msgid ""
+"%(name)s wants to connect to your %(SITE_NAME)s workspace with the following"
+" permissions:"
+msgstr ""
+"%(name)s quiere conectarse a su espacio de %(SITE_NAME)s con estos permisos:"
+
+#: templates/oauth2_provider/authorize.html:42
+msgid "Authorize"
+msgstr "Autorizar"
+
+#: templates/oauth2_provider/authorize.html:46
+#, python-format
+msgid "You can revoke this access at any time from %(site)s."
+msgstr "Puede revocar este acceso cuando quiera desde %(site)s."
+
+#: templates/oauth2_provider/authorize.html:48
+msgid "Something went wrong"
+msgstr "Algo salió mal"

@@ -9,6 +9,7 @@ import uuid
 
 from django.conf import settings
 from django.db import models
+from django.utils.translation import gettext_lazy as _
 
 from apps.common.managers import WorkspaceScopedModel
 
@@ -19,10 +20,10 @@ def _token():
 
 class Shoot(WorkspaceScopedModel):
     class Status(models.TextChoices):
-        PLANNED = "planned", "Planned"
-        CONFIRMED = "confirmed", "Confirmed"
-        DONE = "done", "Done"
-        CANCELLED = "cancelled", "Cancelled"
+        PLANNED = "planned", _("Planned")
+        CONFIRMED = "confirmed", _("Confirmed")
+        DONE = "done", _("Done")
+        CANCELLED = "cancelled", _("Cancelled")
 
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     title = models.CharField(max_length=160)
@@ -69,14 +70,14 @@ class Shoot(WorkspaceScopedModel):
 
 class Shot(models.Model):
     class Status(models.TextChoices):
-        PLANNED = "planned", "To shoot"
-        CAPTURED = "captured", "Captured"
-        RETAKE = "retake", "Retake"
-        SKIPPED = "skipped", "Skipped"
+        PLANNED = "planned", _("To shoot")
+        CAPTURED = "captured", _("Captured")
+        RETAKE = "retake", _("Retake")
+        SKIPPED = "skipped", _("Skipped")
 
     class Priority(models.TextChoices):
-        MUST = "must", "Must have"
-        NICE = "nice", "Nice to have"
+        MUST = "must", _("Must have")
+        NICE = "nice", _("Nice to have")
 
     # Client-generated ids are accepted (on-set mode creates shots offline).
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)

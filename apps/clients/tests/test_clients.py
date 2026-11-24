@@ -379,6 +379,13 @@ def test_health_flags_overdue_approvals_thin_runway_and_disconnected_accounts(st
     good = make_account(ws, "Casa Maya")
     make_account(ws, "Casa Maya Page", platform="facebook", status="disconnected")
     make_post(ws, good, status="pending_client", when=now - timedelta(hours=2), title="Late one")
+    Retainer.objects.create(  # the package sets the posts per month (no default)
+        workspace=ws,
+        name="Social",
+        monthly_fee=Decimal("1800"),
+        starts_on=timezone.localdate() - timedelta(days=30),
+        posts_per_month=12,
+    )
     health = client_health(ws, now)
     by_key = {s.key: s for s in health.signals}
     assert by_key["approvals"].tone == "danger"

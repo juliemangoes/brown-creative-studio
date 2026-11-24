@@ -6,6 +6,7 @@ import re
 
 from django.db import transaction
 from django.utils import timezone
+from django.utils.translation import gettext
 
 from apps.audit.services import record
 from apps.brand.models import BrandAsset, BrandProfile, BrandStage
@@ -77,7 +78,10 @@ def send_for_signoff(stage: BrandStage, actor, summary: str) -> int:
         sent += send_portal_email(
             user,
             stage.workspace,
-            subject=f"{stage.workspace.name}: {stage.get_key_display()} is ready for your sign-off",
+            subject=lambda: (
+                gettext("%(client)s: %(stage)s is ready for your sign-off")
+                % {"client": stage.workspace.name, "stage": stage.get_key_display()}
+            ),
             template="brand/email/signoff_request",
             context={"stage": stage},
         )

@@ -89,6 +89,8 @@ LOCAL_APPS = [
     "apps.planning",
     "apps.shoots",
     "apps.assets",
+    "apps.billing",
+    "apps.conversations",
     "theme",
 ]
 
@@ -108,6 +110,8 @@ MIDDLEWARE = [
     "apps.members.middleware.RBACMiddleware",
     # Brown Creative Studio (CHANGES.md): keep client users in the portal; audit actor context.
     "apps.studio.middleware.ClientScopeMiddleware",
+    "apps.studio.middleware.PublicLinkRateLimitMiddleware",
+    "apps.studio.middleware.LanguageMiddleware",
     "apps.audit.context.AuditContextMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
@@ -126,6 +130,7 @@ TEMPLATES = [
             "context_processors": [
                 "django.template.context_processors.debug",
                 "django.template.context_processors.request",
+                "django.template.context_processors.i18n",
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
                 "apps.notifications.context_processors.unread_notification_count",

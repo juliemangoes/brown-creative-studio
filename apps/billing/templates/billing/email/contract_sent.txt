@@ -1,0 +1,8 @@
+{% load i18n %}{% if user %}{% blocktranslate with name=user.name|default:_("there") %}Hello {{ name }},{% endblocktranslate %}{% else %}{% translate "Hello," %}{% endif %}
+
+{% blocktranslate with title=contract.title %}{{ title }} is ready for your signature.{% endblocktranslate %}
+{% translate "Read it in the portal and sign by typing your name." %}
+
+{% if portal_url %}{{ portal_url }}{% else %}{% translate "Sign in to the client portal to sign it." %}{% endif %}
+
+{{ site_name }}

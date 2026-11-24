@@ -25,3 +25,14 @@ class StaffPermissionGrant(models.Model):
 
     def __str__(self):
         return f"{self.org_membership.user.email}: {self.key}"
+
+
+class Preference(models.Model):
+    """A person's own settings that BrightBean's User model doesn't have (kept here, not as new User columns)."""
+
+    user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="studio_preference")
+    language = models.CharField(max_length=5, choices=settings.INTERFACE_LANGUAGES, blank=True, default="")
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f"{self.user.email}: {self.language or 'auto'}"

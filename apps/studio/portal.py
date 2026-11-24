@@ -20,6 +20,7 @@ from django.core.exceptions import PermissionDenied
 
 _SECTIONS: list[Callable] = []
 _NOTICES: list[Callable] = []
+_UPCOMING: list[Callable] = []
 
 
 @dataclass
@@ -47,6 +48,32 @@ def register_notice(func):
     """``func(request) -> PortalNotice | None``. Shown at the top of portal pages."""
     _NOTICES.append(func)
     return func
+
+
+@dataclass
+class UpcomingItem:
+    when: object  # date or datetime, in the client's time
+    label: str
+    url: str
+    kind: str  # shoot | post | invoice | …
+
+
+def register_upcoming(func):
+    """``func(request) -> list[UpcomingItem]``. Shown on the portal home under "Coming up"."""
+    _UPCOMING.append(func)
+    return func
+
+
+def upcoming(request, limit=8) -> list[UpcomingItem]:
+    from datetime import date, datetime
+
+    items = [i for f in _UPCOMING for i in (f(request) or [])]
+
+    def key(item):
+        w = item.when
+        return w.date() if isinstance(w, datetime) else w if isinstance(w, date) else date.max
+
+    return sorted(items, key=key)[:limit]
 
 
 def portal_permissions(request) -> dict:
@@ -98,13 +125,15 @@ def client_users(workspace, permission=None):
 
 
 def send_portal_email(user, workspace, *, subject, template, context) -> bool:
-    """Email a client user with a fresh portal link. Returns False if it could not be sent (logged)."""
+    """Email a client user with a fresh portal link, in their language. ``subject`` may be a callable
+    (evaluated in that language). Returns False if it could not be sent (logged)."""
     import logging
 
     from django.core.mail import EmailMultiAlternatives
     from django.template.loader import render_to_string
 
     from apps.common.mail import send_or_raise, transactional
+    from apps.studio.languages import for_user
 
     ctx = {
         **context,
@@ -113,14 +142,15 @@ def send_portal_email(user, workspace, *, subject, template, context) -> bool:
         "portal_url": portal_login_url(user, workspace),
         "site_name": settings.SITE_NAME,
     }
-    msg = EmailMultiAlternatives(
-        subject=subject,
-        body=render_to_string(f"{template}.txt", ctx),
-        from_email=settings.DEFAULT_FROM_EMAIL,
-        to=[user.email],
-        headers=transactional(),
-    )
-    msg.attach_alternative(render_to_string(f"{template}.html", ctx), "text/html")
+    with for_user(user, workspace):  # the recipient's language; ``subject`` may be a lazy string
+        msg = EmailMultiAlternatives(
+            subject=subject() if callable(subject) else str(subject),
+            body=render_to_string(f"{template}.txt", ctx),
+            from_email=settings.DEFAULT_FROM_EMAIL,
+            to=[user.email],
+            headers=transactional(),
+        )
+        msg.attach_alternative(render_to_string(f"{template}.html", ctx), "text/html")
     try:
         send_or_raise(msg)
     except Exception:

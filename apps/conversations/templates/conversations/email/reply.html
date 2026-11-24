@@ -1,0 +1,4 @@
+{% extends "billing/email/base.html" %}{% load i18n %}
+{% block content %}<p style="margin:0 0 12px;font-size:16px;">{% blocktranslate with subject=conversation.subject %}The studio replied in “{{ subject }}”:{% endblocktranslate %}</p>
+<p style="margin:0;font-size:15px;line-height:22px;white-space:pre-line;color:#5F5750;">{{ message.body }}</p>{% endblock %}
+{% block action %}{% translate "Read and reply" %}{% endblock %}

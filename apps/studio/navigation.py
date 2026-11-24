@@ -86,7 +86,13 @@ PRIMARY: tuple[Section, ...] = (
         match=_app("analytics", "reports"),
     ),
     Section(
-        "billing", "Billing", "billing", client_url="billing:client", all_url="billing:index", match=_app("billing")
+        "billing",
+        "Billing",
+        "billing",
+        client_url="billing:client",
+        all_url="billing:index",
+        permission="view_billing",
+        match=_app("billing"),
     ),
     Section(
         "settings",

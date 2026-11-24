@@ -70,7 +70,7 @@ def client_list(request):
             counts[key] += profile.stage in stages
         if profile.stage not in view[2]:
             continue
-        health = client_health(ws, now)
+        health = client_health(ws, now, include_billing=membership.effective_permissions.get("view_billing", False))
         planned, _ = runway(ws, now)
         rows.append(
             {
@@ -126,7 +126,7 @@ def _context(request, tab):
         "stage_tone": STAGE_TONES[profile.stage],
         "tab": tab,
         "can_edit": workspace_permission(request, "manage_client_profile"),
-        "health": client_health(ws),
+        "health": client_health(ws, include_billing=workspace_permission(request, "view_billing")),
     }
 
 

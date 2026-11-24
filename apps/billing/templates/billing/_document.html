@@ -1,0 +1,53 @@
+{% load i18n %}{# The invoice or credit note as the client sees it. Context: invoice, lines, taxes, studio. #}
+<article class="panel panel-body space-y-6" aria-labelledby="doc-title">
+    <div class="flex flex-wrap justify-between gap-6">
+        <div>
+            <p class="font-semibold">{{ studio.legal_name|default:SITE_NAME }}</p>
+            <p class="meta whitespace-pre-line">{{ studio.address }}</p>
+            {% if studio.tax_id %}<p class="meta">{% translate "Tax ID" %} {{ studio.tax_id }}</p>{% endif %}
+        </div>
+        <div class="text-right">
+            <h2 id="doc-title" class="text-24 font-semibold tracking-tight">{% if invoice.status == "draft" %}{% translate "Draft" %} {% endif %}{{ invoice.get_kind_display }} {{ invoice.number }}</h2>
+            {% if invoice.issue_date %}<p class="meta">{% blocktranslate with date=invoice.issue_date|date:"j M Y" %}Issued {{ date }}{% endblocktranslate %}</p>{% endif %}
+            {% if invoice.due_date and not invoice.is_credit_note %}<p class="meta">{% blocktranslate with date=invoice.due_date|date:"j M Y" %}Due {{ date }}{% endblocktranslate %}</p>{% endif %}
+            {% if invoice.is_credit_note and invoice.credits %}<p class="meta">{% blocktranslate with number=invoice.credits.number %}Credits {{ number }}{% endblocktranslate %}</p>{% endif %}
+        </div>
+    </div>
+    <div>
+        <p class="eyebrow mb-1">{% translate "Bill to" %}</p>
+        <p class="font-medium">{{ invoice.bill_to_name }}</p>
+        {% if invoice.bill_to_address %}<p class="meta whitespace-pre-line">{{ invoice.bill_to_address }}</p>{% endif %}
+        {% if invoice.bill_to_tax_id %}<p class="meta">{% translate "Tax ID" %} {{ invoice.bill_to_tax_id }}</p>{% endif %}
+    </div>
+    <div class="overflow-x-auto">
+        <table class="table min-w-[520px]">
+            <thead><tr><th>{% translate "Description" %}</th><th class="num">{% translate "Qty" %}</th><th class="num">{% translate "Price" %}</th><th class="num">{% translate "Amount" %}</th>{% if editable %}<th><span class="sr-only">{% translate "Remove" %}</span></th>{% endif %}</tr></thead>
+            <tbody>
+            {% for line in lines %}
+            <tr>
+                <td>{{ line.description }}{% if line.discount_percent %} <span class="meta">(−{{ line.discount_percent|floatformat:"-2" }}%)</span>{% endif %}{% if line.tax_rate %} <span class="meta">· {{ line.tax_name|default:_("Tax") }} {{ line.tax_rate|floatformat:"-3" }}%</span>{% endif %}</td>
+                <td class="num">{{ line.quantity|floatformat:"-2" }}</td>
+                <td class="num">{{ line.unit_price }}</td>
+                <td class="num">{{ line.net }}</td>
+                {% if editable %}<td class="text-right"><form method="post" action="{% url 'billing:invoice_action' workspace_id=workspace.id invoice_id=invoice.id %}">{% csrf_token %}<input type="hidden" name="action" value="remove_line"><input type="hidden" name="line" value="{{ line.id }}"><button type="submit" class="btn btn-quiet btn-sm" aria-label="Remove {{ line.description }}">Remove</button></form></td>{% endif %}
+            </tr>
+            {% empty %}<tr><td colspan="5" class="text-ink-muted">{% translate "No lines yet." %}</td></tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    <dl class="ml-auto w-full max-w-xs space-y-1 tabular-nums">
+        <div class="flex justify-between"><dt class="text-ink-muted">{% translate "Subtotal" %}</dt><dd>{{ invoice.currency }} {{ invoice.subtotal }}</dd></div>
+        {% if invoice.discount_total %}<div class="flex justify-between"><dt class="text-ink-muted">{% translate "Discounts" %}</dt><dd>−{{ invoice.discount_total }}</dd></div>{% endif %}
+        {% for name, rate, amount in taxes %}<div class="flex justify-between"><dt class="text-ink-muted">{{ name }} {{ rate|floatformat:"-3" }}%</dt><dd>{{ amount }}</dd></div>{% endfor %}
+        <div class="flex justify-between font-semibold text-16 border-t border-hairline pt-1"><dt>{% translate "Total" %}</dt><dd>{{ invoice.currency }} {{ invoice.total }}</dd></div>
+        {% if not invoice.is_credit_note %}
+        {% if invoice.amount_credited %}<div class="flex justify-between"><dt class="text-ink-muted">{% translate "Credited" %}</dt><dd>−{{ invoice.amount_credited }}</dd></div>{% endif %}
+        {% if invoice.amount_paid %}<div class="flex justify-between"><dt class="text-ink-muted">{% translate "Paid" %}</dt><dd>−{{ invoice.amount_paid }}</dd></div>{% endif %}
+        <div class="flex justify-between font-semibold text-16"><dt>{% translate "Balance due" %}</dt><dd>{{ invoice.currency }} {{ invoice.balance }}</dd></div>
+        {% endif %}
+    </dl>
+    {% if invoice.base_currency != invoice.currency %}<p class="meta text-right">{% blocktranslate with c=invoice.currency r=invoice.exchange_rate|floatformat:"-6" b=invoice.base_currency %}Rate used: 1 {{ c }} = {{ r }} {{ b }}{% endblocktranslate %}</p>{% endif %}
+    {% if invoice.notes %}<div><p class="eyebrow mb-1">{% translate "Notes" %}</p><p class="whitespace-pre-line">{{ invoice.notes }}</p></div>{% endif %}
+    <p class="meta">{% if tax_document and tax_document.status == "issued" and not tax_document.is_test %}{% blocktranslate with number=tax_document.official_number %}Certified tax document {{ number }}.{% endblocktranslate %}{% else %}{% translate "This document is not a certified tax document." %}{% endif %}</p>
+</article>

@@ -1,0 +1,132 @@
+{% extends "base.html" %}
+{% block title %}{{ invoice }} · {{ workspace.name }} · {{ SITE_NAME }}{% endblock %}
+{% block content %}
+<div class="w-full max-w-6xl mx-auto" x-data="{ panel: null }">
+    <header class="flex flex-wrap items-end justify-between gap-4 mb-6">
+        <div>
+            <p class="meta mb-1"><a href="{% url 'billing:client' workspace_id=workspace.id %}" class="link">{{ workspace.name }} · Billing</a></p>
+            <h1 class="page-title">{{ invoice.get_kind_display }} {{ invoice.number|default:"(draft)" }}</h1>
+            <div class="flex flex-wrap items-center gap-2 mt-1">{% include "billing/_status.html" with obj=invoice %}<span class="meta">{{ invoice.get_purpose_display }}{% if invoice.viewed_at %} · viewed by the client {{ invoice.viewed_at|date:"j M, H:i" }}{% endif %}</span></div>
+        </div>
+        <div class="flex flex-wrap gap-2">
+            <a href="{% url 'billing:invoice_pdf' workspace_id=workspace.id invoice_id=invoice.id %}" class="btn btn-secondary">PDF</a>
+            {% if can_manage %}
+            {% if invoice.status == "draft" %}
+            <form method="post" action="{% url 'billing:invoice_action' workspace_id=workspace.id invoice_id=invoice.id %}">{% csrf_token %}<input type="hidden" name="action" value="send"><button type="submit" class="btn btn-primary">Send to the client</button></form>
+            {% elif invoice.is_open %}
+            <button type="button" class="btn btn-primary" @click="panel = 'payment'">Record a payment</button>
+            {% endif %}
+            {% endif %}
+        </div>
+    </header>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div class="lg:col-span-2 space-y-6 min-w-0">
+            {% include "billing/_document.html" %}
+            {% if can_manage and invoice.status == "draft" %}
+            <section class="panel panel-body" aria-labelledby="add-line-title">
+                <h2 id="add-line-title" class="section-title mb-3">Add a line</h2>
+                <form method="post" action="{% url 'billing:invoice_action' workspace_id=workspace.id invoice_id=invoice.id %}" class="grid grid-cols-1 sm:grid-cols-6 gap-3 items-end">{% csrf_token %}<input type="hidden" name="action" value="add_line">
+                    <div class="field sm:col-span-6"><label class="label" for="line-item">From the catalog</label><select id="line-item" name="catalog_item" class="select"><option value="">Write my own</option>{% for item in catalog %}<option value="{{ item.id }}">{{ item.name }} · {{ item.currency }} {{ item.unit_price }} {{ item.get_unit_display }}</option>{% endfor %}</select></div>
+                    <div class="field sm:col-span-6"><label class="label" for="line-desc">Description</label><input id="line-desc" name="description" class="input" placeholder="Leave empty to use the catalog name"></div>
+                    <div class="field"><label class="label" for="line-qty">Qty</label><input id="line-qty" name="quantity" class="input" inputmode="decimal" value="1"></div>
+                    <div class="field sm:col-span-2"><label class="label" for="line-price">Unit price</label><input id="line-price" name="unit_price" class="input" inputmode="decimal" placeholder="From the catalog"></div>
+                    <div class="field"><label class="label" for="line-disc">Discount %</label><input id="line-disc" name="discount_percent" class="input" inputmode="decimal" value="0"></div>
+                    <div class="field"><label class="label" for="line-tax">Tax %</label><input id="line-tax" name="tax_rate" class="input" inputmode="decimal" placeholder="{{ studio.tax_rate|floatformat:'-3' }}"></div>
+                    <div class="field"><label class="label" for="line-kind">Service</label><select id="line-kind" name="service_kind" class="select"><option value="">—</option>{% for v, l in service_kinds %}<option value="{{ v }}">{{ l }}</option>{% endfor %}</select></div>
+                    <div class="sm:col-span-6"><button type="submit" class="btn btn-secondary">Add line</button></div>
+                </form>
+            </section>
+            <section class="panel panel-body" aria-labelledby="draft-title">
+                <h2 id="draft-title" class="section-title mb-3">Details</h2>
+                <form method="post" action="{% url 'billing:invoice_action' workspace_id=workspace.id invoice_id=invoice.id %}" class="space-y-3">{% csrf_token %}<input type="hidden" name="action" value="update">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div class="field"><label class="label" for="d-disc">Discount on the whole invoice ({{ invoice.currency }})</label><input id="d-disc" name="discount_amount" class="input" inputmode="decimal" value="{{ invoice.discount_amount }}"></div>
+                        <div class="field"><label class="label" for="d-due">Due date</label><input id="d-due" type="date" name="due_date" class="input" value="{{ invoice.due_date|date:'Y-m-d' }}"><p class="help">Empty: {{ studio.payment_terms_days }} days after sending.</p></div>
+                    </div>
+                    <div class="field"><label class="label" for="d-notes">Note to the client</label><textarea id="d-notes" name="notes" class="textarea" rows="2">{{ invoice.notes }}</textarea></div>
+                    <div class="field"><label class="label" for="d-int">Internal notes (never shown to the client)</label><textarea id="d-int" name="internal_notes" class="textarea" rows="2">{{ invoice.internal_notes }}</textarea></div>
+                    <button type="submit" class="btn btn-secondary">Save draft</button>
+                </form>
+                <form method="post" action="{% url 'billing:invoice_delete' workspace_id=workspace.id invoice_id=invoice.id %}" class="mt-4">{% csrf_token %}<button type="submit" class="btn btn-danger-quiet btn-sm">Delete draft</button></form>
+            </section>
+            {% endif %}
+        </div>
+
+        <aside class="space-y-6 min-w-0">
+            {% if payments %}
+            <section class="panel" aria-labelledby="payments-title">
+                <div class="panel-header"><h2 id="payments-title" class="section-title">Payments</h2></div>
+                <ul class="divide-y divide-hairline">
+                    {% for p in payments %}
+                    <li class="px-5 py-3 space-y-1">
+                        <div class="flex items-center justify-between gap-2"><span class="font-medium tabular-nums">{{ p.currency }} {{ p.amount }}</span>{% include "billing/_status.html" with obj=p %}</div>
+                        <p class="meta">{{ p.get_method_display }} · {{ p.received_on|date:"j M Y" }}{% if p.reference %} · ref. {{ p.reference }}{% endif %}{% if p.provider == "mock" %} · test payment{% endif %}</p>
+                        {% for proof in p.proofs.all %}<a href="{{ proof.signed_url }}" class="link text-13">Receipt ({{ proof.file_format|upper }}, {{ proof.size_label }})</a>{% endfor %}
+                        {% if p.rejection_reason %}<p class="text-13 text-danger">{{ p.rejection_reason }}</p>{% endif %}
+                        {% if can_manage and p.status == "pending" %}
+                        <div class="flex flex-wrap gap-2 pt-1" x-data="{ no: false }">
+                            <form method="post" action="{% url 'billing:invoice_action' workspace_id=workspace.id invoice_id=invoice.id %}">{% csrf_token %}<input type="hidden" name="action" value="confirm_payment"><input type="hidden" name="payment" value="{{ p.id }}"><button type="submit" class="btn btn-primary btn-sm">Confirm it arrived</button></form>
+                            <button type="button" class="btn btn-quiet btn-sm" @click="no = true" x-show="!no">Not received</button>
+                            <form method="post" action="{% url 'billing:invoice_action' workspace_id=workspace.id invoice_id=invoice.id %}" x-show="no" x-cloak class="w-full space-y-2">{% csrf_token %}<input type="hidden" name="action" value="reject_payment"><input type="hidden" name="payment" value="{{ p.id }}"><label class="label" for="why-{{ p.id }}">Tell the client why</label><input id="why-{{ p.id }}" name="reason" class="input" required><button type="submit" class="btn btn-danger-quiet btn-sm">Mark not received</button></form>
+                        </div>
+                        {% endif %}
+                    </li>
+                    {% endfor %}
+                </ul>
+            </section>
+            {% endif %}
+
+            {% if invoice.status != "draft" %}
+            <section class="panel panel-body space-y-3" aria-labelledby="share-title">
+                <h2 id="share-title" class="section-title">Client access</h2>
+                <p class="text-14 text-ink-muted">Billing contacts see it in the portal. People without a portal login can use this link:</p>
+                <input class="input" readonly value="{{ share_url }}" aria-label="Share link" @focus="$el.select()">
+            </section>
+            {% endif %}
+
+            {% if can_manage and invoice.status != "draft" and invoice.status != "void" %}
+            <section class="panel panel-body space-y-3" aria-labelledby="fix-title" x-data="{ credit: false, voiding: false }">
+                <h2 id="fix-title" class="section-title">Corrections</h2>
+                {% if not invoice.is_credit_note and invoice.balance > 0 %}
+                <button type="button" class="btn btn-secondary btn-sm" @click="credit = !credit">Issue a credit note</button>
+                <form method="post" action="{% url 'billing:invoice_action' workspace_id=workspace.id invoice_id=invoice.id %}" x-show="credit" x-cloak class="space-y-2">{% csrf_token %}<input type="hidden" name="action" value="credit">
+                    <div class="field"><label class="label" for="cr-amount">Amount ({{ invoice.currency }}, tax included)</label><input id="cr-amount" name="amount" class="input" inputmode="decimal" required></div>
+                    <div class="field"><label class="label" for="cr-reason">What it is for</label><input id="cr-reason" name="reason" class="input" required></div>
+                    <button type="submit" class="btn btn-secondary btn-sm">Draft the credit note</button>
+                </form>
+                {% endif %}
+                {% if not invoice.amount_paid %}
+                <button type="button" class="btn btn-danger-quiet btn-sm" @click="voiding = !voiding">Void</button>
+                <form method="post" action="{% url 'billing:invoice_action' workspace_id=workspace.id invoice_id=invoice.id %}" x-show="voiding" x-cloak class="space-y-2">{% csrf_token %}<input type="hidden" name="action" value="void"><label class="label" for="void-reason">Reason</label><input id="void-reason" name="reason" class="input" required><button type="submit" class="btn btn-danger btn-sm">Void this invoice</button></form>
+                {% endif %}
+                {% if tax_provider.enabled and not invoice.tax_document %}
+                <form method="post" action="{% url 'billing:invoice_action' workspace_id=workspace.id invoice_id=invoice.id %}">{% csrf_token %}<input type="hidden" name="action" value="tax_document"><button type="submit" class="btn btn-secondary btn-sm">Request the certified tax document</button></form>
+                {% endif %}
+            </section>
+            {% endif %}
+            {% if invoice.tax_document %}<p class="meta">Tax document: {{ invoice.tax_document.get_status_display }} {{ invoice.tax_document.official_number }}{% if invoice.tax_document.is_test %} (test, not valid for tax){% endif %}</p>{% endif %}
+            {% if credit_notes %}<section class="panel panel-body"><h2 class="section-title mb-2">Credit notes</h2><ul class="space-y-1">{% for cn in credit_notes %}<li><a href="{% url 'billing:invoice' workspace_id=workspace.id invoice_id=cn.id %}" class="link">{{ cn.number|default:"Draft" }}</a> · {{ cn.currency }} {{ cn.total }} {% include "billing/_status.html" with obj=cn %}</li>{% endfor %}</ul></section>{% endif %}
+            {% if invoice.internal_notes and invoice.status != "draft" %}<section class="panel panel-body"><h2 class="section-title mb-1">Internal notes</h2><p class="text-14 whitespace-pre-line">{{ invoice.internal_notes }}</p></section>{% endif %}
+        </aside>
+    </div>
+
+    {% if can_manage and invoice.is_open %}
+    <div x-show="panel" x-cloak class="dialog-backdrop" @click="panel = null"></div>
+    <aside x-show="panel === 'payment'" x-cloak class="side-panel" role="dialog" aria-modal="true" aria-labelledby="pay-title" @keydown.escape.window="panel = null">
+        <form method="post" enctype="multipart/form-data" action="{% url 'billing:invoice_action' workspace_id=workspace.id invoice_id=invoice.id %}" class="contents">{% csrf_token %}<input type="hidden" name="action" value="record_payment">
+            <div class="side-panel-header"><h2 id="pay-title" class="section-title">Record a payment</h2><button type="button" class="btn-icon" @click="panel = null" aria-label="Close">✕</button></div>
+            <div class="side-panel-body space-y-4">
+                <div class="field"><label class="label" for="p-amount">Amount ({{ invoice.currency }})</label><input id="p-amount" name="amount" class="input" inputmode="decimal" value="{{ invoice.balance }}" required></div>
+                <div class="field"><label class="label" for="p-method">Method</label><select id="p-method" name="method" class="select">{% for v, l in methods %}<option value="{{ v }}">{{ l }}</option>{% endfor %}</select></div>
+                <div class="field"><label class="label" for="p-date">Received on</label><input id="p-date" type="date" name="received_on" class="input" value="{{ today|date:'Y-m-d' }}"></div>
+                <div class="field"><label class="label" for="p-ref">Reference</label><input id="p-ref" name="reference" class="input"></div>
+                <div class="field"><label class="label" for="p-proof">Receipt (optional)</label><input id="p-proof" type="file" name="proof" class="input" accept="image/*,application/pdf"></div>
+                <div class="field"><label class="label" for="p-note">Note</label><textarea id="p-note" name="note" class="textarea" rows="2"></textarea></div>
+            </div>
+            <div class="side-panel-footer"><button type="button" class="btn btn-quiet" @click="panel = null">Cancel</button><button type="submit" class="btn btn-primary">Record payment</button></div>
+        </form>
+    </aside>
+    {% endif %}
+</div>
+{% endblock %}

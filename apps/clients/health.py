@@ -25,7 +25,6 @@ PLANNED_STATUSES = (
     "scheduled",
     "on_hold",
 )
-DEFAULT_POSTS_PER_MONTH = 12
 
 
 @dataclass
@@ -99,9 +98,19 @@ def runway(workspace, now, days=30):
 
 
 def runway_signal(workspace, now, retainer=None) -> Signal:
-    expected = retainer.posts_per_month if retainer and retainer.posts_per_month else DEFAULT_POSTS_PER_MONTH
+    """Planned posts against the package's posts per month. Without a package there is nothing to measure."""
     planned, last = runway(workspace, now)
     url = reverse("calendar:calendar", kwargs={"workspace_id": workspace.id})
+    if not (retainer and retainer.posts_per_month):
+        return Signal(
+            "runway",
+            "Content runway",
+            "neutral",
+            f"{planned} planned for the next 30 days. Set the package's posts per month (Services and retainer) "
+            "to track the runway.",
+            reverse("clients:services", kwargs={"workspace_id": workspace.id}),
+        )
+    expected = retainer.posts_per_month
     until = f" Nothing planned after {timezone.localtime(last):%b %-d}." if last else ""
     detail = f"{planned} of {expected} posts planned for the next 30 days.{until}"
     if planned < expected / 2:
@@ -133,7 +142,28 @@ def accounts_signal(workspace) -> Signal | None:
     return Signal("accounts", "Accounts", "success", f"{len(accounts)} connected.", url)
 
 
-def client_health(workspace, now=None) -> Health:
+def invoices_signal(workspace, today=None) -> Signal | None:
+    """Unpaid invoices (apps.billing). Only for people who may see billing."""
+    from apps.billing.models import Invoice
+
+    open_invoices = list(
+        Invoice.objects.filter(workspace=workspace, kind=Invoice.Kind.INVOICE, status__in=Invoice.OPEN_STATUSES)
+    )
+    if not open_invoices:
+        return None
+    url = reverse("billing:client", kwargs={"workspace_id": workspace.id})
+    overdue = [i for i in open_invoices if i.status == Invoice.Status.OVERDUE]
+    currency = open_invoices[0].currency
+    if overdue:
+        owed = sum((i.balance for i in overdue), 0)
+        return Signal("invoices", "Invoices", "danger", f"{len(overdue)} overdue, {currency} {owed:,.2f} unpaid.", url)
+    owed = sum((i.balance for i in open_invoices), 0)
+    return Signal(
+        "invoices", "Invoices", "neutral", f"{len(open_invoices)} open, {currency} {owed:,.2f} not yet due.", url
+    )
+
+
+def client_health(workspace, now=None, *, include_billing=False) -> Health:
     from apps.clients.models import ClientProfile, Retainer
 
     now = now or timezone.now()
@@ -155,4 +185,8 @@ def client_health(workspace, now=None) -> Health:
     account = accounts_signal(workspace)
     if account:
         signals.append(account)
+    if include_billing:
+        invoices = invoices_signal(workspace)
+        if invoices:
+            signals.append(invoices)
     return Health(signals=signals)

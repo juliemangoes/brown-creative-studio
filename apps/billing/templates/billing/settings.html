@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% block title %}Billing settings · {{ SITE_NAME }}{% endblock %}
+{% block content %}
+<div class="w-full max-w-5xl mx-auto">
+    <header class="mb-6"><p class="meta mb-1"><a href="{% url 'billing:index' %}" class="link">Billing</a></p><h1 class="page-title">Billing settings</h1>
+        <p class="text-ink-muted mt-1">What appears on invoices, how clients pay, numbering and reminders.</p></header>
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <form method="post" class="lg:col-span-2 panel panel-body space-y-4">{% csrf_token %}
+            {% for field in form %}<div class="field"><label class="label" for="{{ field.id_for_label }}">{{ field.label }}</label>{{ field }}{% if field.help_text %}<p class="help">{{ field.help_text }}</p>{% endif %}{% for e in field.errors %}<p class="field-error">{{ e }}</p>{% endfor %}</div>{% endfor %}
+            <p class="help">Taxes: set the rate your accountant confirms (for example, whether the studio is registered for GST). Invoices made here are not certified tax documents unless a provider below issues one.</p>
+            <button type="submit" class="btn btn-primary">Save settings</button>
+        </form>
+        <aside class="space-y-6">
+            <section class="panel panel-body space-y-2"><h2 class="section-title">Providers</h2>
+                <dl class="text-14 space-y-2">
+                    <div><dt class="text-ink-muted">Online payments</dt><dd>{{ providers.payment.label }}{% if providers.payment.is_test %} <span class="status status-warning">Test</span>{% endif %}</dd></div>
+                    <div><dt class="text-ink-muted">Contract signing</dt><dd>{{ providers.signature.label }}{% if providers.signature.is_test %} <span class="status status-warning">Test</span>{% endif %}</dd></div>
+                    <div><dt class="text-ink-muted">Certified tax documents</dt><dd>{{ providers.tax.label }}{% if providers.tax.is_test %} <span class="status status-warning">Test</span>{% endif %}</dd></div>
+                </dl>
+                <p class="help">Set in the server environment (BILLING_PAYMENT_PROVIDER, BILLING_SIGNATURE_PROVIDER, BILLING_TAX_PROVIDER). Bank transfer with a receipt upload always works.</p>
+            </section>
+            <section class="panel panel-body"><h2 class="section-title mb-2">Proposal and contract templates</h2>
+                <ul class="space-y-1">{% for t in templates %}<li><a href="{% url 'billing:template' template_id=t.id %}" class="link">{{ t.name }}</a> <span class="meta">{{ t.get_kind_display }}</span></li>{% endfor %}</ul></section>
+            <section class="panel panel-body"><h2 class="section-title mb-2">Service catalog</h2><p class="text-14 text-ink-muted mb-2">Services and prices reused on proposals and invoices.</p><a href="{% url 'billing:catalog' %}" class="btn btn-secondary btn-sm">Open the catalog</a></section>
+        </aside>
+    </div>
+</div>
+{% endblock %}

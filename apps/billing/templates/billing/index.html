@@ -1,0 +1,49 @@
+{% extends "base.html" %}{% load billing %}
+{% block title %}Billing · {{ SITE_NAME }}{% endblock %}
+{% block content %}
+<div class="w-full max-w-6xl mx-auto">
+    <header class="flex flex-wrap items-end justify-between gap-4 mb-6">
+        <div><h1 class="page-title">Billing</h1><p class="text-ink-muted mt-1">Money across every client, in {{ base_currency }}. Other currencies are converted at the rate stored on each invoice.</p></div>
+        <div class="flex gap-2"><a href="{% url 'billing:catalog' %}" class="btn btn-secondary">Catalog</a><a href="{% url 'billing:settings' %}" class="btn btn-secondary">Settings</a></div>
+    </header>
+
+    <section class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8" aria-label="Summary">
+        <div class="panel panel-body"><p class="stat-label">Recurring revenue</p><p class="stat-value">{{ summary.mrr|floatformat:"2g" }}</p><p class="meta">a month, from active retainers</p></div>
+        <div class="panel panel-body"><p class="stat-label">Outstanding</p><p class="stat-value">{{ summary.outstanding|floatformat:"2g" }}</p><p class="meta">on sent invoices</p></div>
+        <div class="panel panel-body"><p class="stat-label">Overdue</p><p class="stat-value{% if summary.overdue %} text-danger{% endif %}">{{ summary.overdue|floatformat:"2g" }}</p><p class="meta">{{ summary.overdue_invoices|length }} invoice{{ summary.overdue_invoices|length|pluralize }}</p></div>
+        <div class="panel panel-body"><p class="stat-label">Collected this year</p><p class="stat-value">{{ summary.collected_ytd|floatformat:"2g" }}</p><p class="meta">confirmed payments</p></div>
+    </section>
+
+    {% if pending %}
+    <section class="panel mb-6" aria-labelledby="pending-title">
+        <div class="panel-header"><h2 id="pending-title" class="section-title">Payments to confirm</h2></div>
+        <ul class="divide-y divide-hairline">{% for p in pending %}<li class="px-5 py-3 flex items-center justify-between gap-3"><div><a href="{% url 'billing:invoice' workspace_id=p.workspace_id invoice_id=p.invoice_id %}" class="link font-medium">{{ p.invoice.number }}</a><p class="meta">{{ p.workspace.name }} · {{ p.currency }} {{ p.amount }} · uploaded {{ p.created_at|timesince }} ago</p></div>{% include "billing/_status.html" with obj=p %}</li>{% endfor %}</ul>
+    </section>
+    {% endif %}
+
+    <section class="mb-8" aria-labelledby="inv-title">
+        <div class="flex flex-wrap items-center justify-between gap-3 mb-3">
+            <h2 id="inv-title" class="section-title">Invoices</h2>
+            <nav class="segmented" aria-label="Filter invoices">{% for v, l in statuses %}{% if v in "open,overdue,draft,paid" %}<a href="?status={{ v }}" class="segment"{% if status == v %} aria-current="page"{% endif %}>{{ l }}</a>{% endif %}{% endfor %}</nav>
+        </div>
+        <div class="panel overflow-x-auto">
+            {% if invoices %}
+            <table class="table min-w-[680px]">
+                <thead><tr><th>Number</th><th>Client</th><th>Due</th><th class="num">Total</th><th class="num">Balance</th><th>Status</th></tr></thead>
+                <tbody>{% for inv in invoices %}<tr><td><a href="{% url 'billing:invoice' workspace_id=inv.workspace_id invoice_id=inv.id %}" class="link">{{ inv.number|default:"Draft" }}</a></td><td>{{ inv.workspace.name }}</td><td class="tabular-nums">{{ inv.due_date|date:"j M Y"|default:"—" }}{% if inv.days_overdue %} <span class="text-danger text-13">({{ inv.days_overdue }} d late)</span>{% endif %}</td><td class="num">{{ inv.currency }} {{ inv.total }}</td><td class="num">{{ inv.balance }}</td><td>{% include "billing/_status.html" with obj=inv %}</td></tr>{% endfor %}</tbody>
+            </table>
+            {% else %}<div class="panel-body">{% include "ds/_state.html" with kind="empty" title="Nothing here" body="Invoices matching this filter show here. Create invoices from a client's Billing tab." %}</div>{% endif %}
+        </div>
+    </section>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <section class="panel" aria-labelledby="by-client"><div class="panel-header"><h2 id="by-client" class="section-title">Invoiced this year, by client</h2></div>
+            <ul class="divide-y divide-hairline">{% for name, amount in summary.by_client %}<li class="px-5 py-2.5 flex justify-between gap-3"><span>{{ name }}</span><span class="tabular-nums">{{ amount|floatformat:"2g" }}</span></li>{% empty %}<li class="px-5 py-3 text-ink-muted">Nothing invoiced yet this year.</li>{% endfor %}</ul></section>
+        <section class="panel" aria-labelledby="by-service"><div class="panel-header"><h2 id="by-service" class="section-title">By service</h2></div>
+            <ul class="divide-y divide-hairline">{% for kind, amount in summary.by_service %}<li class="px-5 py-2.5 flex justify-between gap-3"><span>{% if kind == "other" %}Other{% else %}{{ service_labels|label:kind }}{% endif %}</span><span class="tabular-nums">{{ amount|floatformat:"2g" }}</span></li>{% empty %}<li class="px-5 py-3 text-ink-muted">No invoice lines yet.</li>{% endfor %}</ul>
+            <p class="panel-body meta pt-0">Net of discounts, before tax. Lines without a service count as Other.</p></section>
+        <section class="panel" aria-labelledby="delivery-title"><div class="panel-header"><h2 id="delivery-title" class="section-title">Retainer work delivered</h2></div>
+            <ul class="divide-y divide-hairline">{% for ws, rows in delivery %}{% with row=rows.months|first %}<li class="px-5 py-2.5"><div class="flex justify-between gap-3"><span>{{ ws.name }}</span><span class="tabular-nums">{{ row.published }} of {{ row.planned }} posts</span></div><div class="meter mt-1" aria-hidden="true"{% if row.percent == 100 %} data-tone="success"{% endif %}><span style="width: {{ row.percent|default:0 }}%"></span></div><p class="meta">{{ row.label }}{% if row.scheduled %} · {{ row.scheduled }} more scheduled{% endif %}</p></li>{% endwith %}{% empty %}<li class="px-5 py-3 text-ink-muted">No retainers with a monthly post count.</li>{% endfor %}</ul></section>
+    </div>
+</div>
+{% endblock %}

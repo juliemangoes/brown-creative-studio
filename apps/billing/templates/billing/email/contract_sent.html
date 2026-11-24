@@ -1,0 +1,4 @@
+{% extends "billing/email/base.html" %}{% load i18n %}
+{% block content %}<p style="margin:0 0 12px;font-size:16px;line-height:24px;">{% blocktranslate with title=contract.title %}{{ title }} is ready for your signature.{% endblocktranslate %}</p>
+<p style="margin:0;font-size:15px;color:#5F5750;">{% translate "Read it in the portal and sign by typing your name." %}</p>{% endblock %}
+{% block action %}{% translate "Read and sign" %}{% endblock %}

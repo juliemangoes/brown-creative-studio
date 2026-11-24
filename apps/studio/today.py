@@ -110,6 +110,8 @@ class Today:
     brand_signoffs: list = field(default_factory=list)
     shoots: list[dict] = field(default_factory=list)  # upcoming shoot days and what is missing
     needs_shoot: list = field(default_factory=list)  # planned posts needing a shot, on no shoot yet
+    overdue_invoices: list = field(default_factory=list)  # only where the person sees billing
+    payments_to_confirm: int = 0
 
     @property
     def attention_count(self) -> int:
@@ -120,6 +122,8 @@ class Today:
             + len(self.accounts)
             + len(self.stalled)
             + len(self.overdue_tasks)
+            + len(self.overdue_invoices)
+            + self.payments_to_confirm
             + sum(1 for b in self.brand_signoffs if b.status == "changes_requested")
             + sum(1 for g in self.gaps if g["signal"].tone == "danger")
         )
@@ -226,7 +230,7 @@ def content_gaps(workspaces, profiles, now) -> list[dict]:
         if social and social.status != ServiceLine.Status.ACTIVE:
             continue  # social media is paused or ended for this client
         signal = runway_signal(ws, now, Retainer.current_for(ws))
-        if signal.tone != "success":
+        if signal.tone in ("warning", "danger"):  # no package means nothing to measure against
             rows.append({"workspace": ws, "signal": signal})
     rows.sort(key=lambda r: (r["signal"].tone != "danger", r["workspace"].name))
     return rows
@@ -350,6 +354,26 @@ def needs_shoot(memberships, workspace_ids, today):
     return posts_needing_shots(ids, today) if ids else []
 
 
+def billing_items(memberships, workspace_ids):
+    """Overdue invoices and client payments waiting for confirmation, where the person sees billing."""
+    from apps.billing.models import Invoice, Payment
+
+    ids = [
+        m.workspace_id
+        for m in memberships
+        if m.workspace_id in workspace_ids and m.effective_permissions.get("view_billing")
+    ]
+    if not ids:
+        return [], 0
+    overdue = list(
+        Invoice.objects.filter(workspace_id__in=ids, status=Invoice.Status.OVERDUE)
+        .select_related("workspace")
+        .order_by("due_date")[:20]
+    )
+    pending = Payment.objects.filter(workspace_id__in=ids, status=Payment.Status.PENDING).count()
+    return overdue, pending
+
+
 def account_problems(workspaces, profiles) -> list[dict]:
     from apps.social_accounts.models import SocialAccount
 
@@ -387,6 +411,7 @@ def build_today(user, organization, selected=None, now=None) -> Today:
     ids = [ws.id for ws in scoped]
     profiles = {ws.id: profile_for(ws) for ws in scoped}
     by_day, count = upcoming(ids, now)
+    overdue, pending = billing_items(memberships, ids)
     return Today(
         workspaces=workspaces,
         selected=selected,
@@ -401,4 +426,6 @@ def build_today(user, organization, selected=None, now=None) -> Today:
         brand_signoffs=brand_signoffs(ids, can_view_profile),
         shoots=upcoming_shoots(user, memberships, ids, timezone.localdate(now)),
         needs_shoot=needs_shoot(memberships, ids, timezone.localdate(now)),
+        overdue_invoices=overdue,
+        payments_to_confirm=pending,
     )

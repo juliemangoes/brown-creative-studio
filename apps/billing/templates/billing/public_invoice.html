@@ -1,0 +1,9 @@
+{% extends "about/base_public.html" %}{% load i18n %}
+{% block title %}{{ invoice.number }} · {{ SITE_NAME }}{% endblock %}
+{% block content %}
+<div class="space-y-6">
+    <div class="flex flex-wrap items-center justify-between gap-3">{% include "billing/_status.html" with obj=invoice %}<a href="{% url 'billing_public:invoice_pdf' token=invoice.share_token %}" class="btn btn-secondary">{% translate "Download PDF" %}</a></div>
+    {% include "billing/_document.html" %}
+    {% include "billing/portal/_pay.html" %}
+</div>
+{% endblock %}

@@ -134,4 +134,7 @@ def portal(request):
             {"label": s.label, "url": s.url, "active": current == s.key} for s in studio_portal.sections(request)
         ],
         "portal_notices": studio_portal.notices(request),
+        "portal_upcoming": studio_portal.upcoming(request)
+        if getattr(getattr(request, "resolver_match", None), "view_name", "") == "client_portal:dashboard"
+        else [],
     }

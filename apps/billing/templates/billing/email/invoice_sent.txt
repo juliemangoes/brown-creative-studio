@@ -1,0 +1,8 @@
+{% load i18n %}{% if user %}{% blocktranslate with name=user.name|default:_("there") %}Hello {{ name }},{% endblocktranslate %}{% else %}{% translate "Hello," %}{% endif %}
+
+{% blocktranslate with kind=invoice.get_kind_display|lower number=invoice.number client=workspace.name %}{{ site_name }} has issued {{ kind }} {{ number }} for {{ client }}.{% endblocktranslate %}
+{{ invoice.currency }} {{ invoice.total }}{% if invoice.due_date and not invoice.is_credit_note %} · {% blocktranslate with due=invoice.due_date|date:"j F Y" %}Due {{ due }}.{% endblocktranslate %}{% endif %}
+
+{% if portal_url %}{{ portal_url }}{% else %}{{ share_url }}{% endif %}
+
+{{ site_name }}

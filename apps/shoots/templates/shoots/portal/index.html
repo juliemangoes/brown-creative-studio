@@ -1,0 +1,21 @@
+{% extends "client_portal/portal_base.html" %}{% load i18n %}
+{% block title %}{% translate "Shoots" %} · {{ workspace.name }}{% endblock %}
+{% block content %}
+<div class="space-y-10">
+    <header><h1 class="display-title">{% translate "Shoots" %}</h1><p class="text-ink-muted mt-1">{% translate "When we come to shoot, what to have ready, and the plan for the day." %}</p></header>
+    {% for shoot in upcoming %}
+    <article id="shoot-{{ shoot.id }}" class="panel panel-body space-y-5" aria-labelledby="t-{{ shoot.id }}">
+        <header>
+            <p class="eyebrow">{{ shoot.date|date:"l j F" }}</p>
+            <h2 id="t-{{ shoot.id }}" class="text-24 font-semibold tracking-tight">{{ shoot.title }}</h2>
+            <p class="text-ink-muted">{% blocktranslate with t=shoot.call_time|time:"H:i" %}Crew arrives {{ t }}{% endblocktranslate %}{% if shoot.wrap_time %} · {% blocktranslate with t=shoot.wrap_time|time:"H:i" %}done by {{ t }}{% endblocktranslate %}{% endif %}{% if shoot.status == "confirmed" %} · <span class="status status-success">{% translate "Confirmed" %}</span>{% endif %}</p>
+        </header>
+        {% include "shoots/_sheet.html" with shots=None %}
+        <p><a href="{% url 'conversations_portal:index' %}?about=shoot&amp;id={{ shoot.id }}" class="link">{% translate "Ask about this shoot" %}</a></p>
+    </article>
+    {% empty %}
+    {% include "ds/_state.html" with kind="empty" title=_("No shoots coming up") body=_("When the studio plans a shoot with you, the date and what to prepare appear here.") %}
+    {% endfor %}
+    {% if past %}<section class="space-y-2"><h2 class="section-title">{% translate "Recent shoots" %}</h2><ul class="panel divide-y divide-hairline">{% for s in past %}<li class="px-5 py-3 flex justify-between gap-3"><span>{{ s.title }}</span><span class="meta">{{ s.date|date:"j M Y" }}</span></li>{% endfor %}</ul></section>{% endif %}
+</div>
+{% endblock %}

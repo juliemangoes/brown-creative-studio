@@ -16,6 +16,7 @@ from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.db import transaction
 from django.utils import timezone
+from django.utils.translation import gettext, ngettext
 
 from apps.audit.services import record
 from apps.client_onboarding.defaults import BUILTINS, LIST_TARGETS, TEXT_TARGETS
@@ -136,7 +137,10 @@ def invite(run, user, actor) -> bool:
     ok = send_portal_email(
         user,
         run.workspace,
-        subject=f"Let's get started: {run.workspace.name} and {settings.SITE_NAME}",
+        subject=lambda: (
+            gettext("Let's get started: %(client)s and %(studio)s")
+            % {"client": run.workspace.name, "studio": settings.SITE_NAME}
+        ),
         template="client_onboarding/email/invite",
         context={"run": run},
     )
@@ -439,7 +443,14 @@ def send_reminders(now=None) -> int:
                 if send_portal_email(
                     participant.user,
                     run.workspace,
-                    subject=f"A reminder from {settings.SITE_NAME}: {len(left)} onboarding step{'s' if len(left) != 1 else ''} left",
+                    subject=lambda left=left: (
+                        ngettext(
+                            "A reminder from %(studio)s: %(count)d onboarding step left",
+                            "A reminder from %(studio)s: %(count)d onboarding steps left",
+                            len(left),
+                        )
+                        % {"studio": settings.SITE_NAME, "count": len(left)}
+                    ),
                     template="client_onboarding/email/reminder",
                     context={"run": run, "left": left},
                 ):

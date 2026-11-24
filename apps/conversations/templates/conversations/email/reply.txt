@@ -1,0 +1,9 @@
+{% load i18n %}{% blocktranslate with name=user.name|default:_("there") %}Hello {{ name }},{% endblocktranslate %}
+
+{% blocktranslate with subject=conversation.subject %}The studio replied in “{{ subject }}”:{% endblocktranslate %}
+
+{{ message.body }}
+
+{{ portal_url }}
+
+{{ site_name }}
