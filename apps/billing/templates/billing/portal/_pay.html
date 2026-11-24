@@ -1,0 +1,33 @@
+{% load i18n %}{# How to pay, payments made, and the receipt upload. Context: invoice, studio, payments, rejected, online. #}
+{% if payments %}
+<section class="panel" aria-labelledby="paid-title">
+    <div class="panel-header"><h2 id="paid-title" class="section-title">{% translate "Payments" %}</h2></div>
+    <ul class="divide-y divide-hairline">{% for p in payments %}<li class="px-5 py-3 flex flex-wrap items-center justify-between gap-3"><span class="tabular-nums">{{ p.received_on|date:"j M Y" }} · {{ p.currency }} {{ p.amount }}{% if p.provider == "mock" %} · {% translate "test payment" %}{% endif %}</span>{% include "billing/_status.html" with obj=p %}</li>{% endfor %}</ul>
+</section>
+{% endif %}
+{% for p in rejected %}<div class="alert-error" role="status">{% blocktranslate with amount=p.amount currency=p.currency %}The studio could not find your payment of {{ currency }} {{ amount }}:{% endblocktranslate %} {{ p.rejection_reason }}</div>{% endfor %}
+
+{% if invoice.is_open and not invoice.is_credit_note %}
+<section class="panel panel-body space-y-4" aria-labelledby="how-title">
+    <h2 id="how-title" class="section-title">{% translate "How to pay" %}</h2>
+    {% if online %}
+    <form method="post" action="{% url 'billing_portal:pay' invoice_id=invoice.id %}">{% csrf_token %}<button type="submit" class="btn btn-primary">{% blocktranslate with currency=invoice.currency balance=invoice.balance %}Pay {{ currency }} {{ balance }} by card{% endblocktranslate %}</button>{% if online.is_test %} <span class="status status-warning">{% translate "Test mode: no money moves" %}</span>{% endif %}</form>
+    {% endif %}
+    {% if studio.bank_details %}
+    <div><p class="font-medium">{% translate "Bank transfer" %}</p><p class="whitespace-pre-line text-ink-muted">{{ studio.bank_details }}</p>
+        {% if studio.payment_instructions %}<p class="whitespace-pre-line text-ink-muted mt-1">{{ studio.payment_instructions }}</p>{% endif %}
+        <p class="mt-1">{% blocktranslate with number=invoice.number %}Use {{ number }} as the reference.{% endblocktranslate %}</p></div>
+    {% endif %}
+    {% if not public %}
+    <form method="post" enctype="multipart/form-data" action="{% url 'billing_portal:proof' invoice_id=invoice.id %}" class="space-y-3 border-t border-hairline pt-4">{% csrf_token %}
+        <p class="font-medium">{% translate "Already paid? Send us the receipt" %}</p>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div class="field"><label class="label" for="pp-amount">{% blocktranslate with currency=invoice.currency %}Amount paid ({{ currency }}){% endblocktranslate %}</label><input id="pp-amount" name="amount" class="input" inputmode="decimal" value="{{ invoice.balance }}" required></div>
+            <div class="field"><label class="label" for="pp-ref">{% translate "Bank reference (optional)" %}</label><input id="pp-ref" name="reference" class="input"></div>
+        </div>
+        <div class="field"><label class="label" for="pp-file">{% translate "Receipt: a photo, screenshot or PDF" %}</label><input id="pp-file" type="file" name="proof" class="input" accept="image/*,application/pdf" required></div>
+        <button type="submit" class="btn btn-secondary">{% translate "Send receipt" %}</button>
+    </form>
+    {% endif %}
+</section>
+{% endif %}

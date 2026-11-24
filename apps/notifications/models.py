@@ -23,6 +23,11 @@ class EventType(models.TextChoices):
     APPROVAL_STALLED = "approval_stalled", "Stalled approval escalation"
     APPROVAL_HOLD_REQUESTED = "approval_hold_requested", "Client requested a hold"
     CLIENT_CONNECTED_ACCOUNTS = "client_connected_accounts", "Client connected accounts"
+    # Brown Creative Studio (CHANGES.md): billing and portal messages.
+    PROPOSAL_ACCEPTED = "proposal_accepted", "Client accepted a proposal"
+    CONTRACT_SIGNED = "contract_signed", "Client signed a contract"
+    PAYMENT_SUBMITTED = "payment_submitted", "Client reported a payment"
+    CLIENT_MESSAGE = "client_message", "New message from a client"
 
 
 class Channel(models.TextChoices):

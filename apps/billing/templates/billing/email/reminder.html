@@ -1,0 +1,5 @@
+{% extends "billing/email/base.html" %}{% load i18n %}
+{% block content %}<p style="margin:0 0 12px;font-size:16px;line-height:24px;">{% if offset < 0 %}{% blocktranslate with number=invoice.number due=invoice.due_date|date:"j F" %}A reminder that invoice {{ number }} is due on {{ due }}.{% endblocktranslate %}{% elif offset == 0 %}{% blocktranslate with number=invoice.number %}Invoice {{ number }} is due today.{% endblocktranslate %}{% else %}{% blocktranslate with number=invoice.number due=invoice.due_date|date:"j F" %}Invoice {{ number }} was due on {{ due }} and still shows a balance.{% endblocktranslate %}{% endif %}</p>
+<p style="margin:0 0 12px;font-size:20px;font-weight:bold;">{% blocktranslate with currency=invoice.currency balance=invoice.balance %}Balance: {{ currency }} {{ balance }}{% endblocktranslate %}</p>
+<p style="margin:0;font-size:15px;color:#5F5750;">{% translate "If you have already paid, upload the transfer receipt in the portal and we will confirm it." %}</p>{% endblock %}
+{% block action %}{% translate "View and pay" %}{% endblock %}

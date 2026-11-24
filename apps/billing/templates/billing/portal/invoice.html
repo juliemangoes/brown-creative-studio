@@ -1,0 +1,13 @@
+{% extends "client_portal/portal_base.html" %}{% load i18n %}
+{% block title %}{{ invoice.number }} · {{ workspace.name }}{% endblock %}
+{% block content %}
+<div class="space-y-6">
+    <p><a href="{% url 'billing_portal:index' %}" class="link">← {% translate "Billing" %}</a></p>
+    <div class="flex flex-wrap items-center justify-between gap-3">
+        <div class="flex items-center gap-2">{% include "billing/_status.html" with obj=invoice %}</div>
+        <a href="{% url 'billing_portal:invoice_pdf' invoice_id=invoice.id %}" class="btn btn-secondary">{% translate "Download PDF" %}</a>
+    </div>
+    {% include "billing/_document.html" %}
+    {% include "billing/portal/_pay.html" %}
+</div>
+{% endblock %}

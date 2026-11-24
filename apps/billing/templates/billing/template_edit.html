@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% block title %}{{ template.name }} · {{ SITE_NAME }}{% endblock %}
+{% block content %}
+<div class="w-full max-w-4xl mx-auto">
+    <header class="mb-6"><p class="meta mb-1"><a href="{% url 'billing:settings' %}" class="link">Billing settings</a></p><h1 class="page-title">{{ template.name }}</h1></header>
+    <form method="post" class="panel panel-body space-y-3">{% csrf_token %}
+        <div class="field"><label class="label" for="t-name">Name</label><input id="t-name" name="name" class="input" value="{{ template.name }}"></div>
+        <div class="field"><label class="label" for="t-body">Text</label><textarea id="t-body" name="body" class="textarea font-mono text-13" rows="20">{{ template.body }}</textarea>
+            <p class="help">Fields filled in for each client: {% for f in fields %}<code class="kbd">{{ "{{" }} {{ f }} {{ "}}" }}</code> {% endfor %}</p></div>
+        <button type="submit" class="btn btn-primary">Save template</button>
+    </form>
+</div>
+{% endblock %}

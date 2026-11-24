@@ -1,0 +1,6 @@
+{% load i18n %}{# Status label for an invoice, proposal, contract or payment: text and colour. #}
+{% if obj.status == "paid" or obj.status == "accepted" or obj.status == "signed" or obj.status == "confirmed" %}<span class="status status-success">{{ obj.get_status_display }}</span>
+{% elif obj.status == "overdue" or obj.status == "rejected" or obj.status == "declined" %}<span class="status status-danger">{{ obj.get_status_display }}</span>
+{% elif obj.status == "partly_paid" or obj.status == "pending" or obj.status == "viewed" %}<span class="status status-warning">{{ obj.get_status_display }}</span>
+{% elif obj.status == "sent" %}<span class="status status-info">{{ obj.get_status_display }}</span>
+{% else %}<span class="status status-neutral">{{ obj.get_status_display }}</span>{% endif %}

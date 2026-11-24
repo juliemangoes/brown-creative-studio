@@ -1,0 +1,62 @@
+{% extends "base.html" %}{% load billing %}
+{% block title %}{{ proposal.title }} · {{ workspace.name }} · {{ SITE_NAME }}{% endblock %}
+{% block content %}
+<div class="w-full max-w-6xl mx-auto">
+    <header class="flex flex-wrap items-end justify-between gap-4 mb-6">
+        <div>
+            <p class="meta mb-1"><a href="{% url 'billing:client' workspace_id=workspace.id %}" class="link">{{ workspace.name }} · Billing</a></p>
+            <h1 class="page-title">{{ proposal.title }}</h1>
+            <div class="flex flex-wrap items-center gap-2 mt-1">{% include "billing/_status.html" with obj=proposal %}<span class="meta">{{ proposal.number|default:"Draft" }}{% if proposal.valid_until %} · open until {{ proposal.valid_until|date:"j M Y" }}{% endif %}{% if proposal.accepted_name %} · accepted by {{ proposal.accepted_name }} on {{ proposal.decided_at|date:"j M Y" }}{% endif %}</span></div>
+        </div>
+        {% if can_manage %}<div class="flex gap-2">
+            {% if editable %}<form method="post" action="{% url 'billing:proposal_action' workspace_id=workspace.id proposal_id=proposal.id %}">{% csrf_token %}<input type="hidden" name="action" value="send"><button type="submit" class="btn btn-primary">Send to the client</button></form>{% endif %}
+            {% if proposal.is_open %}<form method="post" action="{% url 'billing:proposal_action' workspace_id=workspace.id proposal_id=proposal.id %}">{% csrf_token %}<input type="hidden" name="action" value="withdraw"><button type="submit" class="btn btn-danger-quiet">Withdraw</button></form>{% endif %}
+        </div>{% endif %}
+    </header>
+    {% if proposal.decline_reason %}<div class="alert-error mb-6" role="status"><p class="font-semibold">Declined</p><p>{{ proposal.decline_reason }}</p></div>{% endif %}
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div class="lg:col-span-2 space-y-6 min-w-0">
+            <section class="panel" aria-labelledby="lines-title">
+                <div class="panel-header"><h2 id="lines-title" class="section-title">Services</h2><span class="meta tabular-nums">{{ proposal.currency }} {{ proposal.one_off_total }} one-off{% if proposal.monthly_total %} · {{ proposal.monthly_total }} a month{% endif %}</span></div>
+                <div class="overflow-x-auto"><table class="table min-w-[520px]">
+                    <thead><tr><th>Service</th><th class="num">Qty</th><th class="num">Price</th><th class="num">Amount</th><th>Billed</th>{% if editable %}<th><span class="sr-only">Remove</span></th>{% endif %}</tr></thead>
+                    <tbody>{% for line in lines %}<tr><td>{{ line.description }}{% if line.discount_percent %} <span class="meta">(−{{ line.discount_percent|floatformat:"-2" }}%)</span>{% endif %}</td><td class="num">{{ line.quantity|floatformat:"-2" }}</td><td class="num">{{ line.unit_price }}</td><td class="num">{{ line.total }}</td><td>{% if line.recurring %}Monthly{% else %}Once{% endif %}</td>
+                    {% if editable %}<td class="text-right"><form method="post" action="{% url 'billing:proposal_action' workspace_id=workspace.id proposal_id=proposal.id %}">{% csrf_token %}<input type="hidden" name="action" value="remove_line"><input type="hidden" name="line" value="{{ line.id }}"><button type="submit" class="btn btn-quiet btn-sm" aria-label="Remove {{ line.description }}">Remove</button></form></td>{% endif %}</tr>
+                    {% empty %}<tr><td colspan="6" class="text-ink-muted">No services yet.</td></tr>{% endfor %}</tbody>
+                </table></div>
+                <p class="panel-body meta">On acceptance: deposit of {{ proposal.deposit_percent|floatformat:"-2" }}% of the one-off total ({{ proposal.currency }} {{ proposal.deposit_amount }}){% if proposal.contract_template %}, the contract “{{ proposal.contract_template.name }}” for signature{% endif %}{% if proposal.start_onboarding %}, and onboarding for a new client{% endif %}.</p>
+            </section>
+            {% if editable %}
+            <section class="panel panel-body" aria-labelledby="add-title">
+                <h2 id="add-title" class="section-title mb-3">Add a service</h2>
+                <form method="post" action="{% url 'billing:proposal_action' workspace_id=workspace.id proposal_id=proposal.id %}" class="grid grid-cols-1 sm:grid-cols-6 gap-3 items-end">{% csrf_token %}<input type="hidden" name="action" value="add_line">
+                    <div class="field sm:col-span-6"><label class="label" for="pl-item">From the catalog</label><select id="pl-item" name="catalog_item" class="select"><option value="">Write my own</option>{% for item in catalog %}<option value="{{ item.id }}">{{ item.name }} · {{ item.currency }} {{ item.unit_price }} {{ item.get_unit_display }}</option>{% endfor %}</select></div>
+                    <div class="field sm:col-span-6"><label class="label" for="pl-desc">Description</label><input id="pl-desc" name="description" class="input" placeholder="Leave empty to use the catalog name"></div>
+                    <div class="field"><label class="label" for="pl-qty">Qty</label><input id="pl-qty" name="quantity" class="input" value="1" inputmode="decimal"></div>
+                    <div class="field sm:col-span-2"><label class="label" for="pl-price">Unit price</label><input id="pl-price" name="unit_price" class="input" inputmode="decimal" placeholder="From the catalog"></div>
+                    <div class="field"><label class="label" for="pl-disc">Discount %</label><input id="pl-disc" name="discount_percent" class="input" value="0" inputmode="decimal"></div>
+                    <label class="flex items-center gap-2 sm:col-span-2 pb-2"><input type="checkbox" name="recurring" class="checkbox"> Billed monthly</label>
+                    <div class="sm:col-span-6"><button type="submit" class="btn btn-secondary">Add service</button></div>
+                </form>
+            </section>
+            {% endif %}
+            {% if not editable %}<section class="panel panel-body"><h2 class="section-title mb-2">Introduction</h2><p class="whitespace-pre-line">{{ proposal.introduction }}</p></section>{% endif %}
+        </div>
+        <aside class="space-y-6 min-w-0">
+            {% if editable %}
+            <form method="post" class="panel panel-body space-y-3">{% csrf_token %}
+                <h2 class="section-title">Details</h2>
+                {% for field in form %}<div class="field">{% if field.field.widget.input_type == "checkbox" %}<label class="flex items-center gap-2">{{ field }} {{ field.label }}</label>{% elif field.name == "services" %}<fieldset><legend class="label mb-1">{{ field.label }}</legend>{% for c in field %}<label class="flex items-center gap-2 text-14">{{ c.tag }} {{ c.choice_label }}</label>{% endfor %}</fieldset>{% else %}<label class="label" for="{{ field.id_for_label }}">{{ field.label }}</label>{{ field }}{% endif %}{% if field.help_text %}<p class="help">{{ field.help_text }}</p>{% endif %}{% for e in field.errors %}<p class="field-error">{{ e }}</p>{% endfor %}</div>{% endfor %}
+                <button type="submit" class="btn btn-secondary">Save</button>
+            </form>
+            {% else %}
+            <section class="panel panel-body"><h2 class="section-title mb-2">Starts</h2><ul class="text-14 space-y-1">{% for k in proposal.services %}<li>{{ service_labels|label:k }}</li>{% empty %}<li class="text-ink-muted">No service lines chosen.</li>{% endfor %}</ul>
+            {% for c in proposal.contracts.all %}<p class="meta mt-3">Contract: <a href="{% url 'billing:contract' workspace_id=workspace.id contract_id=c.id %}" class="link">{{ c.title }}</a> ({{ c.get_status_display|lower }})</p>{% endfor %}
+            {% for i in proposal.invoices.all %}<p class="meta">Invoice: <a href="{% url 'billing:invoice' workspace_id=workspace.id invoice_id=i.id %}" class="link">{{ i.number|default:"Draft" }}</a> ({{ i.get_status_display|lower }})</p>{% endfor %}
+            </section>
+            {% endif %}
+        </aside>
+    </div>
+</div>
+{% endblock %}

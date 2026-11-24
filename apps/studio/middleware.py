@@ -42,6 +42,8 @@ CLIENT_NAMESPACES = frozenset(
         "projects_portal",
         "reviews_portal",
         "shoots_public",
+        "billing_portal",
+        "billing_public",
     }
 )
 CLIENT_VIEWS = frozenset(
@@ -147,3 +149,35 @@ def _open_portal_session(request) -> None:
         return
     request.session["is_portal_session"] = True
     request.session["portal_workspace_id"] = str(membership.workspace_id)
+
+
+class PublicLinkRateLimitMiddleware:
+    """Per-IP limit on links that work without signing in (call sheets, shared invoices, magic links).
+
+    The tokens are long and random, so this is not what keeps them secret; it stops
+    a scraper or a misbehaving client from hammering the pages.
+    """
+
+    PREFIXES = ("/call-sheet/", "/invoice/", "/portal/")
+    LIMIT = 60
+    WINDOW = 60  # seconds
+
+    def __init__(self, get_response):
+        self.get_response = get_response
+
+    def __call__(self, request):
+        from django.core.cache import cache
+        from django.http import HttpResponse
+
+        path = request.path
+        anonymous = not getattr(getattr(request, "user", None), "is_authenticated", False)
+        if anonymous and path.startswith(self.PREFIXES):
+            ip = request.META.get("REMOTE_ADDR", "unknown")
+            key = f"public-link-rate:{ip}"
+            hits = cache.get(key, 0)
+            if hits >= self.LIMIT:
+                response = HttpResponse("Too many requests. Wait a minute and try again.", status=429)
+                response["Retry-After"] = str(self.WINDOW)
+                return response
+            cache.set(key, hits + 1, self.WINDOW)
+        return self.get_response(request)

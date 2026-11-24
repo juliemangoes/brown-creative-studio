@@ -1,0 +1,23 @@
+{% extends "client_portal/portal_base.html" %}{% load i18n %}
+{% block title %}{{ contract.title }} · {{ workspace.name }}{% endblock %}
+{% block content %}
+<div class="space-y-6">
+    <p><a href="{% url 'billing_portal:index' %}" class="link">← {% translate "Billing" %}</a></p>
+    <header><p class="eyebrow">{% translate "Contract" %}</p><h1 class="display-title">{{ contract.title }}</h1><div class="mt-2">{% include "billing/_status.html" with obj=contract %}</div></header>
+    <article class="panel panel-body"><div class="whitespace-pre-line leading-7">{{ contract.body }}</div></article>
+    {% if contract.is_open %}
+    <section class="panel panel-body space-y-3" aria-labelledby="sign-title">
+        <h2 id="sign-title" class="section-title">{% translate "Sign" %}</h2>
+        <form method="post" action="{% url 'billing_portal:contract_sign' contract_id=contract.id %}" class="space-y-3">{% csrf_token %}
+            <div class="field"><label class="label" for="sig-name">{% translate "Type your full name as your signature" %}</label><input id="sig-name" name="name" class="input text-20" autocomplete="name" required value="{{ request.user.name }}"></div>
+            <label class="flex items-start gap-2"><input type="checkbox" name="agree" class="checkbox mt-1" required> <span>{% blocktranslate with client=workspace.name %}I have read this contract and sign it on behalf of {{ client }}. My typed name is my signature.{% endblocktranslate %}</span></label>
+            <p class="meta">{% translate "We record your name, email, the time, your IP address and a fingerprint of the text you signed." %}</p>
+            <button type="submit" class="btn btn-primary">{% translate "Sign contract" %}</button>
+        </form>
+    </section>
+    {% elif contract.status == "signed" %}
+    <div class="alert-success" role="status"><p>{% blocktranslate with name=contract.signer_name date=contract.signed_at|date:"j F Y, H:i" %}Signed by {{ name }} on {{ date }}.{% endblocktranslate %}</p>
+        {% if deposit and deposit.is_open %}<p class="mt-2"><a href="{% url 'billing_portal:invoice' invoice_id=deposit.id %}" class="link">{% blocktranslate with number=deposit.number %}Next: the deposit invoice {{ number }}{% endblocktranslate %}</a></p>{% endif %}</div>
+    {% endif %}
+</div>
+{% endblock %}

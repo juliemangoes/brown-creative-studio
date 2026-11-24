@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+{% block title %}{{ contract.title }} · {{ workspace.name }} · {{ SITE_NAME }}{% endblock %}
+{% block content %}
+<div class="w-full max-w-4xl mx-auto" x-data="{ voiding: false }">
+    <header class="flex flex-wrap items-end justify-between gap-4 mb-6">
+        <div>
+            <p class="meta mb-1"><a href="{% url 'billing:client' workspace_id=workspace.id %}" class="link">{{ workspace.name }} · Billing</a></p>
+            <h1 class="page-title">{{ contract.title }}</h1>
+            <div class="flex flex-wrap items-center gap-2 mt-1">{% include "billing/_status.html" with obj=contract %}{% if contract.proposal %}<span class="meta">From <a href="{% url 'billing:proposal' workspace_id=workspace.id proposal_id=contract.proposal_id %}" class="link">{{ contract.proposal.number }}</a></span>{% endif %}</div>
+        </div>
+        {% if can_manage %}<div class="flex gap-2">
+            {% if editable %}<form method="post" action="{% url 'billing:contract_action' workspace_id=workspace.id contract_id=contract.id %}">{% csrf_token %}<input type="hidden" name="action" value="send"><button type="submit" class="btn btn-primary">Send for signature</button></form>{% endif %}
+            {% if contract.status != "signed" and contract.status != "void" %}<button type="button" class="btn btn-danger-quiet" @click="voiding = !voiding">Void</button>{% endif %}
+        </div>{% endif %}
+    </header>
+    <form method="post" action="{% url 'billing:contract_action' workspace_id=workspace.id contract_id=contract.id %}" x-show="voiding" x-cloak class="panel panel-body mb-6 flex flex-wrap items-end gap-3">{% csrf_token %}<input type="hidden" name="action" value="void"><div class="field flex-1"><label class="label" for="c-void">Reason</label><input id="c-void" name="reason" class="input" required></div><button type="submit" class="btn btn-danger">Void contract</button></form>
+
+    {% if contract.status == "signed" %}
+    <section class="alert-success mb-6" role="status"><p class="font-semibold">Signed by {{ contract.signer_name }} on {{ contract.signed_at|date:"j M Y, H:i" }}</p>
+        <p class="text-13 mt-1">{{ contract.signer_email }}{% if contract.signer_ip %} · from {{ contract.signer_ip }}{% endif %} · {% if contract.provider == "builtin" %}typed signature in the portal{% else %}{{ contract.provider }} {{ contract.provider_reference }}{% if contract.provider == "mock" %} (test){% endif %}{% endif %}</p>
+        <p class="text-13 mt-1 font-mono break-all">SHA-256 {{ contract.document_hash }}</p></section>
+    {% endif %}
+
+    {% if editable %}
+    <form method="post" class="panel panel-body space-y-3">{% csrf_token %}
+        <div class="field"><label class="label" for="c-title">Title</label><input id="c-title" name="title" class="input" value="{{ contract.title }}"></div>
+        <div class="field"><label class="label" for="c-body">Text the client signs</label><textarea id="c-body" name="body" class="textarea font-mono text-13" rows="22">{{ contract.body }}</textarea><p class="help">Frozen once sent. Have your contract reviewed by a lawyer for your jurisdiction.</p></div>
+        <button type="submit" class="btn btn-secondary">Save</button>
+    </form>
+    {% else %}
+    <article class="panel panel-body"><div class="whitespace-pre-line text-14 leading-6">{{ contract.body }}</div></article>
+    {% endif %}
+</div>
+{% endblock %}
