@@ -93,6 +93,7 @@ LOCAL_APPS = [
     "apps.conversations",
     "apps.publishing",
     "apps.reports",
+    "apps.research",
     "theme",
 ]
 

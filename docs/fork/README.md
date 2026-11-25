@@ -17,6 +17,7 @@ django-background-tasks) and under its license (AGPL-3.0).
 | [`portal-and-billing.md`](portal-and-billing.md) | The client portal's sections, English and Spanish, proposals, contracts, invoices, payments and messages |
 | [`publishing.md`](publishing.md) | The publishing queue, publishing once, safe retries, pre-publish checks, TikTok posted by hand, and setting up Meta |
 | [`results.md`](results.md) | Dashboards, metric definitions and sources, goals, monthly reports, AI drafting, sharing, PDF and CSV import |
+| [`research.md`](research.md) | Research profiles, the swipe file, weekly briefs with evidence or hypotheses, acting on recommendations, and learning from results |
 
 ## Decisions that differ from the build brief
 

@@ -9,6 +9,41 @@ live in new Django apps and new files; those are listed per entry but need no
 merge care. See [docs/fork/README.md](docs/fork/README.md) for the working rules
 and the upstream merge procedure.
 
+## 2026-11-25 · Phase 8: intelligence
+
+### Upstream files changed by hand
+
+| File | Change | Reason |
+|---|---|---|
+| `config/settings/base.py` | `apps.research` in `LOCAL_APPS`. | New app. |
+| `config/urls.py` | `/research/`. | New pages. |
+| `.env.example` | `RESEARCH_PROVIDER`, `RESEARCH_BRIEF_WEEKDAY`. | Documented settings. |
+
+Fork files changed: `apps.studio.permissions` adds `view_research` (owner, manager, editor, viewer)
+and `manage_research` (owner, manager, editor); the rail's Research section (registered since Phase 1)
+now opens and needs `view_research`; the demo adds research profiles, swipe-file examples, this
+week's briefs and an earlier recommendation judged against the client's usual.
+
+### Behaviour changes to watch on upstream merges
+
+- The fork reads BrightBean's `_latest_post_stats` (`apps.analytics.services`) to judge outcomes, and
+  creates BrightBean `Idea` rows (tagged `research`) from recommendations.
+- BrightBean's hosted Intelligence add-on (`apps.intelligence`) stays off; this is separate.
+
+### New files
+
+- `apps/research/`: `ResearchProfile`, `SwipeItem`, `ResearchBrief`, `ResearchItem` (a recommendation
+  without evidence is saved as a hypothesis); the weekly brief in three groups, acting on
+  recommendations, outcome checks and the track record (`services.py`); trend sources behind an
+  adapter, `none`/`mock` (`sources.py`); AI help for why-fits, hooks and captions with avoided-topic
+  and number checks (`ai.py`); an hourly job (general lane) that prepares briefs on the chosen
+  weekday and checks outcomes (`tasks.py`); views, templates and tests.
+- `docs/fork/research.md`.
+
+### Changed test expectations
+
+None.
+
 ## 2026-11-25 · Phase 7: results
 
 ### Upstream files changed by hand

@@ -109,3 +109,11 @@ PUBLISHING_MANUAL_REMINDER_MINUTES = _env.int("PUBLISHING_MANUAL_REMINDER_MINUTE
 # "none" switches drafting off. Drafts always need a person to edit and approve.
 AI_PROVIDER = _env("AI_PROVIDER", default="mock").strip().lower()
 AI_MODEL = _env("AI_MODEL", default="claude-opus-5-5").strip()
+
+# ── Research (apps/research, Phase 8) ───────────────────────────────────────
+# Where "Emerging now" finds trends: "none" (default: only what the team saves,
+# plus a link to TikTok Creative Center) or "mock" (labelled test data). Only
+# official APIs, licensed providers, web search APIs or hand-saved items.
+RESEARCH_PROVIDER = _env("RESEARCH_PROVIDER", default="none").strip().lower()
+# Day the weekly brief is prepared (0 = Monday), in the studio's time zone.
+RESEARCH_BRIEF_WEEKDAY = _env.int("RESEARCH_BRIEF_WEEKDAY", default=0)

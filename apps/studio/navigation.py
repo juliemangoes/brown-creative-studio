@@ -65,7 +65,13 @@ PRIMARY: tuple[Section, ...] = (
         ),
     ),
     Section(
-        "research", "Research", "research", client_url="research:index", all_url="research:all", match=_app("research")
+        "research",
+        "Research",
+        "research",
+        client_url="research:index",
+        all_url="research:all",
+        permission="view_research",
+        match=_app("research"),
     ),
     Section("shoots", "Shoots", "shoots", client_url="shoots:list", all_url="shoots:all", match=_app("shoots")),
     Section(

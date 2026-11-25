@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% block title %}Research · {{ SITE_NAME }}{% endblock %}
+{% block content %}
+<div class="w-full max-w-6xl mx-auto">
+    {% include "ds/_page_header.html" with title="Research" description="This week's brief for each client: what is working for them, in their niche, and what is emerging." %}
+    <ul class="space-y-3">{% for row in rows %}
+        <li class="panel panel-body flex flex-wrap items-center justify-between gap-3">
+            <div class="min-w-0"><a href="{% url 'research:index' workspace_id=row.workspace.id %}" class="text-16 font-medium link">{{ row.workspace.name }}</a>
+                <p class="meta">{% if row.brief %}Brief for the week of {{ row.brief.week_start|date:"j M" }}{% if row.brief.week_start < this_week %} (older){% endif %} · {{ row.new }} new recommendation{{ row.new|pluralize }}{% else %}No brief yet{% endif %}</p></div>
+            <a href="{% url 'research:index' workspace_id=row.workspace.id %}" class="btn btn-secondary btn-sm">Open<span class="sr-only"> {{ row.workspace.name }}</span></a>
+        </li>{% empty %}<li>{% include "ds/_state.html" with kind="empty" title="No clients to research" body="Research appears for clients you work on." %}</li>{% endfor %}</ul>
+</div>
+{% endblock %}

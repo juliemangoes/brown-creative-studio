@@ -359,6 +359,7 @@ class _Builder:
         self._skincare_posts(skincare, [lu_ig], lu_tt, owner, team, client_users)
         self._client_setup(restaurant, skincare, realty, owner, team, freelancer, client_users)
         self._results(restaurant, skincare, [cm_ig, cm_fb], [lu_ig], owner, team, client_users)
+        self._research(restaurant, skincare, team)
         self.cast = {
             "restaurant": restaurant,
             "skincare": skincare,
@@ -596,6 +597,82 @@ class _Builder:
         reports.draft_summary(review, team)
         review.status, review.submitted_by = Report.Status.IN_REVIEW, team
         review.save()
+
+    # ── Phase 8: research profiles, swipe file, briefs, a judged recommendation ──
+    def _research(self, restaurant, skincare, team):
+        from apps.composer.models import Post
+        from apps.research import services as research
+        from apps.research.models import ResearchBrief, ResearchItem, SwipeItem
+
+        today = timezone.localdate()
+        profiles = {
+            restaurant: dict(
+                industry="Restaurant, Belizean and Caribbean food",
+                location="Belize City",
+                language="English, some Spanish",
+                audience="Locals planning a weekend meal, and visitors looking for authentic food. Mostly 25-45.",
+                competitors="Riverside Grill (@riversidegrillbz)\nMango Tree Kitchen",
+                keywords="hudut\nfry jacks\nbrunch",
+                hashtags="#belizefood\n#belizecity",
+                topics_to_avoid="alcohol promotions\npolitics",
+            ),
+            skincare: dict(
+                industry="Skincare, clean beauty",
+                location="Belize and Guatemala",
+                language="English and Spanish",
+                audience="Women 22-40 who research ingredients before they buy.",
+                competitors="Glow Lab Guatemala\nSol Botanicals",
+                keywords="niacinamide\nsunscreen\nroutine",
+                hashtags="#skincareroutine",
+                topics_to_avoid="medical claims\nbefore and after weight loss",
+            ),
+        }
+        for ws, fields in profiles.items():
+            profile = research.profile_for(ws)
+            for key, value in fields.items():
+                setattr(profile, key, value)
+            profile.save()
+
+        swipes = [
+            (restaurant, "post", "competitor", "Chef plating in one take", "https://www.instagram.com/p/demo-riverside-1/",
+             "instagram", "Riverside Grill", "Instagram", 4, "reel", "Watch this plate come together in 20 seconds", "38k views"),
+            (restaurant, "post", "competitor", "Sunday market walk-through", "https://www.instagram.com/p/demo-mango-1/",
+             "instagram", "Mango Tree Kitchen", "Instagram", 9, "reel", "", "12k views"),
+            (restaurant, "post", "reference", "Menu as a carousel of close-ups", "https://www.instagram.com/p/demo-ref-1/",
+             "instagram", "A Mexico City taqueria", "Instagram", 15, "carousel", "Swipe to pick your Friday", "2.1k likes"),
+            (restaurant, "trend", "platform", "“What I ordered vs what I got” (honest version)",
+             "https://ads.tiktok.com/business/creativecenter/", "tiktok", "", "TikTok Creative Center", 3, "video", "", "Trending in food"),
+            (skincare, "post", "competitor", "Ingredient explainer with text on screen", "https://www.tiktok.com/@demo-glowlab/video/1",
+             "tiktok", "Glow Lab Guatemala", "TikTok", 6, "reel", "Stop putting these two together", "54k views"),
+            (skincare, "post", "competitor", "Routine in three steps, no voice-over", "https://www.instagram.com/p/demo-sol-1/",
+             "instagram", "Sol Botanicals", "Instagram", 12, "reel", "", "9k views"),
+            (skincare, "hashtag", "platform", "#skintok “glass skin” check-ins", "https://ads.tiktok.com/business/creativecenter/",
+             "tiktok", "", "TikTok Creative Center", 2, "", "", "Rising in Latin America"),
+        ]  # fmt: skip
+        for ws, kind, whose, title, url, platform, account, source, days, fmt, hook, note in swipes:
+            SwipeItem.objects.create(
+                workspace=ws, kind=kind, whose=whose, title=title, url=url, platform=platform, account=account,
+                source_name=source, observed_on=today - timedelta(days=days), format=fmt, hook=hook, metric_note=note,
+                expires_on=today + timedelta(days=10) if kind != "post" else None, saved_by=team,
+            )  # fmt: skip
+
+        # An earlier brief whose recommendation became a post, already judged against the usual.
+        earlier = today - timedelta(days=14)
+        old = ResearchBrief.objects.create(workspace=restaurant, week_start=research.week_start(earlier), ai_provider="mock",
+                                           sources_used=["Your published posts (last 90 days)", "Swipe file"])  # fmt: skip
+        made = Post.objects.filter(workspace=restaurant, title="Live marimba Friday").first()
+        item = ResearchItem.objects.create(
+            brief=old, workspace=restaurant, group=ResearchItem.Group.NICHE, title="Film the music, not just the food",
+            observed="2 of the 3 examples saved from competitors in the last 60 days show the room at night with live music.",
+            evidence=[{"label": "Sunday market walk-through", "url": "https://www.instagram.com/p/demo-mango-1/",
+                       "date": (earlier - timedelta(days=3)).isoformat(), "source": "Mango Tree Kitchen · Instagram · 12k views"}],
+            sample_size=3, confidence=ResearchItem.Confidence.LOW, suggested_format="Reel",
+            suggested_hook="Friday night starts here", status=ResearchItem.Status.USED, post=made, used_by=team,
+        )  # fmt: skip
+        research.check_outcome(item)
+
+        for ws in (restaurant, skincare):
+            research.generate_brief(ws, team, today)
 
     # ── Phase 6: posting TikTok by hand, an uncertain Instagram failure ──
     def _publishing(self, ws, accounts, tiktok, team, client_users):

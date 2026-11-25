@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% block title %}Swipe file · {{ workspace.name }} · {{ SITE_NAME }}{% endblock %}
+{% block content %}
+<div class="w-full max-w-6xl mx-auto">
+    {% include "research/_nav.html" with title="Swipe file" nav="swipe" %}
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
+        <section class="lg:col-span-2 space-y-4 min-w-0" aria-labelledby="list-title">
+            <div class="flex flex-wrap items-end justify-between gap-3">
+                <h2 id="list-title" class="section-title">Saved <span class="tabular-nums text-ink-muted font-normal">{{ items|length }}</span></h2>
+                <nav class="segmented" aria-label="Kind"><a href="?" class="segment"{% if not kind %} aria-current="page"{% endif %}>All</a>{% for value, label in kinds %}<a href="?kind={{ value }}" class="segment"{% if kind == value %} aria-current="page"{% endif %}>{{ label }}</a>{% endfor %}</nav>
+            </div>
+            <ul class="space-y-3">{% for s in items %}
+                <li class="panel panel-body flex flex-wrap items-start justify-between gap-3">
+                    <div class="min-w-0 space-y-1">
+                        <p class="meta">{{ s.get_kind_display }} · {{ s.get_whose_display }}{% if s.account %} · {{ s.account }}{% endif %} · seen {{ s.observed_on|date:"j M Y" }}{% if s.source_name %} on {{ s.source_name }}{% endif %}</p>
+                        <p class="text-15 font-medium">{% if s.url %}<a href="{{ s.url }}" class="link" target="_blank" rel="noopener noreferrer">{{ s.title }}<span class="sr-only"> (opens in a new tab)</span></a>{% else %}{{ s.title }}{% endif %}</p>
+                        {% if s.hook %}<p class="text-14">Hook: “{{ s.hook }}”</p>{% endif %}
+                        <p class="text-13 text-ink-muted">{% if s.format %}{{ s.format|title }}{% endif %}{% if s.metric_note %} · {{ s.metric_note }}{% endif %}{% if s.expires_on %} · likely over by {{ s.expires_on|date:"j M" }}{% endif %}</p>
+                        {% if s.notes %}<p class="text-14">{{ s.notes }}</p>{% endif %}
+                    </div>
+                    {% if can_manage %}<form method="post" action="{% url 'research:swipe_delete' workspace_id=workspace.id item_id=s.id %}">{% csrf_token %}<button type="submit" class="btn btn-quiet btn-sm">Remove<span class="sr-only"> {{ s.title }}</span></button></form>{% endif %}
+                </li>{% empty %}<li class="text-14 text-ink-muted">Nothing saved yet. Save reference posts, hooks and formats from competitors, and trends you find. They feed the weekly brief.</li>{% endfor %}</ul>
+        </section>
+        {% if can_manage %}
+        <form method="post" class="panel panel-body space-y-4" aria-labelledby="add-title">
+            {% csrf_token %}
+            <h2 id="add-title" class="section-title">Save something</h2>
+            <p class="meta">Only what you see on the platforms, in licensed tools, or in <a href="{{ creative_center }}" class="link" target="_blank" rel="noopener noreferrer">TikTok Creative Center<span class="sr-only"> (opens in a new tab)</span></a>. Always note where and when.</p>
+            {% for field in form %}<div class="field"><label class="label" for="{{ field.id_for_label }}">{{ field.label }}</label>{{ field }}{% for e in field.errors %}<p class="field-error">{{ e }}</p>{% endfor %}</div>{% endfor %}
+            <button type="submit" class="btn btn-primary">Save to the swipe file</button>
+        </form>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
