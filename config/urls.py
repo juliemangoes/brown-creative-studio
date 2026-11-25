@@ -100,6 +100,7 @@ urlpatterns = [
     path("messages/", include("apps.conversations.urls")),
     path("publishing/", include("apps.publishing.urls")),
     path("results/", include("apps.reports.urls")),
+    path("research/", include("apps.research.urls")),
     path("report/", include("apps.reports.urls_public")),
     path("invoice/", include("apps.billing.urls_public")),
     path("", include("apps.studio.urls")),

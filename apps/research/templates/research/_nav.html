@@ -1,0 +1,8 @@
+<header class="flex flex-wrap items-end justify-between gap-4 mb-4">
+    <div class="min-w-0"><p class="meta mb-1"><a href="{% url 'clients:detail' workspace_id=workspace.id %}" class="link">{{ workspace.name }}</a></p><h1 class="page-title">{{ title }}</h1></div>
+</header>
+<nav class="segmented mb-6" aria-label="Research">
+    <a href="{% url 'research:index' workspace_id=workspace.id %}" class="segment"{% if nav == 'brief' %} aria-current="page"{% endif %}>Weekly brief</a>
+    <a href="{% url 'research:swipe' workspace_id=workspace.id %}" class="segment"{% if nav == 'swipe' %} aria-current="page"{% endif %}>Swipe file</a>
+    <a href="{% url 'research:profile' workspace_id=workspace.id %}" class="segment"{% if nav == 'profile' %} aria-current="page"{% endif %}>Research profile</a>
+</nav>

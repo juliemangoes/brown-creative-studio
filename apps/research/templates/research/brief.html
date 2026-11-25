@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% block title %}Research · {{ workspace.name }} · {{ SITE_NAME }}{% endblock %}
+{% block content %}
+<div class="w-full max-w-6xl mx-auto">
+    {% include "research/_nav.html" with title="Research" nav="brief" %}
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
+        <div class="lg:col-span-2 space-y-8 min-w-0">
+            {% if brief %}
+            <div class="flex flex-wrap items-end justify-between gap-3">
+                <div><h2 class="section-title">Week of {{ brief.week_start|date:"j M Y" }}</h2><p class="meta">Prepared {{ brief.generated_at|date:"D j M, H:i" }}{% if brief.ai_provider %} · “Why it fits” and hooks drafted by {% if brief.ai_provider == "mock" %}the test assistant (no AI service){% else %}{{ brief.ai_provider }}{% endif %}{% endif %}</p></div>
+                {% if can_manage %}<form method="post" action="{% url 'research:generate' workspace_id=workspace.id %}">{% csrf_token %}<button type="submit" class="btn btn-secondary btn-sm">Prepare a new brief</button></form>{% endif %}
+            </div>
+            <p class="text-14 text-ink-muted">Each recommendation shows what was observed, its source, date and sample size, or says it is a hypothesis to test. Check it before acting: AI text is a draft.</p>
+            {% for value, label, items in groups %}
+            <section aria-labelledby="g-{{ value }}" class="space-y-3">
+                <h2 id="g-{{ value }}" class="section-title">{{ label }} <span class="tabular-nums text-ink-muted font-normal">{{ items|length }}</span></h2>
+                {% if items %}<ul class="space-y-4">{% for item in items %}{% include "research/_item.html" %}{% endfor %}</ul>
+                {% else %}<p class="text-14 text-ink-muted">Nothing this week.</p>{% endif %}
+            </section>
+            {% endfor %}
+            {% if brief.notes %}<section class="panel panel-body" aria-labelledby="notes-title"><h2 id="notes-title" class="section-title mb-2">What this brief could not look at</h2><ul class="list-disc pl-5 text-14 space-y-1">{% for n in brief.notes %}<li>{{ n }}</li>{% endfor %}</ul></section>{% endif %}
+            {% else %}
+            <div class="panel panel-body space-y-3">
+                <h2 class="section-title">No brief yet</h2>
+                <p class="text-14">A brief is prepared every week for active clients. Fill in the research profile and save a few examples to the swipe file first, so it has something to work with.</p>
+                {% if can_manage %}<form method="post" action="{% url 'research:generate' workspace_id=workspace.id %}">{% csrf_token %}<button type="submit" class="btn btn-primary">Prepare a brief now</button></form>{% endif %}
+            </div>
+            {% endif %}
+        </div>
+        <aside class="space-y-6 min-w-0">
+            <section class="panel" aria-labelledby="track-title">
+                <div class="panel-header"><h2 id="track-title" class="section-title">Which advice worked</h2></div>
+                <table class="w-full text-13">
+                    <thead><tr class="text-ink-muted"><th scope="col" class="text-left font-medium px-5 py-2">Recommendations</th><th scope="col" class="text-right font-medium px-2 py-2">Above usual</th><th scope="col" class="text-right font-medium px-5 py-2">Judged</th></tr></thead>
+                    <tbody>{% for r in track %}<tr class="border-t border-hairline"><th scope="row" class="text-left font-normal px-5 py-2">{{ r.group }}</th><td class="text-right tabular-nums px-2 py-2">{{ r.above }}</td><td class="text-right tabular-nums px-5 py-2">{{ r.judged }}</td></tr>{% endfor %}</tbody>
+                </table>
+                <p class="px-5 pb-4 pt-2 meta">A post made from a recommendation is judged a week after it goes out: its engagement per post against the median of the client's posts from the 90 days before.</p>
+            </section>
+            <section class="panel panel-body space-y-2 text-14" aria-labelledby="src-title">
+                <h2 id="src-title" class="section-title">Sources</h2>
+                {% if brief %}<ul class="list-disc pl-5">{% for s in brief.sources_used %}<li>{{ s }}</li>{% endfor %}</ul>{% else %}<p>Trend source: {{ source_label }}.</p>{% endif %}
+                <p>TikTok Creative Center lists trending hashtags and top ads but offers no data API. <a href="{{ creative_center }}" class="link" target="_blank" rel="noopener noreferrer">Open it<span class="sr-only"> (opens in a new tab)</span></a>, then <a href="{% url 'research:swipe' workspace_id=workspace.id %}" class="link">save what fits</a> with its date.</p>
+            </section>
+            {% if previous %}<section class="panel" aria-labelledby="prev-title"><div class="panel-header"><h2 id="prev-title" class="section-title">Earlier briefs</h2></div><ul class="divide-y divide-hairline">{% for b in previous %}<li class="px-5 py-2"><a href="{% url 'research:brief' workspace_id=workspace.id brief_id=b.id %}" class="link text-14">Week of {{ b.week_start|date:"j M Y" }}</a></li>{% endfor %}</ul></section>{% endif %}
+        </aside>
+    </div>
+</div>
+{% endblock %}
