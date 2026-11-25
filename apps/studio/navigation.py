@@ -89,7 +89,7 @@ PRIMARY: tuple[Section, ...] = (
         "reports",
         "Reports",
         "reports",
-        client_url="analytics:index",
+        client_url="reports:dashboard",
         all_url="reports:all",
         permission="view_analytics",
         match=_app("analytics", "reports"),

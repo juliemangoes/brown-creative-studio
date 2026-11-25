@@ -1,0 +1,14 @@
+{% extends "base.html" %}{% load ds %}
+{% block title %}Reports · {{ SITE_NAME }}{% endblock %}
+{% block content %}
+<div class="w-full max-w-6xl mx-auto">
+    {% include "ds/_page_header.html" with title="Reports" description="Monthly reports across your clients. Open a client for its results dashboard and goals." %}
+    {% if waiting %}<section class="panel mb-6" aria-labelledby="w-title"><div class="panel-header"><h2 id="w-title" class="section-title">Waiting for approval <span class="tabular-nums text-ink-muted font-normal">{{ waiting|length }}</span></h2></div>
+        <ul class="divide-y divide-hairline">{% for r in waiting %}<li class="px-5 py-3"><p class="meta">{{ r.workspace.name }}</p><a href="{% url 'reports:report' workspace_id=r.workspace_id report_id=r.id %}" class="text-14 font-medium link">{{ r.title }}</a></li>{% endfor %}</ul></section>{% endif %}
+    <section class="panel" aria-labelledby="all-title">
+        <div class="panel-header"><h2 id="all-title" class="section-title">All reports</h2></div>
+        <ul class="divide-y divide-hairline">{% for r in reports %}<li class="px-5 py-3 flex flex-wrap items-center justify-between gap-3"><div class="min-w-0"><p class="meta">{{ r.workspace.name }}</p><a href="{% url 'reports:report' workspace_id=r.workspace_id report_id=r.id %}" class="text-14 font-medium link">{{ r.title }}</a></div>{% status "report" r.status %}</li>{% empty %}<li class="px-5 py-3 text-14 text-ink-muted">No reports yet. Start one from a client's Results page.</li>{% endfor %}</ul>
+    </section>
+    {% if clients %}<section class="mt-6" aria-labelledby="c-title"><h2 id="c-title" class="section-title mb-3">Results by client</h2><div class="flex flex-wrap gap-2">{% for ws in clients %}<a href="{% url 'reports:dashboard' workspace_id=ws.id %}" class="btn btn-secondary btn-sm">{{ ws.name }}</a>{% endfor %}</div></section>{% endif %}
+</div>
+{% endblock %}

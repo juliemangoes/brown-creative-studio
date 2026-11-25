@@ -1,0 +1,67 @@
+{% load i18n %}
+{# One report as the client reads it (studio preview, portal, share link). Never shows internal notes. #}
+<article class="space-y-6">
+    <header>
+        <p class="meta">{{ period_label }} · {% blocktranslate with previous=previous_label %}compared with {{ previous }}{% endblocktranslate %}</p>
+        <h2 class="font-display text-32 leading-tight mt-1">{{ report.title }}</h2>
+        <p class="meta mt-1">{% blocktranslate count n=published_count %}{{ n }} post published{% plural %}{{ n }} posts published{% endblocktranslate %}</p>
+    </header>
+    {% for heading, text in summary %}{% if text %}
+    <section class="panel panel-body"><h3 class="section-title mb-2">{{ heading }}</h3><p class="text-15 leading-relaxed whitespace-pre-line">{{ text }}</p></section>
+    {% endif %}{% endfor %}
+    <section aria-labelledby="fig-title">
+        <h3 id="fig-title" class="section-title mb-3">{% translate "The period in figures" %}</h3>
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">{% for f in headline %}{% include "reports/_figure.html" %}{% endfor %}</div>
+    </section>
+    {% for t in platform_tables %}
+    <section class="panel" aria-labelledby="pt-{{ t.key }}">
+        <div class="panel-header"><h3 id="pt-{{ t.key }}" class="section-title">{{ t.label }}</h3></div>
+        {% if t.chart %}<div class="px-5 pt-4"><svg viewBox="0 0 {{ t.chart.width }} {{ t.chart.height }}" class="w-full h-16" role="img" aria-label="{% translate 'Daily views' %}, {{ t.chart.first }} – {{ t.chart.last }}">{% for seg in t.chart.segments %}<polyline points="{{ seg }}" fill="none" stroke="currentColor" stroke-width="1.5" class="text-accent"/>{% endfor %}</svg><p class="meta flex justify-between"><span>{{ t.chart.first }}</span><span>{% translate "Daily views" %}</span><span>{{ t.chart.last }}</span></p></div>{% endif %}
+        <div class="overflow-x-auto"><table class="table w-full text-14">
+            <thead><tr><th scope="col" class="text-left">{% translate "Metric" %}</th><th scope="col" class="text-right">{% translate "This period" %}</th><th scope="col" class="text-right">{% translate "Change" %}</th><th scope="col" class="text-left">{% translate "Source and notes" %}</th></tr></thead>
+            <tbody>{% for r in t.rows %}<tr>
+                <th scope="row" class="text-left font-medium">{{ r.label }}</th>
+                {% if r.available %}<td class="text-right tabular-nums">{{ r.value }}</td><td class="text-right tabular-nums">{{ r.change|default:"–" }}</td>{% else %}<td colspan="2" class="text-right text-ink-muted">{{ r.missing }}</td>{% endif %}
+                <td class="text-13 text-ink-muted">{{ r.sources|join:"; " }}{% if r.updated %} · {% translate "updated" %} {{ r.updated }}{% endif %}{% for n in r.notes %}<br>{{ n }}{% endfor %}</td>
+            </tr>{% endfor %}</tbody>
+        </table></div>
+    </section>
+    {% endfor %}
+    {% if goals %}
+    <section class="panel" aria-labelledby="goals-title">
+        <div class="panel-header"><h3 id="goals-title" class="section-title">{% translate "Goals" %}</h3></div>
+        <ul class="divide-y divide-hairline">{% for g in goals %}
+            <li class="px-5 py-3">
+                <div class="flex flex-wrap items-center justify-between gap-2"><span class="text-14 font-medium">{{ g.name }}</span><span class="status status-{{ g.tone }}">{{ g.label }}</span></div>
+                <p class="meta">{{ g.metric_label }} · {{ g.platform_label }} · {% if g.actual_display %}{{ g.actual_display }}{% else %}–{% endif %} / {{ g.target_display }}</p>
+                <div class="meter mt-2" aria-hidden="true"{% if g.status == "met" %} data-tone="success"{% endif %}><span style="width: {{ g.bar }}%"></span></div>
+            </li>{% endfor %}</ul>
+    </section>
+    {% endif %}
+    {% if top_posts %}
+    <section aria-labelledby="top-title">
+        <h3 id="top-title" class="section-title mb-3">{% blocktranslate with metric=rank_label|lower %}Top posts by {{ metric }}{% endblocktranslate %}</h3>
+        <ul class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">{% for p in top_posts %}
+            <li class="panel overflow-hidden flex flex-col">
+                {% if p.thumbnail %}<img src="{{ p.thumbnail }}" alt="" class="w-full aspect-square object-cover bg-sunken" loading="lazy">{% else %}<div class="aspect-square bg-sunken p-4 text-13 text-ink-muted overflow-hidden">{{ p.caption|truncatechars:180 }}</div>{% endif %}
+                <div class="p-4 space-y-1 flex-1">
+                    <p class="meta">{{ p.platform_label }} · {{ p.published }}</p>
+                    <p class="text-14 font-medium">{{ p.title }}</p>
+                    <dl class="grid grid-cols-2 gap-x-3 gap-y-1 mt-2 text-13">{% for f in p.figures %}<dt class="text-ink-muted">{{ f.label }}</dt><dd class="text-right tabular-nums">{% if f.value %}{{ f.value }}{% else %}<span class="text-ink-muted">{{ f.missing|default:"–" }}</span>{% endif %}</dd>{% endfor %}</dl>
+                    {% if p.live_url %}<a href="{{ p.live_url }}" class="link text-13" target="_blank" rel="noopener noreferrer">{% translate "View the post" %}<span class="sr-only"> ({% translate "opens in a new tab" %})</span></a>{% endif %}
+                </div>
+            </li>{% endfor %}</ul>
+    </section>
+    {% endif %}
+    {% if breakdowns %}
+    <section class="panel" aria-labelledby="bd-title">
+        <div class="panel-header"><h3 id="bd-title" class="section-title">{% blocktranslate with metric=rank_label|lower %}What worked, by {{ metric }}{% endblocktranslate %}</h3></div>
+        <div class="panel-body grid grid-cols-1 md:grid-cols-2 gap-6">{% for b in breakdowns %}
+            <div><h4 class="text-14 font-medium mb-2">{{ b.label }}</h4>
+                <table class="w-full text-13"><thead class="sr-only"><tr><th scope="col">{{ b.label }}</th><th scope="col">{% translate "Average" %}</th><th scope="col">{% translate "Posts" %}</th></tr></thead><tbody>{% for r in b.rows %}<tr class="border-t border-hairline"><td class="py-1.5">{{ r.group }}</td><td class="py-1.5 text-right tabular-nums">{{ r.average }}</td><td class="py-1.5 text-right text-ink-muted tabular-nums">{% blocktranslate count n=r.posts %}{{ n }} post{% plural %}{{ n }} posts{% endblocktranslate %}{% if r.small %} · {% translate "few posts" %}{% endif %}</td></tr>{% endfor %}</tbody></table>
+            </div>{% endfor %}</div>
+        <p class="px-5 pb-4 meta">{% translate "Averages over a few posts are a hint, not proof." %}</p>
+    </section>
+    {% endif %}
+    <p class="meta">{% blocktranslate with when=computed %}Figures as of {{ when }}. Each platform defines its metrics its own way; totals across platforms are marked Combined.{% endblocktranslate %}</p>
+</article>

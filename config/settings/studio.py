@@ -102,3 +102,10 @@ PUBLISHING_CHECK_HOURS = _env.int("PUBLISHING_CHECK_HOURS", default=48)
 PUBLISHING_ALERT_HOURS = _env.int("PUBLISHING_ALERT_HOURS", default=24)
 # Remind the person again when a hand-posted post is this many minutes late.
 PUBLISHING_MANUAL_REMINDER_MINUTES = _env.int("PUBLISHING_MANUAL_REMINDER_MINUTES", default=60)
+
+# ── AI drafting (apps/reports/ai.py, Phase 7) ────────────────────────────────
+# "mock" writes drafts from the figures with fixed sentences (no service is
+# called); "claude" uses Anthropic's API with the key in ANTHROPIC_API_KEY;
+# "none" switches drafting off. Drafts always need a person to edit and approve.
+AI_PROVIDER = _env("AI_PROVIDER", default="mock").strip().lower()
+AI_MODEL = _env("AI_MODEL", default="claude-opus-5-5").strip()

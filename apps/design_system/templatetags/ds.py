@@ -39,6 +39,13 @@ STATUS_TONES: dict[str, dict[str, tuple[str, str]]] = {
         "overdue": ("Overdue", "danger"),
         "void": ("Void", "neutral"),
     },
+    # Monthly reports (apps.reports, Phase 7)
+    "report": {
+        "draft": ("Draft", "neutral"),
+        "in_review": ("Waiting for approval", "warning"),
+        "approved": ("Approved", "info"),
+        "shared": ("Shared with the client", "success"),
+    },
     # Client pipeline (apps.clients, Phase 2)
     "pipeline": {
         "lead": ("Lead", "neutral"),

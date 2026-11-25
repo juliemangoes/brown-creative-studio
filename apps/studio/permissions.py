@@ -38,6 +38,8 @@ STUDIO_WORKSPACE_KEYS: dict[str, str] = {
     "view_internal": "See internal notes and team comments",
     "manage_brand": "Edit the brand profile, brand files and brand stages",
     "view_plan": "See the content plan, campaigns, key dates, asset rights and each post's review history",
+    "manage_reports": "Set goals, write monthly reports and import figures",
+    "approve_reports": "Approve monthly reports and share them with the client",
 }
 # What a client may do in the portal. Studio roles never hold these.
 PORTAL_KEYS: dict[str, str] = {
@@ -70,6 +72,7 @@ ROLE_DEFAULTS: dict[str, dict[str, bool]] = {
         "view_internal": True,
         "manage_brand": True,
         "view_plan": True,
+        "manage_reports": True,
     },
     # Freelancers: what they are assigned to (the projects and shoots apps
     # filter to assignments; these keys only open the sections).

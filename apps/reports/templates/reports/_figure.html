@@ -1,0 +1,18 @@
+{% load i18n %}
+<div class="panel panel-body min-w-0">
+    <p class="stat-label">{{ f.label }}</p>
+    {% if f.available %}
+    <p class="stat-value tabular-nums">{{ f.value }}</p>
+    <p class="meta mt-1">{% if f.change %}<span class="{% if f.change_pct > 0 %}text-success{% elif f.change_pct < 0 %}text-danger{% endif %} font-medium tabular-nums">{{ f.change }}</span> {% translate "vs previous period" %}{% elif f.previous %}{% translate "Previous period" %}: {{ f.previous }}{% else %}{% translate "No comparison" %}{% endif %}</p>
+    {% else %}
+    <p class="text-14 text-ink-muted mt-2">{{ f.missing }}</p>
+    {% endif %}
+    {% if f.calculated or f.imported or f.combined %}<p class="mt-2 flex flex-wrap gap-1">{% if f.combined %}<span class="status status-neutral">{% translate "Combined" %}</span>{% endif %}{% if f.calculated %}<span class="status status-neutral">{% translate "Calculated" %}</span>{% endif %}{% if f.imported %}<span class="status status-neutral">{% translate "Imported" %}</span>{% endif %}</p>{% endif %}
+    <details class="mt-2">
+        <summary class="meta cursor-pointer">{% translate "What this means" %}</summary>
+        <p class="text-13 mt-1">{{ f.definition }}</p>
+        {% for n in f.notes %}<p class="text-13 text-ink-muted mt-1">{{ n }}</p>{% endfor %}
+        {% if f.sources %}<p class="meta mt-1">{% translate "Source" %}: {{ f.sources|join:"; " }}</p>{% endif %}
+        <p class="meta">{% translate "Last updated" %}: {{ f.updated|default:_("not yet") }}</p>
+    </details>
+</div>

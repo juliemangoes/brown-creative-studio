@@ -1,0 +1,11 @@
+<header class="flex flex-wrap items-end justify-between gap-4 mb-4">
+    <div class="min-w-0"><p class="meta mb-1"><a href="{% url 'clients:detail' workspace_id=workspace.id %}" class="link">{{ workspace.name }}</a></p><h1 class="page-title">{{ title }}</h1></div>
+    {% if action %}{{ action }}{% endif %}
+</header>
+<nav class="segmented mb-6" aria-label="Results">
+    <a href="{% url 'reports:dashboard' workspace_id=workspace.id %}" class="segment"{% if nav == 'dashboard' %} aria-current="page"{% endif %}>Dashboard</a>
+    <a href="{% url 'reports:goals' workspace_id=workspace.id %}" class="segment"{% if nav == 'goals' %} aria-current="page"{% endif %}>Goals</a>
+    <a href="{% url 'reports:list' workspace_id=workspace.id %}" class="segment"{% if nav == 'reports' %} aria-current="page"{% endif %}>Monthly reports</a>
+    <a href="{% url 'reports:import' workspace_id=workspace.id %}" class="segment"{% if nav == 'import' %} aria-current="page"{% endif %}>Import figures</a>
+    <a href="{% url 'analytics:index' workspace_id=workspace.id %}" class="segment">Account analytics</a>
+</nav>

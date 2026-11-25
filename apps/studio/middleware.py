@@ -47,6 +47,8 @@ CLIENT_NAMESPACES = frozenset(
         "shoots_portal",
         "planning_portal",
         "conversations_portal",
+        "reports_portal",
+        "reports_public",
     }
 )
 CLIENT_VIEWS = frozenset(
@@ -162,7 +164,7 @@ class PublicLinkRateLimitMiddleware:
     a scraper or a misbehaving client from hammering the pages.
     """
 
-    PREFIXES = ("/call-sheet/", "/invoice/", "/portal/")
+    PREFIXES = ("/call-sheet/", "/invoice/", "/portal/", "/report/")
     LIMIT = 60
     WINDOW = 60  # seconds
 

@@ -1,0 +1,8 @@
+{% extends "client_portal/portal_base.html" %}{% load i18n %}
+{% block title %}{{ report.title }}{% endblock %}
+{% block content %}
+<div class="space-y-6">
+    <div class="flex flex-wrap items-center justify-between gap-3"><a href="{% url 'reports_portal:index' %}" class="link text-14">{% translate "All results" %}</a><a href="{% url 'reports_portal:pdf' report_id=report.id %}" class="btn btn-secondary">{% translate "Download PDF" %}</a></div>
+    {% include "reports/_report_body.html" %}
+</div>
+{% endblock %}

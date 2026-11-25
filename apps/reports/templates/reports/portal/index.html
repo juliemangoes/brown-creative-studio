@@ -1,0 +1,37 @@
+{% extends "client_portal/portal_base.html" %}{% load i18n %}
+{% block title %}{% translate "Results" %} · {{ workspace.name }}{% endblock %}
+{% block content %}
+<div class="space-y-10">
+    <header><h1 class="display-title">{% translate "Results" %}</h1><p class="text-ink-muted mt-1">{% translate "Your published work and how it did, and the monthly reports from the studio." %}</p></header>
+
+    <section aria-labelledby="rep-title" class="space-y-3">
+        <h2 id="rep-title" class="section-title">{% translate "Reports" %}</h2>
+        {% for r in reports %}
+        <a href="{% url 'reports_portal:report' report_id=r.id %}" class="panel panel-body flex flex-wrap items-center justify-between gap-3 card-hover-lift">
+            <div><p class="font-semibold">{{ r.title }}</p><p class="meta">{{ r.period_start|date:"j M" }} – {{ r.period_end|date:"j M Y" }}</p></div><span class="btn btn-secondary">{% translate "Read" %}</span></a>
+        {% empty %}<p class="text-ink-muted">{% translate "Your first monthly report will appear here once the studio shares it." %}</p>{% endfor %}
+    </section>
+
+    <section aria-labelledby="gal-title" class="space-y-4">
+        <div class="flex flex-wrap items-end justify-between gap-3">
+            <div><h2 id="gal-title" class="section-title">{% translate "Published work" %}</h2><p class="meta">{% blocktranslate %}The last {{ days }} days. Figures are each post's totals so far.{% endblocktranslate %}</p></div>
+            {% if platforms|length > 1 %}<nav class="segmented" aria-label="{% translate 'Platform' %}"><a href="?" class="segment"{% if platform == "all" %} aria-current="page"{% endif %}>{% translate "All" %}</a>{% for key, label in platforms %}<a href="?platform={{ key }}" class="segment"{% if platform == key %} aria-current="page"{% endif %}>{{ label }}</a>{% endfor %}</nav>{% endif %}
+        </div>
+        <ul class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">{% for p in posts %}
+            <li class="panel overflow-hidden flex flex-col">
+                {% if p.thumbnail %}<img src="{{ p.thumbnail }}" alt="" class="w-full aspect-square object-cover bg-sunken" loading="lazy">{% else %}<div class="aspect-square bg-sunken p-4 text-14 text-ink-muted overflow-hidden">{{ p.caption|truncatechars:200 }}</div>{% endif %}
+                <div class="p-4 space-y-2 flex-1">
+                    <p class="meta">{{ p.platform|title }} · {{ p.published_dt|date:"j M Y" }}</p>
+                    <p class="text-15 font-medium">{{ p.title }}</p>
+                    <dl class="grid grid-cols-2 gap-x-3 gap-y-1 text-13">
+                        <dt class="text-ink-muted">{% translate "Views" %}</dt><dd class="text-right tabular-nums">{% if p.metrics.views is not None %}{{ p.metrics.views|floatformat:"0g" }}{% else %}<span class="text-ink-muted">{% translate "Not available" %}</span>{% endif %}</dd>
+                        <dt class="text-ink-muted">{% translate "Engagement" %}</dt><dd class="text-right tabular-nums">{% if p.metrics.engagement is not None %}{{ p.metrics.engagement|floatformat:"0g" }}{% else %}<span class="text-ink-muted">{% translate "Not available" %}</span>{% endif %}</dd>
+                        <dt class="text-ink-muted">{% translate "Engagement rate" %}</dt><dd class="text-right tabular-nums">{% if p.metrics.engagement_rate is not None %}{{ p.metrics.engagement_rate|floatformat:1 }}%{% else %}<span class="text-ink-muted">–</span>{% endif %}</dd>
+                    </dl>
+                    {% if p.live_url %}<a href="{{ p.live_url }}" class="link text-14" target="_blank" rel="noopener noreferrer">{% translate "View the post" %}<span class="sr-only"> ({% translate "opens in a new tab" %})</span></a>{% endif %}
+                </div>
+            </li>{% empty %}<li class="text-ink-muted">{% translate "Nothing published in this period yet." %}</li>{% endfor %}</ul>
+        <p class="meta">{% translate "“Not available” means the platform doesn't report that figure for this post." %}</p>
+    </section>
+</div>
+{% endblock %}

@@ -137,10 +137,25 @@ class _Builder:
 
         rows = []
         today = timezone.localdate()
-        for back in range(28, 0, -1):
+        for back in range(100, 0, -1):
             day = today - timedelta(days=back)
             wobble = (back * 37) % 11 - 5
             rows += [
+                AccountInsightsSnapshot(
+                    social_account=account,
+                    metric_key="comments",
+                    date=day,
+                    value=max(0, daily_reach // 150 + wobble // 2),
+                ),
+                AccountInsightsSnapshot(
+                    social_account=account, metric_key="saves", date=day, value=max(0, daily_reach // 70 + wobble)
+                ),
+                AccountInsightsSnapshot(
+                    social_account=account,
+                    metric_key="shares",
+                    date=day,
+                    value=max(0, daily_reach // 110 + wobble // 2),
+                ),
                 AccountInsightsSnapshot(
                     social_account=account, metric_key="followers", date=day, value=followers_now - back * 6
                 ),
@@ -156,6 +171,28 @@ class _Builder:
             ]
         AccountInsightsSnapshot.objects.bulk_create(rows)
 
+    def facebook_insights(self, account, daily_views):
+        from apps.analytics.models import AccountInsightsSnapshot
+
+        rows = []
+        today = timezone.localdate()
+        for back in range(100, 0, -1):
+            day = today - timedelta(days=back)
+            wobble = (back * 29) % 9 - 4
+            for key, value in (
+                ("views", daily_views + wobble * 60),
+                ("reach", daily_views // 2 + wobble * 25),
+                ("reactions", daily_views // 25 + wobble),
+                ("comments", daily_views // 300 + (wobble > 2)),
+                ("shares", daily_views // 260),
+                ("clicks", daily_views // 90 + wobble // 2),
+                ("follows", 3 + (back % 4)),
+            ):
+                rows.append(
+                    AccountInsightsSnapshot(social_account=account, metric_key=key, date=day, value=max(0, value))
+                )
+        AccountInsightsSnapshot.objects.bulk_create(rows)
+
     def post_insights(self, post, reach):
         from apps.analytics.models import PostInsightsSnapshot
 
@@ -164,6 +201,7 @@ class _Builder:
             day = timezone.localdate(pp.published_at)
             for key, value in (
                 ("reach", reach),
+                ("views", int(reach * 1.8)),
                 ("likes", reach // 14),
                 ("comments", reach // 160),
                 ("saves", reach // 60),
@@ -315,10 +353,12 @@ class _Builder:
         self.account(skincare, "facebook", "Luma Skincare Page", "lumaskincare", 2100, status="disconnected")
         self.insights(cm_ig, 4820, 1400)
         self.insights(lu_ig, 12650, 3900)
+        self.facebook_insights(cm_fb, 2300)
 
         self._restaurant_posts(restaurant, [cm_ig, cm_fb], owner, team, freelancer, client_users)
         self._skincare_posts(skincare, [lu_ig], lu_tt, owner, team, client_users)
         self._client_setup(restaurant, skincare, realty, owner, team, freelancer, client_users)
+        self._results(restaurant, skincare, [cm_ig, cm_fb], [lu_ig], owner, team, client_users)
         self.cast = {
             "restaurant": restaurant,
             "skincare": skincare,
@@ -490,6 +530,73 @@ class _Builder:
         self.post(ws, accounts, "Brand refresh sneak peek", "", self.at(14, 10), "draft", author=owner)
         self._publishing(ws, accounts, tiktok, team, client_users)
 
+    # ── Phase 7: last month's posts, goals and reports ──────────────────
+    def _results(self, restaurant, skincare, cm_accounts, lu_accounts, owner, team, client_users):
+        from apps.approvals.models import ApprovalAction
+        from apps.composer.models import ContentCategory
+        from apps.planning.models import ContentPlan
+        from apps.reports import services as reports
+        from apps.reports.models import ClientGoal, Report
+
+        today = timezone.localdate()
+        last = (today.replace(day=1) - timedelta(days=1)).replace(day=1)
+        offset = (today - last).days  # days back to the 1st of last month
+
+        def at(day_of_month, hour):
+            return self.at(-(offset - day_of_month + 1), hour)
+
+        older = [
+            (restaurant, cm_accounts[:1], "Reel", "Fry jack Fridays", 2, 4300, "reel", "Behind the scenes"),
+            (restaurant, cm_accounts[:1], "Photo", "New garden patio", 6, 1700, "photo", "Venue"),
+            (restaurant, cm_accounts, "Reel", "Chef Rosa's rice and beans", 11, 5100, "reel", "Behind the scenes"),
+            (restaurant, cm_accounts[:1], "Carousel", "October specials", 15, 2400, "carousel", "Menu"),
+            (restaurant, cm_accounts[:1], "Photo", "Thank you, 5,000 followers", 20, 1500, "photo", "Community"),
+            (restaurant, cm_accounts, "Reel", "Saturday night marimba", 25, 4700, "reel", "Venue"),
+            (skincare, lu_accounts, "Reel", "Three-step morning routine", 3, 8800, "reel", "Education"),
+            (skincare, lu_accounts, "Carousel", "Niacinamide myths", 9, 6100, "carousel", "Education"),
+            (skincare, lu_accounts, "Photo", "Autumn restock", 17, 3300, "photo", "Product"),
+            (skincare, lu_accounts, "Reel", "Customer routine: Ana", 24, 9600, "reel", "Community"),
+        ]
+        for ws, accts, _kind, title, dom, reach, fmt, pillar in older:
+            category, _new = ContentCategory.objects.get_or_create(workspace=ws, name=pillar)
+            post = self.post(ws, accts, title, f"{title}.", at(dom, 12 if dom % 2 else 18), "published", author=team)
+            post.category = category
+            post.save(update_fields=["category"])
+            ContentPlan.objects.update_or_create(
+                post=post,
+                defaults={"workspace": ws, "format": fmt, "hook": "Show the result first" if fmt == "reel" else ""},
+            )
+            self.approval(post, owner, ApprovalAction.ActionType.APPROVED)
+            self.post_insights(post, reach)
+
+        for ws, goals in (
+            (restaurant, [("Reach 60,000 views a month", "views", "all", 60000),
+                          ("Engagement rate above 4%", "engagement_rate", "instagram", 4),
+                          ("120 new followers a month", "audience_growth", "all", 120)]),
+            (skincare, [("150,000 views a month", "views", "all", 150000),
+                        ("Saves: 2,000 a month", "saves", "instagram", 2000)]),
+        ):  # fmt: skip
+            for name, metric, platform, target in goals:
+                ClientGoal.objects.create(
+                    workspace=ws, name=name, metric=metric, platform=platform, target=target, created_by=owner
+                )
+
+        shared = reports.create_report(restaurant, last.year, last.month, team, rank_by="views")
+        reports.draft_summary(shared, team)
+        shared.internal_notes = "Retainer margin is thin this quarter; don't promise extra reels before renewal."
+        shared.status = Report.Status.SHARED
+        shared.submitted_by, shared.approved_by = team, owner
+        shared.approved_at = shared.shared_at = timezone.now() - timedelta(days=3)
+        shared.data = reports.compute(shared)
+        shared.save()
+        shared.new_share_token()
+        shared.save(update_fields=["share_token"])
+
+        review = reports.create_report(skincare, last.year, last.month, team, rank_by="engagement")
+        reports.draft_summary(review, team)
+        review.status, review.submitted_by = Report.Status.IN_REVIEW, team
+        review.save()
+
     # ── Phase 6: posting TikTok by hand, an uncertain Instagram failure ──
     def _publishing(self, ws, accounts, tiktok, team, client_users):
         from django.core.files.uploadedfile import SimpleUploadedFile
@@ -550,6 +657,7 @@ class _Builder:
         PlatformPost.objects.filter(post=posted).update(
             platform_extra={"live_url": "https://www.tiktok.com/@lumaskincare/video/7300000000000000000"}
         )
+        self.post_insights(posted, 5200)
 
     # ── Phase 3: projects, brand work and onboarding ─────────────────────
     def _logo(self, name, background, ink, *, png=False):

@@ -114,6 +114,7 @@ class Today:
     payments_to_confirm: int = 0
     manual_posts: list = field(default_factory=list)  # ManualPublishTask waiting to be posted by hand
     publish_problems: list = field(default_factory=list)  # (platform_post, issues) due within a day
+    reports_to_approve: list = field(default_factory=list)  # Report waiting for approval (apps.reports)
 
     @property
     def attention_count(self) -> int:
@@ -128,6 +129,7 @@ class Today:
             + self.payments_to_confirm
             + len(self.manual_posts)
             + len(self.publish_problems)
+            + len(self.reports_to_approve)
             + sum(1 for b in self.brand_signoffs if b.status == "changes_requested")
             + sum(1 for g in self.gaps if g["signal"].tone == "danger")
         )
@@ -251,6 +253,21 @@ def publish_problems(memberships, workspace_ids, now) -> list:
         if problems:
             rows.append((pp, problems))
     return rows
+
+
+def reports_to_approve(memberships, workspace_ids) -> list:
+    from apps.reports.models import Report
+
+    ids = [
+        m.workspace_id
+        for m in memberships
+        if m.workspace_id in workspace_ids and m.effective_permissions.get("approve_reports", False)
+    ]
+    return list(
+        Report.objects.filter(workspace_id__in=ids, status=Report.Status.IN_REVIEW)
+        .select_related("workspace")
+        .order_by("updated_at")
+    )
 
 
 def _sees_plan(membership) -> bool:
@@ -467,4 +484,5 @@ def build_today(user, organization, selected=None, now=None) -> Today:
         payments_to_confirm=pending,
         manual_posts=manual_posts(memberships, ids),
         publish_problems=publish_problems(memberships, ids, now),
+        reports_to_approve=reports_to_approve(memberships, ids),
     )

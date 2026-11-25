@@ -9,6 +9,54 @@ live in new Django apps and new files; those are listed per entry but need no
 merge care. See [docs/fork/README.md](docs/fork/README.md) for the working rules
 and the upstream merge procedure.
 
+## 2026-11-25 · Phase 7: results
+
+### Upstream files changed by hand
+
+| File | Change | Reason |
+|---|---|---|
+| `apps/client_portal/views.py` | `portal_reports` (the "Reports coming soon" placeholder) redirects to the fork's portal Results. | The brief: replace the placeholder with real reports. |
+| `apps/notifications/models.py` (+ migration `0008`) | Event type `report_review`. | Approvers are told when a report waits for them. |
+| `apps/design_system/templatetags/ds.py` | Status vocabulary for reports (Draft, Waiting for approval, Approved, Shared with the client). | Shared status labels. |
+| `config/settings/base.py` | `apps.reports` in `LOCAL_APPS`. | New app. |
+| `config/urls.py` | `/results/` (studio), `/portal/results/` (before the portal's catch-all), `/report/` (share links). | New pages. |
+| `requirements.txt` | `anthropic>=2.0,<3.0`. | The Claude adapter for report drafts (only used when `AI_PROVIDER=claude`). |
+| `.env.example` | `AI_PROVIDER`, `AI_MODEL`. | Documented settings. |
+
+Fork files changed: the rail's **Reports** opens a client's Results (BrightBean's per-account
+analytics stay one tab away); `apps.studio.permissions` adds `manage_reports` (owner, manager,
+editor) and `approve_reports` (owner, manager); client health gains a Goals signal; Today lists
+reports waiting for approval; `ClientScopeMiddleware` allows `reports_portal` and `reports_public`,
+and `/report/` links are rate-limited like the others; the demo adds 100 days of Instagram and
+Facebook figures, October posts with pillars, formats and hooks, goals, a shared report and one
+waiting for approval; Spanish translations for every new portal and email string.
+
+### Behaviour changes to watch on upstream merges
+
+- The fork reads BrightBean's `AccountInsightsSnapshot`/`PostInsightsSnapshot` and its
+  `_post_summed_series_for_metric` and `_latest_post_stats` helpers in `apps.analytics.services`
+  (private names). A rename upstream breaks `apps/reports/figures.py`; its tests will say so.
+- `/portal/reports/` now redirects to `/portal/results/`.
+
+### New files
+
+- `apps/reports/`: the metric catalog with each metric's definition and source per platform
+  (`catalog.py`); figures for a client and period with comparisons, combined/calculated/imported
+  labels, the Facebook reach break and "not available" reasons (`figures.py`); `ClientGoal`,
+  `Report` (draft → waiting for approval → approved → shared; figures frozen at approval; internal
+  notes never shown to the client) and `ImportedMetric` (`models.py`); the report workflow
+  (`services.py`); AI drafting behind an adapter with `mock`/`claude`/`none` and a check for numbers
+  not in the figures (`ai.py`); one presentation for preview, portal, link and PDF
+  (`presentation.py`); the PDF (`pdf.py`, fpdf2); studio views (dashboard, goals, reports, CSV
+  import), portal Results and the public share link; templates; tests.
+- `docs/fork/results.md`.
+
+### Changed test expectations
+
+- `apps/studio/tests/test_shell.py::test_switching_client_keeps_the_section` (a fork test): switching
+  client from the analytics page now lands on the other client's Results, because the Reports
+  section opens Results.
+
 ## 2026-11-24 · Phase 6: publishing
 
 ### Upstream files changed by hand

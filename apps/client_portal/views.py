@@ -341,13 +341,5 @@ def portal_activity(request):
 @portal_auth_required
 @require_GET
 def portal_reports(request):
-    """Placeholder reports page."""
-    workspace = request.portal_workspace
-
-    return render(
-        request,
-        "client_portal/reports.html",
-        {
-            "workspace": workspace,
-        },
-    )
+    """Brown Creative Studio (CHANGES.md): the placeholder is replaced by Results (apps.reports)."""
+    return redirect("reports_portal:index")

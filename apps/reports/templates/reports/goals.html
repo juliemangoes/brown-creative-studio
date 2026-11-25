@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% block title %}Goals · {{ workspace.name }} · {{ SITE_NAME }}{% endblock %}
+{% block content %}
+<div class="w-full max-w-6xl mx-auto">
+    {% include "reports/_nav.html" with title="Goals" nav="goals" %}
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
+        <section class="panel lg:col-span-2" aria-labelledby="g-title">
+            <div class="panel-header"><h2 id="g-title" class="section-title">Progress</h2></div>
+            <ul class="divide-y divide-hairline">{% for g in progress %}
+                <li class="px-5 py-4">
+                    <div class="flex flex-wrap items-center justify-between gap-2"><span class="text-15 font-medium">{{ g.goal.name }}</span><span class="status status-{{ g.tone }}">{{ g.label }}</span></div>
+                    <p class="meta">{{ g.figure.metric|cut:"_"|title }} · {% if g.goal.platform == "all" %}All platforms{% else %}{{ g.goal.platform|title }}{% endif %} · {{ g.period.start|date:"j M" }} – {{ g.period.end|date:"j M Y" }}</p>
+                    <p class="text-14 tabular-nums mt-1">{% if g.actual is not None %}{{ g.actual|floatformat:"-2g" }}{% else %}–{% endif %} of {{ g.target|floatformat:"-2g" }}{% if g.pct is not None %} · {{ g.pct|floatformat:0 }}%{% endif %}</p>
+                    <div class="meter mt-2" aria-hidden="true"{% if g.status == "met" %} data-tone="success"{% elif g.status == "behind" %} data-tone="warning"{% endif %}><span style="width: {% if g.pct %}{% if g.pct > 100 %}100{% else %}{{ g.pct|floatformat:0 }}{% endif %}{% else %}0{% endif %}%"></span></div>
+                    {% if not g.figure.available %}<p class="text-13 text-ink-muted mt-1">{{ g.figure.missing }}</p>{% endif %}
+                    {% if can_manage %}<form method="post" action="{% url 'reports:goal_toggle' workspace_id=workspace.id goal_id=g.goal.id %}" class="mt-2">{% csrf_token %}<button type="submit" class="btn btn-quiet btn-sm">Stop tracking<span class="sr-only"> {{ g.goal.name }}</span></button></form>{% endif %}
+                </li>{% empty %}<li class="px-5 py-4 text-14 text-ink-muted">No goals yet. Goals show on the dashboard, in client health and in monthly reports.</li>{% endfor %}</ul>
+            {% if inactive %}<div class="px-5 py-3 border-t border-hairline"><p class="meta mb-2">Stopped</p>{% for g in inactive %}<form method="post" action="{% url 'reports:goal_toggle' workspace_id=workspace.id goal_id=g.id %}" class="flex items-center justify-between gap-2 py-1">{% csrf_token %}<span class="text-14">{{ g.name }}</span>{% if can_manage %}<button type="submit" class="btn btn-quiet btn-sm">Track again<span class="sr-only"> {{ g.name }}</span></button>{% endif %}</form>{% endfor %}</div>{% endif %}
+        </section>
+        {% if can_manage %}
+        <form method="post" class="panel panel-body space-y-4" aria-labelledby="new-title">
+            {% csrf_token %}
+            <h2 id="new-title" class="section-title">New goal</h2>
+            {% for field in form %}<div class="field"><label class="label" for="{{ field.id_for_label }}">{{ field.label }}</label>{{ field }}{% if field.help_text %}<p class="meta">{{ field.help_text }}</p>{% endif %}{% for e in field.errors %}<p class="field-error">{{ e }}</p>{% endfor %}</div>{% endfor %}
+            {% for e in form.non_field_errors %}<p class="field-error">{{ e }}</p>{% endfor %}
+            <button type="submit" class="btn btn-primary">Add goal</button>
+        </form>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

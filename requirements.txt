@@ -20,6 +20,7 @@ django-storages[s3]>=1.14,<2.0
 Pillow>=10.4,<11.0
 # Brown Creative Studio: call sheet PDFs (LGPL-3.0, compatible with AGPL-3.0)
 fpdf2>=2.8,<3.0
+anthropic>=2.0,<3.0
 
 # Security
 django-csp>=3.8,<4.0

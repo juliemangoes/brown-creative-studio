@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-11-24 19:34+0000\n"
+"POT-Creation-Date: 2026-11-25 00:24+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -390,6 +390,7 @@ msgstr "Este documento no es un documento tributario certificado."
 #: apps/billing/templates/billing/email/proposal_sent.txt:1
 #: apps/billing/templates/billing/email/reminder.txt:1
 #: apps/conversations/templates/conversations/email/reply.txt:1
+#: apps/reports/templates/reports/email/report_shared.txt:1
 msgid "there"
 msgstr "estimado cliente"
 
@@ -399,6 +400,7 @@ msgstr "estimado cliente"
 #: apps/billing/templates/billing/email/proposal_sent.txt:1
 #: apps/billing/templates/billing/email/reminder.txt:1
 #: apps/conversations/templates/conversations/email/reply.txt:1
+#: apps/reports/templates/reports/email/report_shared.txt:1
 #, python-format
 msgid "Hello %(name)s,"
 msgstr "Hola, %(name)s:"
@@ -408,6 +410,7 @@ msgstr "Hola, %(name)s:"
 #: apps/billing/templates/billing/email/invoice_sent.txt:1
 #: apps/billing/templates/billing/email/proposal_sent.txt:1
 #: apps/billing/templates/billing/email/reminder.txt:1
+#: apps/reports/templates/reports/email/report_shared.txt:1
 msgid "Hello,"
 msgstr "Hola:"
 
@@ -649,6 +652,8 @@ msgstr "Consultar sobre esta factura"
 
 #: apps/billing/templates/billing/portal/invoice.html:8
 #: apps/billing/templates/billing/public_invoice.html:5
+#: apps/reports/templates/reports/portal/report.html:5
+#: apps/reports/templates/reports/public_report.html:5
 #: apps/shoots/templates/shoots/call_sheet.html:9
 msgid "Download PDF"
 msgstr "Descargar PDF"
@@ -720,7 +725,6 @@ msgid "Each month"
 msgstr "Cada mes"
 
 #: apps/billing/templates/billing/portal/proposal.html:17
-#| msgid "Each month"
 msgid "Included each month"
 msgstr "Incluye cada mes"
 
@@ -1377,7 +1381,7 @@ msgstr "Todavía no hay conversaciones."
 msgid "Reply"
 msgstr "Responder"
 
-#: apps/planning/portal.py:33
+#: apps/planning/portal.py:34
 #: apps/planning/templates/planning/portal/calendar.html:2
 #: apps/planning/templates/planning/portal/calendar.html:5
 msgid "Calendar"
@@ -1462,6 +1466,541 @@ msgstr "Todavía no hay proyectos para mostrar"
 msgid "When the studio starts work for you, its progress shows here."
 msgstr ""
 "Cuando el estudio empiece a trabajar para usted, el avance aparecerá aquí."
+
+#: apps/reports/catalog.py:26
+msgid "All platforms"
+msgstr "Todas las plataformas"
+
+#: apps/reports/catalog.py:28
+msgid "Not available from this platform"
+msgstr "Esta plataforma no lo ofrece"
+
+#: apps/reports/catalog.py:29
+msgid "Not collected yet"
+msgstr "Aún no se recopila"
+
+#: apps/reports/catalog.py:58
+msgid "Audience growth"
+msgstr "Crecimiento de la audiencia"
+
+#: apps/reports/catalog.py:59
+msgid ""
+"New followers in the period, minus those who left where the platform reports"
+" it."
+msgstr ""
+"Nuevos seguidores en el periodo, menos los que dejaron de seguir cuando la "
+"plataforma lo informa."
+
+#: apps/reports/catalog.py:68
+#: apps/reports/templates/reports/portal/index.html:27
+msgid "Views"
+msgstr "Reproducciones"
+
+#: apps/reports/catalog.py:69
+msgid "How many times the content was seen, counting repeat views."
+msgstr "Cuántas veces se vio el contenido, contando las vistas repetidas."
+
+#: apps/reports/catalog.py:78
+msgid "Unique viewers"
+msgstr "Espectadores únicos"
+
+#: apps/reports/catalog.py:79
+msgid ""
+"How many different accounts saw the content. People can't be added up across"
+" platforms."
+msgstr ""
+"Cuántas cuentas distintas vieron el contenido. Las personas no se pueden "
+"sumar entre plataformas."
+
+#: apps/reports/catalog.py:89
+#: apps/reports/templates/reports/portal/index.html:28
+msgid "Engagement"
+msgstr "Interacciones"
+
+#: apps/reports/catalog.py:90
+msgid ""
+"Likes or reactions, comments, shares and saves, where the platform reports "
+"each."
+msgstr ""
+"Me gusta o reacciones, comentarios, veces compartido y guardados, cuando la "
+"plataforma informa cada uno."
+
+#: apps/reports/catalog.py:99
+#: apps/reports/templates/reports/portal/index.html:29
+msgid "Engagement rate"
+msgstr "Tasa de interacción"
+
+#: apps/reports/catalog.py:100
+msgid "Engagement divided by views, as a percentage."
+msgstr "Interacciones divididas entre reproducciones, en porcentaje."
+
+#: apps/reports/catalog.py:106
+msgid "Comments"
+msgstr "Comentarios"
+
+#: apps/reports/catalog.py:107
+msgid "Comments on the content."
+msgstr "Comentarios en el contenido."
+
+#: apps/reports/catalog.py:116
+msgid "Shares"
+msgstr "Veces compartido"
+
+#: apps/reports/catalog.py:117
+msgid "Times the content was shared or sent on."
+msgstr "Veces que se compartió o reenvió el contenido."
+
+#: apps/reports/catalog.py:126
+msgid "Saves"
+msgstr "Guardados"
+
+#: apps/reports/catalog.py:127
+msgid "Times people saved the content to come back to."
+msgstr "Veces que alguien guardó el contenido para volver a verlo."
+
+#: apps/reports/catalog.py:136
+msgid "Link clicks"
+msgstr "Clics en enlaces"
+
+#: apps/reports/catalog.py:137
+msgid "Clicks on links in the content."
+msgstr "Clics en los enlaces del contenido."
+
+#: apps/reports/catalog.py:146
+msgid "Profile activity"
+msgstr "Actividad en el perfil"
+
+#: apps/reports/catalog.py:147
+msgid "Visits to the profile and taps on its buttons."
+msgstr "Visitas al perfil y toques en sus botones."
+
+#: apps/reports/catalog.py:156
+msgid "Video retention"
+msgstr "Retención de video"
+
+#: apps/reports/catalog.py:157
+msgid "How much of a video people watched, on average."
+msgstr "Qué parte de un video vieron las personas, en promedio."
+
+#: apps/reports/catalog.py:190
+msgid ""
+"Meta replaced Page reach with unique media viewers on 15 June 2026. Figures "
+"before and after are not comparable."
+msgstr ""
+"Meta reemplazó el alcance de la página por espectadores únicos el 15 de "
+"junio de 2026. Las cifras de antes y después no son comparables."
+
+#: apps/reports/pdf.py:65 apps/reports/templates/reports/_report_body.html:5
+#, python-format
+msgid "compared with %(previous)s"
+msgstr "comparado con %(previous)s"
+
+#: apps/reports/pdf.py:67
+#, python-format
+msgid "%(count)s posts published"
+msgstr "%(count)s publicaciones"
+
+#: apps/reports/pdf.py:74
+msgid "The month in figures"
+msgstr "El mes en cifras"
+
+#: apps/reports/pdf.py:82 apps/reports/templates/reports/_report_body.html:32
+msgid "Goals"
+msgstr "Objetivos"
+
+#: apps/reports/pdf.py:90 apps/reports/templates/reports/_report_body.html:43
+#, python-format
+msgid "Top posts by %(metric)s"
+msgstr "Mejores publicaciones por %(metric)s"
+
+#: apps/reports/pdf.py:106 apps/reports/templates/reports/_report_body.html:58
+#, python-format
+msgid "What worked, by %(metric)s"
+msgstr "Qué funcionó, por %(metric)s"
+
+#: apps/reports/pdf.py:114
+msgid "(few posts)"
+msgstr "(pocas publicaciones)"
+
+#: apps/reports/pdf.py:115
+msgid "posts"
+msgstr "publicaciones"
+
+#: apps/reports/pdf.py:118
+msgid "About these figures"
+msgstr "Sobre estas cifras"
+
+#: apps/reports/pdf.py:127 apps/reports/templates/reports/_figure.html:15
+msgid "Source"
+msgstr "Fuente"
+
+#: apps/reports/pdf.py:129 apps/reports/templates/reports/_figure.html:16
+msgid "Last updated"
+msgstr "Última actualización"
+
+#: apps/reports/pdf.py:132
+#, python-format
+msgid "Figures as of %(when)s."
+msgstr "Cifras al %(when)s."
+
+#: apps/reports/pdf.py:140 apps/reports/templates/reports/_report_body.html:21
+msgid "Metric"
+msgstr "Métrica"
+
+#: apps/reports/pdf.py:140 apps/reports/templates/reports/_report_body.html:21
+msgid "This period"
+msgstr "Este periodo"
+
+#: apps/reports/pdf.py:140 apps/reports/templates/reports/_report_body.html:21
+msgid "Change"
+msgstr "Cambio"
+
+#: apps/reports/pdf.py:140
+msgid "Note"
+msgstr "Nota"
+
+#: apps/reports/portal.py:43
+#: apps/reports/templates/reports/portal/index.html:2
+#: apps/reports/templates/reports/portal/index.html:5
+msgid "Results"
+msgstr "Resultados"
+
+#: apps/reports/portal.py:55
+#, python-format
+msgid "Your report for %(period)s is ready."
+msgstr "Su informe de %(period)s está listo."
+
+#: apps/reports/portal.py:57
+#: apps/reports/templates/reports/email/report_shared.html:3
+msgid "Read the report"
+msgstr "Leer el informe"
+
+#: apps/reports/presentation.py:20
+msgid "Calculated by the studio from the platform's running totals."
+msgstr ""
+"Calculado por el estudio a partir de los totales acumulados de la "
+"plataforma."
+
+#: apps/reports/presentation.py:21
+msgid "Total across platforms, which each count this their own way."
+msgstr "Total de varias plataformas, y cada una lo cuenta a su manera."
+
+#: apps/reports/presentation.py:22
+msgid ""
+"Not added up across platforms: someone who saw two accounts would count "
+"twice."
+msgstr ""
+"No se suma entre plataformas: alguien que vio dos cuentas contaría dos "
+"veces."
+
+#: apps/reports/presentation.py:23
+msgid "Includes figures imported from a file."
+msgstr "Incluye cifras importadas de un archivo."
+
+#: apps/reports/presentation.py:24
+msgid "No comparison: there is too little data for the previous period."
+msgstr "Sin comparación: hay muy pocos datos del periodo anterior."
+
+#: apps/reports/presentation.py:25
+msgid "No account connected"
+msgstr "No hay ninguna cuenta conectada"
+
+#: apps/reports/presentation.py:26
+msgid "Not available for these accounts"
+msgstr "No disponible para estas cuentas"
+
+#: apps/reports/presentation.py:27
+msgid "No data for this period yet"
+msgstr "Aún no hay datos de este periodo"
+
+#: apps/reports/presentation.py:28
+msgid "No views in this period"
+msgstr "No hubo reproducciones en este periodo"
+
+#: apps/reports/presentation.py:29
+msgid "No figures yet"
+msgstr "Aún no hay cifras"
+
+#: apps/reports/presentation.py:30
+msgid "No views yet"
+msgstr "Aún no hay reproducciones"
+
+#: apps/reports/presentation.py:31
+msgid "Pillar"
+msgstr "Pilar"
+
+#: apps/reports/presentation.py:32
+msgid "Format"
+msgstr "Formato"
+
+#: apps/reports/presentation.py:33
+msgid "Hook"
+msgstr "Gancho"
+
+#: apps/reports/presentation.py:34
+msgid "Length"
+msgstr "Duración"
+
+#: apps/reports/presentation.py:35
+msgid "Posting time"
+msgstr "Hora de publicación"
+
+#: apps/reports/presentation.py:36
+msgid "No pillar"
+msgstr "Sin pilar"
+
+#: apps/reports/presentation.py:37
+msgid "No hook written"
+msgstr "Sin gancho escrito"
+
+#: apps/reports/presentation.py:38
+msgid "Not a video"
+msgstr "No es video"
+
+#: apps/reports/presentation.py:39
+msgid "Under 15 s"
+msgstr "Menos de 15 s"
+
+#: apps/reports/presentation.py:40
+msgid "Over a minute"
+msgstr "Más de un minuto"
+
+#: apps/reports/presentation.py:41
+msgid "Morning (5–12)"
+msgstr "Mañana (5–12)"
+
+#: apps/reports/presentation.py:42
+msgid "Afternoon (12–17)"
+msgstr "Tarde (12–17)"
+
+#: apps/reports/presentation.py:43
+msgid "Evening (17–22)"
+msgstr "Noche (17–22)"
+
+#: apps/reports/presentation.py:44
+msgid "Night (22–5)"
+msgstr "Madrugada (22–5)"
+
+#: apps/reports/presentation.py:45
+msgid "Photo"
+msgstr "Foto"
+
+#: apps/reports/presentation.py:46
+msgid "Video"
+msgstr "Video"
+
+#: apps/reports/presentation.py:47
+msgid "Carousel"
+msgstr "Carrusel"
+
+#: apps/reports/presentation.py:48
+msgid "Text"
+msgstr "Texto"
+
+#: apps/reports/presentation.py:49
+msgid "Met"
+msgstr "Cumplido"
+
+#: apps/reports/presentation.py:50
+msgid "On track"
+msgstr "Vamos bien"
+
+#: apps/reports/presentation.py:51
+msgid "Behind"
+msgstr "Atrasado"
+
+#: apps/reports/presentation.py:52
+msgid "No data yet"
+msgstr "Aún sin datos"
+
+#: apps/reports/presentation.py:64
+#, python-format
+msgid "%(platform)s only."
+msgstr "Solo %(platform)s."
+
+#: apps/reports/presentation.py:230
+msgid "What happened"
+msgstr "Qué pasó"
+
+#: apps/reports/presentation.py:231
+msgid "Why it likely happened"
+msgstr "Por qué probablemente pasó"
+
+#: apps/reports/presentation.py:232
+msgid "What we'll do next"
+msgstr "Qué haremos a continuación"
+
+#: apps/reports/services.py:279
+#, python-format
+msgid "Your report is ready: %(title)s"
+msgstr "Su informe está listo: %(title)s"
+
+#: apps/reports/templates/reports/_figure.html:6
+msgid "vs previous period"
+msgstr "frente al periodo anterior"
+
+#: apps/reports/templates/reports/_figure.html:6
+msgid "Previous period"
+msgstr "Periodo anterior"
+
+#: apps/reports/templates/reports/_figure.html:6
+msgid "No comparison"
+msgstr "Sin comparación"
+
+#: apps/reports/templates/reports/_figure.html:10
+msgid "Combined"
+msgstr "Combinado"
+
+#: apps/reports/templates/reports/_figure.html:10
+msgid "Calculated"
+msgstr "Calculado"
+
+#: apps/reports/templates/reports/_figure.html:10
+msgid "Imported"
+msgstr "Importado"
+
+#: apps/reports/templates/reports/_figure.html:12
+msgid "What this means"
+msgstr "Qué significa"
+
+#: apps/reports/templates/reports/_figure.html:16
+msgid "not yet"
+msgstr "todavía no"
+
+#: apps/reports/templates/reports/_report_body.html:7
+#, python-format
+msgid "%(n)s post published"
+msgid_plural "%(n)s posts published"
+msgstr[0] "%(n)s publicación"
+msgstr[1] "%(n)s publicaciones"
+
+#: apps/reports/templates/reports/_report_body.html:13
+msgid "The period in figures"
+msgstr "El periodo en cifras"
+
+#: apps/reports/templates/reports/_report_body.html:19
+msgid "Daily views"
+msgstr "Reproducciones diarias"
+
+#: apps/reports/templates/reports/_report_body.html:21
+msgid "Source and notes"
+msgstr "Fuente y notas"
+
+#: apps/reports/templates/reports/_report_body.html:25
+msgid "updated"
+msgstr "actualizado"
+
+#: apps/reports/templates/reports/_report_body.html:51
+#: apps/reports/templates/reports/portal/index.html:31
+msgid "View the post"
+msgstr "Ver la publicación"
+
+#: apps/reports/templates/reports/_report_body.html:51
+#: apps/reports/templates/reports/portal/index.html:31
+msgid "opens in a new tab"
+msgstr "se abre en una pestaña nueva"
+
+#: apps/reports/templates/reports/_report_body.html:61
+msgid "Average"
+msgstr "Promedio"
+
+#: apps/reports/templates/reports/_report_body.html:61
+msgid "Posts"
+msgstr "Publicaciones"
+
+#: apps/reports/templates/reports/_report_body.html:61
+#, python-format
+msgid "%(n)s post"
+msgid_plural "%(n)s posts"
+msgstr[0] "%(n)s publicación"
+msgstr[1] "%(n)s publicaciones"
+
+#: apps/reports/templates/reports/_report_body.html:61
+msgid "few posts"
+msgstr "pocas publicaciones"
+
+#: apps/reports/templates/reports/_report_body.html:63
+msgid "Averages over a few posts are a hint, not proof."
+msgstr "Un promedio de pocas publicaciones es una pista, no una prueba."
+
+#: apps/reports/templates/reports/_report_body.html:66
+#, python-format
+msgid ""
+"Figures as of %(when)s. Each platform defines its metrics its own way; "
+"totals across platforms are marked Combined."
+msgstr ""
+"Cifras al %(when)s. Cada plataforma define sus métricas a su manera; los "
+"totales de varias plataformas se marcan como Combinado."
+
+#: apps/reports/templates/reports/email/report_shared.html:2
+#: apps/reports/templates/reports/email/report_shared.txt:3
+#, python-format
+msgid ""
+"Your report is ready: %(title)s. It covers what happened, why, and what "
+"we'll do next."
+msgstr ""
+"Su informe está listo: %(title)s. Explica qué pasó, por qué y qué haremos a "
+"continuación."
+
+#: apps/reports/templates/reports/portal/index.html:5
+msgid ""
+"Your published work and how it did, and the monthly reports from the studio."
+msgstr ""
+"Su contenido publicado y cómo le fue, y los informes mensuales del estudio."
+
+#: apps/reports/templates/reports/portal/index.html:8
+#: templates/client_portal/reports.html:2
+#: templates/client_portal/reports.html:7
+msgid "Reports"
+msgstr "Informes"
+
+#: apps/reports/templates/reports/portal/index.html:11
+msgid "Read"
+msgstr "Leer"
+
+#: apps/reports/templates/reports/portal/index.html:12
+msgid "Your first monthly report will appear here once the studio shares it."
+msgstr ""
+"Su primer informe mensual aparecerá aquí cuando el estudio lo comparta."
+
+#: apps/reports/templates/reports/portal/index.html:17
+msgid "Published work"
+msgstr "Contenido publicado"
+
+#: apps/reports/templates/reports/portal/index.html:17
+#, python-format
+msgid "The last %(days)s days. Figures are each post's totals so far."
+msgstr ""
+"Los últimos %(days)s días. Las cifras son el total de cada publicación hasta"
+" ahora."
+
+#: apps/reports/templates/reports/portal/index.html:18
+msgid "Platform"
+msgstr "Plataforma"
+
+#: apps/reports/templates/reports/portal/index.html:18
+msgid "All"
+msgstr "Todas"
+
+#: apps/reports/templates/reports/portal/index.html:27
+#: apps/reports/templates/reports/portal/index.html:28
+msgid "Not available"
+msgstr "No disponible"
+
+#: apps/reports/templates/reports/portal/index.html:33
+msgid "Nothing published in this period yet."
+msgstr "Aún no se ha publicado nada en este periodo."
+
+#: apps/reports/templates/reports/portal/index.html:34
+msgid ""
+"“Not available” means the platform doesn't report that figure for this post."
+msgstr ""
+"«No disponible» significa que la plataforma no informa esa cifra para esta "
+"publicación."
+
+#: apps/reports/templates/reports/portal/report.html:5
+msgid "All results"
+msgstr "Todos los resultados"
 
 #: apps/reviews/portal.py:36
 #, python-format
@@ -2047,11 +2586,6 @@ msgstr "Todavía no hay publicaciones"
 #: templates/client_portal/published.html:45
 msgid "Published content will appear here"
 msgstr "Aquí aparecerá el contenido publicado"
-
-#: templates/client_portal/reports.html:2
-#: templates/client_portal/reports.html:7
-msgid "Reports"
-msgstr "Informes"
 
 #: templates/client_portal/reports.html:8
 msgid "Performance reports shared with you"

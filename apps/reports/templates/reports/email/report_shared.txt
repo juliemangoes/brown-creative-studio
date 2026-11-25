@@ -1,0 +1,7 @@
+{% load i18n %}{% if user %}{% blocktranslate with name=user.name|default:_("there") %}Hello {{ name }},{% endblocktranslate %}{% else %}{% translate "Hello," %}{% endif %}
+
+{% blocktranslate with title=report.title %}Your report is ready: {{ title }}. It covers what happened, why, and what we'll do next.{% endblocktranslate %}
+
+{{ portal_url }}
+
+{{ site_name }}
