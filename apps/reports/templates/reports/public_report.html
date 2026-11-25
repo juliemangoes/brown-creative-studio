@@ -1,0 +1,8 @@
+{% extends "about/base_public.html" %}{% load i18n %}
+{% block title %}{{ report.title }} · {{ SITE_NAME }}{% endblock %}
+{% block content %}
+<div class="space-y-6">
+    <div class="flex justify-end"><a href="{% url 'reports_public:pdf' token=report.share_token %}" class="btn btn-secondary">{% translate "Download PDF" %}</a></div>
+    {% include "reports/_report_body.html" %}
+</div>
+{% endblock %}

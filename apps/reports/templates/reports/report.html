@@ -1,0 +1,70 @@
+{% extends "base.html" %}{% load ds %}
+{% block title %}{{ report.title }} · {{ SITE_NAME }}{% endblock %}
+{% block content %}
+<div class="w-full max-w-6xl mx-auto">
+    {% include "reports/_nav.html" with title=report.title nav="reports" %}
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
+        <div class="lg:col-span-2 space-y-6 min-w-0">
+            {% if report.is_editable and can_manage %}
+            <form method="post" class="panel" aria-labelledby="edit-title">
+                {% csrf_token %}
+                <div class="panel-header flex flex-wrap items-center justify-between gap-3">
+                    <h2 id="edit-title" class="section-title">Summary for the client</h2>
+                    {% if ai_provider %}<button type="submit" formaction="{% url 'reports:action' workspace_id=workspace.id report_id=report.id action='draft' %}" class="btn btn-secondary btn-sm"{% if report.what_happened %} onclick="return confirm('Replace the current summary with a new draft?')"{% endif %}>{% if report.what_happened %}Redraft with AI{% else %}Draft with AI{% endif %}</button>{% endif %}
+                </div>
+                <div class="panel-body space-y-4">
+                    {% if report.ai_drafted_at %}<p class="text-13 text-ink-muted" role="note">Drafted by {% if report.ai_provider == "mock" %}the test assistant (no AI service; written from the figures){% else %}{{ report.ai_provider }}{% endif %} on {{ report.ai_drafted_at|date:"j M, H:i" }}. Read it, check every figure, and edit before sending it for approval.</p>{% endif %}
+                    {% for w in report.ai_warnings %}<p class="text-14 text-danger">{{ w }}</p>{% endfor %}
+                    <div class="field"><label for="title" class="label">Title</label><input id="title" name="title" class="input" value="{{ report.title }}" maxlength="200"></div>
+                    <div class="field"><label for="what" class="label">What happened</label><textarea id="what" name="what_happened" class="textarea" rows="4">{{ report.what_happened }}</textarea></div>
+                    <div class="field"><label for="why" class="label">Why it likely happened</label><textarea id="why" name="why" class="textarea" rows="4">{{ report.why }}</textarea><p class="meta">Point to the comparisons below. Call anything based on a few posts a hypothesis.</p></div>
+                    <div class="field"><label for="next" class="label">What we'll do next</label><textarea id="next" name="next_steps" class="textarea" rows="3">{{ report.next_steps }}</textarea></div>
+                    <div class="field"><label for="rank" class="label">Rank content by</label><select id="rank" name="rank_by" class="select">{% for key, label in rank_choices %}<option value="{{ key }}"{% if key == report.rank_by %} selected{% endif %}>{{ label }}</option>{% endfor %}</select></div>
+                    {% if candidates %}
+                    <fieldset class="field"><legend class="label">Posts to feature</legend><p class="meta mb-2">Leave all unticked to show the top posts by the metric above.</p>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-1 max-h-64 overflow-y-auto">{% for p in candidates %}<label class="flex items-start gap-2 text-14"><input type="checkbox" name="highlights" value="{{ p.id }}" class="checkbox mt-1"{% if p.id in report.highlights %} checked{% endif %}><span>{{ p.title|truncatechars:60 }} <span class="meta">{{ p.platform|title }}</span></span></label>{% endfor %}</div></fieldset>
+                    {% endif %}
+                    <div class="field rounded-control border border-dashed border-hairline-strong p-3"><label for="notes" class="label">Internal notes <span class="status status-neutral ml-1">Studio only</span></label><textarea id="notes" name="internal_notes" class="textarea" rows="3">{{ report.internal_notes }}</textarea><p class="meta">Never shown to the client: not in the portal, the link or the PDF.</p></div>
+                </div>
+                <div class="px-5 pb-5 flex flex-wrap gap-2"><button type="submit" class="btn btn-primary">Save</button><button type="submit" formaction="{% url 'reports:action' workspace_id=workspace.id report_id=report.id action='refresh' %}" class="btn btn-secondary">Update the figures</button></div>
+            </form>
+            {% elif report.internal_notes %}
+            <section class="panel panel-body"><h2 class="section-title mb-1">Internal notes <span class="status status-neutral ml-1">Studio only</span></h2><p class="text-14 whitespace-pre-line">{{ report.internal_notes }}</p></section>
+            {% endif %}
+            <section aria-labelledby="preview-title">
+                <h2 id="preview-title" class="meta uppercase tracking-wide mb-3">What the client sees</h2>
+                <div class="panel panel-body">{% include "reports/_report_body.html" %}</div>
+            </section>
+        </div>
+        <aside class="space-y-6 min-w-0 lg:sticky lg:top-6">
+            <section class="panel panel-body space-y-3" aria-labelledby="status-title">
+                <div class="flex items-center justify-between gap-2"><h2 id="status-title" class="section-title">Status</h2>{% status "report" report.status %}</div>
+                <ol class="text-13 space-y-1">
+                    <li>{% if report.status != "draft" %}✓{% else %}1.{% endif %} Write and send for approval</li>
+                    <li>{% if report.status == "approved" or report.status == "shared" %}✓{% else %}2.{% endif %} Approved{% if report.approved_by %} by {{ report.approved_by.name|default:report.approved_by.email }}{% endif %}</li>
+                    <li>{% if report.status == "shared" %}✓{% else %}3.{% endif %} Shared with the client{% if report.shared_at %} {{ report.shared_at|date:"j M" }}{% endif %}</li>
+                </ol>
+                <div class="flex flex-col gap-2 pt-2">
+                    {% if report.status == "draft" and can_manage %}<form method="post" action="{% url 'reports:action' workspace_id=workspace.id report_id=report.id action='submit' %}">{% csrf_token %}<button type="submit" class="btn btn-primary w-full">Send for approval</button></form>{% endif %}
+                    {% if report.status == "in_review" and can_approve %}<form method="post" action="{% url 'reports:action' workspace_id=workspace.id report_id=report.id action='approve' %}">{% csrf_token %}<button type="submit" class="btn btn-primary w-full">Approve</button></form>{% endif %}
+                    {% if report.status == "approved" and can_approve %}<form method="post" action="{% url 'reports:action' workspace_id=workspace.id report_id=report.id action='share' %}">{% csrf_token %}<button type="submit" class="btn btn-primary w-full">Share in the client's portal</button></form>{% endif %}
+                    {% if report.status == "in_review" or report.status == "approved" %}{% if can_manage %}<form method="post" action="{% url 'reports:action' workspace_id=workspace.id report_id=report.id action='send_back' %}" class="space-y-2">{% csrf_token %}<label for="reason" class="sr-only">Why it goes back</label><input id="reason" name="reason" class="input" placeholder="What to change (optional)"><button type="submit" class="btn btn-secondary w-full">Back to draft</button></form>{% endif %}{% endif %}
+                    {% if report.status == "draft" and can_manage %}<form method="post" action="{% url 'reports:action' workspace_id=workspace.id report_id=report.id action='delete' %}" onsubmit="return confirm('Delete this draft?')">{% csrf_token %}<button type="submit" class="btn btn-quiet w-full">Delete draft</button></form>{% endif %}
+                </div>
+            </section>
+            <section class="panel panel-body space-y-3" aria-labelledby="share-title">
+                <h2 id="share-title" class="section-title">Export and share</h2>
+                <a href="{% url 'reports:pdf' workspace_id=workspace.id report_id=report.id %}" class="btn btn-secondary w-full">Download PDF</a>
+                {% if report.status == "approved" or report.status == "shared" %}
+                    {% if share_url %}
+                    <label for="share-url" class="label">Link anyone can open</label>
+                    <input id="share-url" class="input" value="{{ share_url }}" readonly onclick="this.select()">
+                    {% if can_approve %}<form method="post" action="{% url 'reports:action' workspace_id=workspace.id report_id=report.id action='revoke' %}">{% csrf_token %}<button type="submit" class="btn btn-quiet w-full">Turn the link off</button></form>{% endif %}
+                    {% elif can_approve %}<form method="post" action="{% url 'reports:action' workspace_id=workspace.id report_id=report.id action='link' %}">{% csrf_token %}<button type="submit" class="btn btn-secondary w-full">Create a link</button></form><p class="meta">For people without a portal login. You can turn it off any time.</p>{% endif %}
+                {% else %}<p class="meta">Once approved, share it in the portal or as a link.</p>{% endif %}
+            </section>
+            {% if report.is_editable %}<p class="meta">Figures updated {{ computed }}. Approving freezes them.</p>{% else %}<p class="meta">Figures frozen at approval ({{ computed }}).</p>{% endif %}
+        </aside>
+    </div>
+</div>
+{% endblock %}

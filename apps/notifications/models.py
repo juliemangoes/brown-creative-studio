@@ -31,6 +31,8 @@ class EventType(models.TextChoices):
     # Brown Creative Studio (CHANGES.md): publishing (Phase 6).
     MANUAL_PUBLISH = "manual_publish", "A post needs posting by hand"
     PUBLISH_CHECK = "publish_check", "A scheduled post has a problem"
+    # Brown Creative Studio (CHANGES.md): reports (Phase 7).
+    REPORT_REVIEW = "report_review", "A report is waiting for approval"
 
 
 class Channel(models.TextChoices):

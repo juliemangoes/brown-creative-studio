@@ -1,0 +1,26 @@
+{% extends "base.html" %}{% load ds %}
+{% block title %}Monthly reports · {{ workspace.name }} · {{ SITE_NAME }}{% endblock %}
+{% block content %}
+<div class="w-full max-w-6xl mx-auto">
+    {% include "reports/_nav.html" with title="Monthly reports" nav="reports" %}
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
+        <section class="panel lg:col-span-2" aria-labelledby="r-title">
+            <div class="panel-header"><h2 id="r-title" class="section-title">Reports</h2></div>
+            <ul class="divide-y divide-hairline">{% for r in reports %}
+                <li class="px-5 py-3 flex flex-wrap items-center justify-between gap-3">
+                    <div class="min-w-0"><a href="{% url 'reports:report' workspace_id=workspace.id report_id=r.id %}" class="text-14 font-medium link">{{ r.title }}</a><p class="meta">{{ r.period_start|date:"j M" }} – {{ r.period_end|date:"j M Y" }}{% if r.shared_at %} · shared {{ r.shared_at|date:"j M" }}{% endif %}</p></div>
+                    {% status "report" r.status %}
+                </li>{% empty %}<li class="px-5 py-3 text-14 text-ink-muted">No reports yet.</li>{% endfor %}</ul>
+        </section>
+        {% if can_manage %}
+        <form method="post" action="{% url 'reports:create' workspace_id=workspace.id %}" class="panel panel-body space-y-4" aria-labelledby="new-title">
+            {% csrf_token %}
+            <h2 id="new-title" class="section-title">Start a monthly report</h2>
+            <div class="field"><label for="month" class="label">Month</label><select id="month" name="month" class="select">{% for value, first in months %}<option value="{{ value }}"{% if forloop.counter == 2 %} selected{% endif %}>{{ first|date:"F Y" }}</option>{% endfor %}</select></div>
+            <div class="field"><label for="rank_by" class="label">Rank content by</label><select id="rank_by" name="rank_by" class="select">{% for key, label in rank_choices %}<option value="{{ key }}"{% if key == "engagement" %} selected{% endif %}>{{ label }}</option>{% endfor %}</select><p class="meta">The client's main goal for the month decides which posts are "top".</p></div>
+            <button type="submit" class="btn btn-primary">Start the report</button>
+        </form>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

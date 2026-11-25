@@ -115,6 +115,14 @@
             </section>
             {% endif %}
 
+            {% if today.reports_to_approve %}
+            <section class="panel" aria-labelledby="rep-title">
+                <div class="panel-header"><h2 id="rep-title" class="section-title">Reports to approve <span class="tabular-nums text-ink-muted font-normal">{{ today.reports_to_approve|length }}</span></h2></div>
+                <ul class="divide-y divide-hairline">{% for r in today.reports_to_approve %}
+                    <li class="flex flex-wrap items-center justify-between gap-3 px-5 py-3"><div class="min-w-0">{% if not today.selected %}<p class="meta">{{ r.workspace.name }}</p>{% endif %}<a href="{% url 'reports:report' workspace_id=r.workspace_id report_id=r.id %}" class="text-14 font-medium text-ink hover:underline">{{ r.title }}</a></div><a href="{% url 'reports:report' workspace_id=r.workspace_id report_id=r.id %}" class="btn btn-secondary btn-sm">Review<span class="sr-only"> {{ r.title }}</span></a></li>{% endfor %}</ul>
+            </section>
+            {% endif %}
+
             {# ── Overdue tasks ─────────────────────────────────────────── #}
             {% if today.overdue_tasks %}
             <section class="panel" aria-labelledby="tasks-title">

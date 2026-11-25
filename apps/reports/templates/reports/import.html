@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% block title %}Import figures · {{ workspace.name }} · {{ SITE_NAME }}{% endblock %}
+{% block content %}
+<div class="w-full max-w-6xl mx-auto">
+    {% include "reports/_nav.html" with title="Import figures" nav="import" %}
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
+        <div class="lg:col-span-2 space-y-6">
+            <section class="panel panel-body space-y-2 text-14" aria-labelledby="how-title">
+                <h2 id="how-title" class="section-title">When to import</h2>
+                <p>For figures an API does not give: TikTok's own exports, or older months from before the account was connected. Imported figures fill only days with no data from the platform, and are always labelled <span class="status status-neutral">Imported</span>.</p>
+                <p>A CSV file with a header row <code>date,metric,value</code>, one row per day, dates as <code>YYYY-MM-DD</code>. Metrics: {{ metrics|join:", " }}.</p>
+                <pre class="bg-sunken rounded-control p-3 text-13 overflow-x-auto">date,metric,value
+2026-10-01,views,1840
+2026-10-01,engagement,96</pre>
+            </section>
+            <section class="panel" aria-labelledby="recent-title">
+                <div class="panel-header"><h2 id="recent-title" class="section-title">Recently imported</h2></div>
+                <ul class="divide-y divide-hairline">{% for row in recent %}<li class="px-5 py-2 text-14 flex justify-between gap-3"><span>{{ row.social_account.account_name }} · {{ row.metric }} · {{ row.date|date:"j M Y" }}</span><span class="tabular-nums">{{ row.value|floatformat:"-2g" }} <span class="meta">{{ row.source_name }}</span></span></li>{% empty %}<li class="px-5 py-3 text-14 text-ink-muted">Nothing imported yet.</li>{% endfor %}</ul>
+            </section>
+        </div>
+        {% if can_manage %}
+        <form method="post" enctype="multipart/form-data" class="panel panel-body space-y-4" aria-labelledby="up-title">
+            {% csrf_token %}
+            <h2 id="up-title" class="section-title">Upload a CSV</h2>
+            <div class="field"><label for="account" class="label">Account</label><select id="account" name="account" class="select" required>{% for a in accounts %}<option value="{{ a.id }}">{{ a.get_platform_display }} · {{ a.account_name }}</option>{% empty %}<option value="">No accounts</option>{% endfor %}</select></div>
+            <div class="field"><label for="file" class="label">File</label><input id="file" name="file" type="file" accept=".csv,text/csv" required class="input"></div>
+            <button type="submit" class="btn btn-primary">Import</button>
+        </form>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

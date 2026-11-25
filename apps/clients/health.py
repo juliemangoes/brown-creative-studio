@@ -163,6 +163,22 @@ def invoices_signal(workspace, today=None) -> Signal | None:
     )
 
 
+def goals_signal(workspace, today=None) -> Signal | None:
+    """Performance against the client's goals this period (apps.reports). None when no goals are set."""
+    from apps.reports.figures import goals_progress
+
+    progress = [g for g in goals_progress(workspace, today) if g.status != "no_data"]
+    if not progress:
+        return None
+    url = reverse("reports:goals", kwargs={"workspace_id": workspace.id})
+    behind = [g for g in progress if g.status == "behind"]
+    if behind:
+        names = ", ".join(g.goal.name for g in behind[:2])
+        return Signal("goals", "Goals", "warning", f"{len(behind)} of {len(progress)} behind: {names}.", url)
+    met = sum(1 for g in progress if g.status == "met")
+    return Signal("goals", "Goals", "success", f"{len(progress)} on track" + (f", {met} met." if met else "."), url)
+
+
 def client_health(workspace, now=None, *, include_billing=False) -> Health:
     from apps.clients.models import ClientProfile, Retainer
 
@@ -185,6 +201,9 @@ def client_health(workspace, now=None, *, include_billing=False) -> Health:
     account = accounts_signal(workspace)
     if account:
         signals.append(account)
+    goals = goals_signal(workspace, timezone.localdate(now))
+    if goals:
+        signals.append(goals)
     if include_billing:
         invoices = invoices_signal(workspace)
         if invoices:

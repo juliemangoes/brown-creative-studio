@@ -110,8 +110,9 @@ def test_switching_client_keeps_the_section(client, studio):
     client.force_login(studio["owner"])
     html = client.get(reverse("analytics:index", kwargs={"workspace_id": studio["restaurant"].id})).content.decode()
     commands = {c["label"]: c for c in _commands(html) if c["group"] == "Switch client"}
+    # The Reports section opens a client's Results (Phase 7), whichever page of it you were on.
     assert commands["Luma Skincare"]["url"] == reverse(
-        "analytics:index", kwargs={"workspace_id": studio["skincare"].id}
+        "reports:dashboard", kwargs={"workspace_id": studio["skincare"].id}
     )
 
 
